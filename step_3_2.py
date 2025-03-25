@@ -9,7 +9,11 @@ from step_3_1 import generate_quiz
 
 def init_page():
     st.set_page_config(layout="wide")
-    st.title("🔊 만들면서 배우는 영어 받아쓰기 웹 앱")
+    st.markdown(
+        """
+        <h1 style='text-align: left; background: -webkit-linear-gradient(left, #1E90FF, #000080); -webkit-background-clip: text; -webkit-text-fill-color: transparent;'>🔊 영어 받아쓰기 웹 앱</h1>
+        """, unsafe_allow_html=True)
+
     init_session(dict(quiz=[], answ=[], voice="en-US-Journey-F"))
     
 def set_quiz(img: ImageFile.ImageFile):
