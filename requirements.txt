@@ -1,0 +1,6 @@
+streamlit
+google-generativeai
+google-cloud-texttospeech
+google-auth
+Pillow
+nltk
