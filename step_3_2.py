@@ -1,33 +1,35 @@
 import streamlit as st
+from streamlit_extras.stylable_container import stylable_container
 from PIL import ImageFile
 from pathlib import Path
 from step_1_1 import OUT_DIR
 from step_1_2 import uploaded_image
 from step_1_3 import clear_session, init_session
 from step_2_2 import synth_speech
-from step_3_1 import generate_quiz
-from step_3_1 import generate_feedback
+from step_3_1 import generate_quiz, generate_feedback
 
 
 def init_page():
     st.set_page_config(layout="wide")
     st.markdown(
         """
-        <h1 style='text-align: left; background: -webkit-linear-gradient(left, #1E90FF, #000080); -webkit-background-clip: text; -webkit-text-fill-color: transparent;'>🔊 영어 받아쓰기 연습 웹 앱</h1>
+        <h1 style='text-align: center; font-size:48px; color: #4B89DC;'>🔊 영어 받아쓰기 연습</h1>
         """, unsafe_allow_html=True)
 
     st.markdown(
         """
-        #### 📌 서비스 소개
-        이 서비스는 이미지에서 영어 문장을 생성하고 이를 듣고 받아쓰면서 영어 실력을 향상시키는 연습을 할 수 있도록 도와주는 웹 앱입니다. 왼쪽의 **이미지 붙여넣기**를 클릭해 원하는 이미지를 업로드하면 자동으로 문제가 생성됩니다.
-        """)
+        <p style='text-align: center; font-size: 20px; color: #555;'>
+        이미지를 올려주시면, AI가 문장을 생성해 문제를 출제합니다. 문장을 잘 듣고 빈칸을 채워보세요!<br>
+        왼쪽의 <b>이미지 붙여넣기 📷</b> 에서 시작할 수 있습니다.
+        </p>
+        """, unsafe_allow_html=True)
 
     init_session(dict(quiz=[], answ=[], voice="en-US-Journey-F"))
 
 
 def set_quiz(img: ImageFile.ImageFile):
     if img and not st.session_state["quiz"]:
-        with st.spinner("문제를 출제중입니다...🤯"):
+        with st.spinner("문제를 준비 중입니다...🤔"):
             quiz, answ = generate_quiz(img)
 
             audio = []
@@ -44,52 +46,52 @@ def set_quiz(img: ImageFile.ImageFile):
 
 
 def show_quiz():
-    zipped = zip(
-        range(len(st.session_state["quiz"])),
-        st.session_state["quiz"],
-        st.session_state["answ"],
-        st.session_state["audio"],
-    )
+    st.divider()
+    st.markdown("### 📌 문장을 듣고 빈칸을 채워주세요!")
 
-    st.write("### 다음 문항의 빈칸을 듣고 채우시오.")
-
-    for idx, quiz, answ, audio in zipped:
+    for idx, (quiz, answ, audio) in enumerate(zip(st.session_state["quiz"], st.session_state["answ"], st.session_state["audio"])):
         key_input, key_feedback = f"input_{idx}", f"feedback_{idx}"
         init_session({key_input: "", key_feedback: ""})
 
-        with st.form(f"form_question_{idx}", border=True):
-            st.success(f"### {quiz}")
+        with stylable_container(key=f"form_question_{idx}", css_styles="""
+            {
+                background-color: #F0F8FF;
+                border-radius: 10px;
+                padding: 20px;
+                box-shadow: 0px 2px 4px rgba(0,0,0,0.1);
+                margin-bottom: 20px;
+            }
+            """):
             st.audio(audio)
 
-            col_user_input, col_submit = st.columns([8, 2])
-            with col_user_input:
-                user_input = st.text_input(
-                    key_input,
-                    value=st.session_state[key_input],
-                    key=key_input,
-                    label_visibility="collapsed",
-                    placeholder="정답을 입력하세요"
-                )
-            with col_submit:
-                submitted = st.form_submit_button("정답 제출", use_container_width=True)
+            quiz_display = quiz.replace("_____", "🔲")
+            st.markdown(f"<p style='font-size:20px; color:#333;'><b>문제:</b> {quiz_display}</p>", unsafe_allow_html=True)
+
+            user_input = st.text_input(
+                "정답을 입력하세요👇",
+                value=st.session_state[key_input],
+                key=key_input,
+                placeholder="빈칸에 들어갈 단어를 정확히 입력하세요!",
+            )
+
+            submitted = st.button("정답 제출 ✅", key=f"submit_{idx}")
 
             if user_input and submitted:
-                with st.spinner("채점 중입니다..."):
+                with st.spinner("정답 확인 중입니다...🔍"):
                     feedback = generate_feedback(user_input, answ)
                     st.session_state[key_feedback] = feedback
 
             if st.session_state[key_feedback]:
-                with st.expander("해설 보기", expanded=True):
+                with st.expander("📚 해설 및 정답 보기", expanded=True):
+                    st.markdown(f"**정답:** {answ}")
                     st.markdown(st.session_state[key_feedback])
 
 
 def reset_quiz():
     if st.session_state["quiz"]:
-        with st.form("form_reset", border=False):
-            if st.form_submit_button(label="새로운 문제 풀어보기",
-                                     use_container_width=True, type="primary"):
-                clear_session()
-                st.rerun()
+        if st.button("🔄 새로운 문제로 연습하기", type="primary"):
+            clear_session()
+            st.rerun()
 
 
 if __name__ == "__main__":
