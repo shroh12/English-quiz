@@ -62,7 +62,3 @@ if __name__ == "__main__":
         set_quiz(img)  # 퀴즈 출제
         show_quiz()  # 퀴즈 출력
         reset_quiz()  # 퀴즈 재출제
-
-        set_quiz(img)  # 퀴즈 출제
-        show_quiz()  # 퀴즈 출력
-        reset_quiz()  # 퀴즈 재출제
