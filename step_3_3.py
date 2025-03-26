@@ -54,11 +54,6 @@ def show_quiz():  # 퀴즈 출력 위젯
                 with st.expander("해설 보기", expanded=True):
                     for f_idx, fb in enumerate(feedbacks, start=1):
                         st.markdown(f"**정답 {f_idx}에 대한 피드백:** {fb}")
-                        st.session_state["answ"] = [
-    ["정답1", "정답2"],  # 첫 번째 퀴즈는 정답 2개
-    ["정답3"],          # 두 번째 퀴즈는 정답 1개
-    ["정답4", "정답5", "정답6"]  # 세 번째 퀴즈는 정답 3개
-]
 
 
 if __name__ == "__main__":
