@@ -20,8 +20,8 @@ def init_page():
         <h1 style='text-align: center; font-size:48px; color: #4B89DC;'>🔊 영어 받아쓰기 연습</h1>
         """, unsafe_allow_html=True)	
 
-    img = Image.open('img/angmose.jpg')
-    img = img.resize((500, 500))
+    img = Image.open('img/angmose.jpg').resize((500, 500))
+    st.image(img, use_column_width="auto")
 
 # 중앙 정렬된 이미지 렌더링
     st.markdown(
