@@ -14,20 +14,18 @@ def generate_quiz(img: ImageFile.ImageFile) -> tuple[list, list]:
     model_quiz = get_model(sys_prompt=prompt_quiz.read_text(encoding="utf8"))
     resp_quiz = model_quiz.generate_content(resp_desc.text)  # 퀴즈 생성
     return tokenize_sent(resp_quiz.text), tokenize_sent(resp_desc.text)
+def generate_feedback(user_inputs: list[str], answers: list[str]) -> str:
+    # 학생 입력과 정답을 표 형식으로 묶음
+    input_table = ""
+    for i, (inp, ans) in enumerate(zip(user_inputs, answers), start=1):
+        input_table += f"Blank {i}:\n- Student's Input: {inp}\n- Correct Answer: {ans}\n\n"
 
-def generate_feedback(user_input: str, answ: list) -> str:
-    # 빈칸마다 개별 피드백 제공
-    feedback = ""
-    for idx, correct_answer in enumerate(answ):
-        feedback += f"**정답 {idx + 1}:** 학생 답변: {user_input[idx] if idx < len(user_input) else '빈칸'}\n"
-        feedback += f"정답: {correct_answer}\n"
-        feedback += f"피드백: "
-        # 피드백 로직을 추가하여 학생의 답변과 정답을 비교
-        if user_input[idx].strip().lower() == correct_answer.lower():
-            feedback += "정확합니다! 좋은 접근입니다.\n"
-        else:
-            feedback += "정답을 다시 확인해 보세요.\n"
-    return feedback
+    prompt_template = (IN_DIR / "p3_feedback_multi.txt").read_text(encoding="utf-8")
+    prompt = prompt_template.format(input_table=input_table)
+
+    model = get_model()
+    resp = model.generate_content(prompt)
+    return resp.text
 
 
 
