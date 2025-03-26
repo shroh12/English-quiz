@@ -65,23 +65,26 @@ def generate_feedback(user_inputs: list[str], answers: list[str]) -> str:
     resp = model.generate_content(prompt)
     return resp.text
 
-
 def set_quiz(img: ImageFile.ImageFile):
     if img and not st.session_state["quiz"]:
         with st.spinner("문제를 준비 중입니다...🤔"):
-            quiz, answ = generate_quiz(img)
-            answ_list = preprocess_answers(quiz, answ)
+            quiz_text, answer_text = generate_quiz(img)  # quiz_text는 str
+            answer_list = preprocess_answers(quiz_text, answer_text)
 
             audio = []
-            wav_file = synth_speech(quiz, st.session_state["voice"], "wav")
+
+            # 🔥 수정된 부분: quiz_text는 str이므로 그대로 음성 생성
+            wav_file = synth_speech(quiz_text, st.session_state["voice"], "wav")
             path = OUT_DIR / f"quiz_0.wav"
             with open(path, "wb") as fp:
                 fp.write(wav_file)
                 audio.append(path.as_posix())
 
-            st.session_state["quiz"] = [quiz]
-            st.session_state["answ"] = [answ_list]
+            # 문제와 정답은 리스트 형태로 감싸 저장
+            st.session_state["quiz"] = [quiz_text]
+            st.session_state["answ"] = [answer_list]
             st.session_state["audio"] = audio
+
 
 
 def show_quiz():
