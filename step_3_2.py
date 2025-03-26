@@ -10,7 +10,11 @@ from step_3_1 import generate_quiz, generate_feedback
 
 
 def init_page():
-    st.set_page_config(layout="wide")
+    st.set_page_config(
+    layout="wide",
+    page_icon="🦜",  # 앵무새 이모지로 변경
+)
+
     st.markdown(
         """
         <h1 style='text-align: center; font-size:48px; color: #4B89DC;'>🔊 영어 받아쓰기 연습</h1>
