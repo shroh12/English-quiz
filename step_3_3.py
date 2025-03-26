@@ -33,26 +33,6 @@ def show_quiz():  # 퀴즈 출력 위젯
                     key=key_input,
                     value=st.session_state[key_input]
                 )
-                st.text_input(
-                    label=f"정답 입력 {answ_idx + 1}",
-                    key=key_input,
-                    value=st.session_state[key_input]
-                )
-                st.text_input(
-                    label=f"정답 입력 {answ_idx + 1}",
-                    key=key_input,
-                    value=st.session_state[key_input]
-                )
-                st.text_input(
-                    label=f"정답 입력 {answ_idx + 1}",
-                    key=key_input,
-                    value=st.session_state[key_input]
-                )
-                st.text_input(
-                    label=f"정답 입력 {answ_idx + 1}",
-                    key=key_input,
-                    value=st.session_state[key_input]
-                )
                 user_inputs.append(user_input)
 
             submitted = st.form_submit_button("정답 제출", use_container_width=True)
