@@ -33,7 +33,21 @@ def init_page():
         """, unsafe_allow_html=True)
 
     init_session(dict(quiz=[], answ=[], voice="en-US-Journey-F"))
+
+def preprocess_answers(quiz: str, answ: str):
+    # 빈칸의 개수 세기
+    num_blanks = quiz.count("_____")
     
+    # 빈칸 개수만큼 정답을 나누기
+    answ_list = answ.split(",")  # 쉼표로 구분된 정답을 나누기
+    
+    # 빈칸 개수와 정답의 개수가 맞지 않으면 오류
+    if len(answ_list) != num_blanks:
+        raise ValueError("빈칸의 개수와 정답 개수가 맞지 않습니다.")
+
+    return answ_list
+
+
 def set_quiz(img: ImageFile.ImageFile):
     if img and not st.session_state["quiz"]:
         with st.spinner("문제를 준비 중입니다...🤔"):
