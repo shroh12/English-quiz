@@ -1,6 +1,6 @@
 import streamlit as st
 from streamlit_extras.stylable_container import stylable_container
-from PIL import ImageFile, Image, Image_to_base64
+from PIL import ImageFile, Image
 from pathlib import Path
 from step_1_1 import OUT_DIR
 from step_1_2 import uploaded_image
@@ -23,16 +23,6 @@ def init_page():
     img = Image.open('img/angmose.jpg')
     img = img.resize((500, 500))
     st.image(img)
-
-    # 중앙 정렬된 이미지 렌더링
-    st.markdown(
-        f"""
-        <div style='text-align: center;'>
-            <img src='data:image/png;base64,{Image_to_base64(img)}' width='500'/>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
 
     st.markdown(
         """
