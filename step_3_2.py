@@ -23,7 +23,10 @@ def init_page():
     img = Image.open('img/angmose.jpg')
 	# 경로에 있는 이미지 파일을 통해 변수 저장
     st.image(img)
+	img = img.resize((500, 500))  # 이미지 크기 리사이즈
+
 	# streamlit를 통해 이미지를 보여준다.
+
     
     st.markdown(
         """
