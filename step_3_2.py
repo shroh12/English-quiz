@@ -21,9 +21,18 @@ def init_page():
         """, unsafe_allow_html=True)	
 
     img = Image.open('img/angmose.jpg')
-    img = img.resize((500, 500))  # 이미지 크기 리사이즈
-    st.image(img)
-    
+    img = img.resize((500, 500))
+
+# 중앙 정렬된 이미지 렌더링
+    st.markdown(
+        f"""
+        <div style='text-align: center;'>
+            <img src='data:image/png;base64,{Image_to_base64(img)}' width='500'/>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
     st.markdown(
         """
         <p style='text-align: center; font-size: 20px; color: #555;'>
