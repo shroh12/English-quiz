@@ -1,6 +1,6 @@
 import streamlit as st
 from streamlit_extras.stylable_container import stylable_container
-from PIL import ImageFile, Image
+from PIL import ImageFile, Image, Image_to_base64
 from pathlib import Path
 from step_1_1 import OUT_DIR
 from step_1_2 import uploaded_image
