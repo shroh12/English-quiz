@@ -25,11 +25,11 @@ def show_quiz():  # 퀴즈 출력 위젯
 
             # 정답 개수만큼 입력창 생성
             for answ_idx in range(len(answ_list)):
-                key_input = f"input_{idx}_{answ_idx}"
+                key_input = f"input_{idx}_{answ_idx + 1}"
                 init_session({key_input: ""})
 
                 user_input = st.text_input(
-                    label=f"정답 입력 {answ_idx + 123456}",
+                    label=f"정답 입력 {answ_idx + 1}",
                     key=key_input,
                     value=st.session_state[key_input]
                 )
