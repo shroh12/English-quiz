@@ -19,6 +19,12 @@ def init_page():
         """
         <h1 style='text-align: center; font-size:48px; color: #4B89DC;'>🔊 영어 받아쓰기 연습</h1>
         """, unsafe_allow_html=True)
+    st.markdown(
+    "<p style='text-align: center;'>"
+    "<img src='data:image/png;base64,{}' style='width:100px; height:auto;'>"
+    "</p>".format(base64.b64encode(open("앵무새 이미지.png", "rb").read()).decode()),
+    unsafe_allow_html=True
+)
 
     st.markdown(
         """
