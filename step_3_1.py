@@ -15,14 +15,20 @@ def generate_quiz(img: ImageFile.ImageFile) -> tuple[list, list]:
     resp_quiz = model_quiz.generate_content(resp_desc.text)  # 퀴즈 생성
     return tokenize_sent(resp_quiz.text), tokenize_sent(resp_desc.text)
 
+def generate_feedback(user_input: str, answ: list) -> str:
+    # 빈칸마다 개별 피드백 제공
+    feedback = ""
+    for idx, correct_answer in enumerate(answ):
+        feedback += f"**정답 {idx + 1}:** 학생 답변: {user_input[idx] if idx < len(user_input) else '빈칸'}\n"
+        feedback += f"정답: {correct_answer}\n"
+        feedback += f"피드백: "
+        # 피드백 로직을 추가하여 학생의 답변과 정답을 비교
+        if user_input[idx].strip().lower() == correct_answer.lower():
+            feedback += "정확합니다! 좋은 접근입니다.\n"
+        else:
+            feedback += "정답을 다시 확인해 보세요.\n"
+    return feedback
 
-def generate_feedback(user_input: str, answ: str) -> str:
-    prompt_feedback = IN_DIR / "p3_feedback.txt"  # 피드백 생성 프롬프트 템플릿
-    text = prompt_feedback.read_text(encoding="utf8")  # 템플릿 불러오기
-    prompt = text.format(user_input, answ)  # 중괄호 {}를 사용자 입력과 정답으로 대체
-    model = get_model()  # 시스템 프롬프트를 사용하지 않는 모델 객체 생성
-    resp = model.generate_content(prompt)  # 피드백 생성
-    return resp.text
 
 
 if __name__ == "__main__":
