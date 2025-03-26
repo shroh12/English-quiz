@@ -33,14 +33,17 @@ def init_page():
         """, unsafe_allow_html=True)
 
     init_session(dict(quiz=[], answ=[], voice="en-US-Journey-F"))
-
+    
 def set_quiz(img: ImageFile.ImageFile):
     if img and not st.session_state["quiz"]:
         with st.spinner("문제를 준비 중입니다...🤔"):
             quiz, answ = generate_quiz(img)
 
+            # 정답을 n개로 나누는 전처리 과정
+            answ_list = preprocess_answers(quiz, answ)
+
             audio = []
-            for idx, sent in enumerate(answ):
+            for idx, sent in enumerate(answ_list):
                 wav_file = synth_speech(sent, st.session_state["voice"], "wav")
                 path = OUT_DIR / f"{Path(__file__).stem}_{idx}.wav"
                 with open(path, "wb") as fp:
@@ -48,9 +51,8 @@ def set_quiz(img: ImageFile.ImageFile):
                     audio.append(path.as_posix())
 
             st.session_state["quiz"] = quiz
-            st.session_state["answ"] = answ
+            st.session_state["answ"] = answ_list  # 변경된 정답 리스트 저장
             st.session_state["audio"] = audio
-
 
 def show_quiz():
     st.divider()
@@ -60,38 +62,31 @@ def show_quiz():
         key_input, key_feedback = f"input_{idx}", f"feedback_{idx}"
         init_session({key_input: "", key_feedback: ""})
 
-        with stylable_container(key=f"form_question_{idx}", css_styles="""
-            {
-                background-color: #F0F8FF;
-                border-radius: 10px;
-                padding: 20px;
-                box-shadow: 0px 2px 4px rgba(0,0,0,0.1);
-                margin-bottom: 20px;
-            }
-            """):
+        with stylable_container(key=f"form_question_{idx}", css_styles=""" { background-color: #F0F8FF; border-radius: 10px; padding: 20px; box-shadow: 0px 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; } """):
             st.audio(audio)
 
+            # 빈칸에 맞게 텍스트를 변경
             quiz_display = quiz.replace("_____", "🔲")
             st.markdown(f"<p style='font-size:20px; color:#333;'><b>문제:</b> {quiz_display}</p>", unsafe_allow_html=True)
 
-            user_input = st.text_input(
-                "정답을 입력하세요👇",
-                value=st.session_state[key_input],
-                key=key_input,
-                placeholder="빈칸에 들어갈 단어를 정확히 입력하세요!",
-            )
+            # n개로 나뉜 입력 칸을 생성
+            user_inputs = []
+            for i in range(len(answ)):
+                user_input = st.text_input(f"정답 입력 {i + 1}", value=st.session_state[key_input], key=f"{key_input}_{i}")
+                user_inputs.append(user_input)
 
             submitted = st.button("정답 제출 ✅", key=f"submit_{idx}")
 
-            if user_input and submitted:
+            if user_inputs and submitted:
                 with st.spinner("정답 확인 중입니다...🔍"):
-                    feedback = generate_feedback(user_input, answ)
+                    feedback = generate_feedback(user_inputs, answ)
                     st.session_state[key_feedback] = feedback
 
             if st.session_state[key_feedback]:
                 with st.expander("📚 해설 및 정답 보기", expanded=True):
                     st.markdown(f"**정답:** {answ}")
                     st.markdown(st.session_state[key_feedback])
+
 
 
 def reset_quiz():
