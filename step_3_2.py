@@ -6,42 +6,36 @@ from step_1_1 import OUT_DIR
 from step_1_2 import uploaded_image
 from step_1_3 import clear_session, init_session
 from step_2_2 import synth_speech
-from step_3_1 import generate_quiz, generate_feedback
+from step_3_1 import generate_quiz, get_model
+
+IN_DIR = Path("input")
 
 
 def init_page():
-    st.set_page_config(
-    layout="wide", 
-    page_icon="🦜",  # 앵무새 이모지로 변경
-)
-
-    st.markdown(
-        """
+    st.set_page_config(layout="wide", page_icon="🦜")
+    st.markdown("""
         <h1 style='text-align: center; font-size:48px; color: #4B89DC;'>🔊 영어 받아쓰기 연습</h1>
-        """, unsafe_allow_html=True)	
+    """, unsafe_allow_html=True)
 
-    img = Image.open('img/angmose.jpg')
-    img = img.resize((500, 500))  # 이미지 크기 리사이즈
+    img = Image.open('img/angmose.jpg').resize((500, 500))
     st.image(img)
-    
-    st.markdown(
-        """
+
+    st.markdown("""
         <p style='text-align: center; font-size: 20px; color: #555;'>
         이미지를 올려주시면, AI가 문장을 생성해 문제를 출제합니다. 문장을 잘 듣고 빈칸을 채워보세요!<br>
         왼쪽의 <b>이미지 붙여넣기 📷</b> 에서 시작할 수 있습니다.
         </p>
-        """, unsafe_allow_html=True)
+    """, unsafe_allow_html=True)
 
-    init_session(dict(quiz=[], answ=[], voice="en-US-Journey-F"))
+    init_session(dict(quiz=[], answ=[], audio=[], voice="en-US-Journey-F"))
+
 
 def preprocess_answers(quiz: str, answ) -> list[str]:
     num_blanks = quiz.count("_____")
 
-    # answ가 리스트면 그대로, 문자열이면 쉼표 또는 and로 분리 시도
     if isinstance(answ, list):
         answ_list = answ
     elif isinstance(answ, str):
-        # 쉼표나 and로 나눠보기 (예: "A, B" 또는 "A and B")
         if "," in answ:
             answ_list = [s.strip() for s in answ.split(",")]
         elif " and " in answ:
@@ -51,72 +45,89 @@ def preprocess_answers(quiz: str, answ) -> list[str]:
     else:
         raise ValueError("정답은 문자열이나 리스트여야 합니다.")
 
-    # 개수가 안 맞으면 자르거나 채우기
     if len(answ_list) < num_blanks:
-        # 부족하면 공백으로 채움
         answ_list += [""] * (num_blanks - len(answ_list))
     elif len(answ_list) > num_blanks:
-        # 많으면 자름
         answ_list = answ_list[:num_blanks]
 
     return answ_list
 
 
+def generate_feedback(user_inputs: list[str], answers: list[str]) -> str:
+    input_table = ""
+    for i, (inp, ans) in enumerate(zip(user_inputs, answers), start=1):
+        input_table += f"Blank {i}:\n- Student's Input: {inp}\n- Correct Answer: {ans}\n\n"
+
+    prompt_template = (IN_DIR / "p3_feedback_multi.txt").read_text(encoding="utf-8")
+    prompt = prompt_template.format(input_table=input_table)
+
+    model = get_model()
+    resp = model.generate_content(prompt)
+    return resp.text
 
 
 def set_quiz(img: ImageFile.ImageFile):
     if img and not st.session_state["quiz"]:
         with st.spinner("문제를 준비 중입니다...🤔"):
             quiz, answ = generate_quiz(img)
-
-            # 정답을 n개로 나누는 전처리 과정
             answ_list = preprocess_answers(quiz, answ)
 
             audio = []
-            for idx, sent in enumerate(answ_list):
-                wav_file = synth_speech(sent, st.session_state["voice"], "wav")
-                path = OUT_DIR / f"{Path(__file__).stem}_{idx}.wav"
-                with open(path, "wb") as fp:
-                    fp.write(wav_file)
-                    audio.append(path.as_posix())
+            wav_file = synth_speech(quiz, st.session_state["voice"], "wav")
+            path = OUT_DIR / f"quiz_0.wav"
+            with open(path, "wb") as fp:
+                fp.write(wav_file)
+                audio.append(path.as_posix())
 
-            st.session_state["quiz"] = quiz
-            st.session_state["answ"] = answ_list  # 변경된 정답 리스트 저장
+            st.session_state["quiz"] = [quiz]
+            st.session_state["answ"] = [answ_list]
             st.session_state["audio"] = audio
+
 
 def show_quiz():
     st.divider()
     st.markdown("### 📌 문장을 듣고 빈칸을 채워주세요!")
 
-    for idx, (quiz, answ, audio) in enumerate(zip(st.session_state["quiz"], st.session_state["answ"], st.session_state["audio"])):
-        key_input, key_feedback = f"input_{idx}", f"feedback_{idx}"
-        init_session({key_input: "", key_feedback: ""})
+    for idx, (quiz, answ_list, audio) in enumerate(zip(
+        st.session_state["quiz"],
+        st.session_state["answ"],
+        st.session_state["audio"]
+    )):
+        key_feedback = f"feedback_{idx}"
+        init_session({key_feedback: ""})
 
-        with stylable_container(key=f"form_question_{idx}", css_styles=""" { background-color: #F0F8FF; border-radius: 10px; padding: 20px; box-shadow: 0px 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; } """):
+        with stylable_container(key=f"form_question_{idx}", css_styles="""
+            {
+                background-color: #F0F8FF;
+                border-radius: 10px;
+                padding: 20px;
+                box-shadow: 0px 2px 4px rgba(0,0,0,0.1);
+                margin-bottom: 20px;
+            }
+        """):
             st.audio(audio)
 
-            # 빈칸에 맞게 텍스트를 변경
             quiz_display = quiz.replace("_____", "🔲")
             st.markdown(f"<p style='font-size:20px; color:#333;'><b>문제:</b> {quiz_display}</p>", unsafe_allow_html=True)
 
-            # n개로 나뉜 입력 칸을 생성
             user_inputs = []
-            for i in range(len(answ)):
-                user_input = st.text_input(f"정답 입력 {i + 1}", value=st.session_state[key_input], key=f"{key_input}_{i}")
+            for i in range(len(answ_list)):
+                key_input = f"input_{idx}_{i}"
+                init_session({key_input: ""})
+                user_input = st.text_input(f"정답 입력 {i + 1}", value=st.session_state[key_input], key=key_input)
                 user_inputs.append(user_input)
 
             submitted = st.button("정답 제출 ✅", key=f"submit_{idx}")
 
-            if user_inputs and submitted:
+            if submitted:
                 with st.spinner("정답 확인 중입니다...🔍"):
-                    feedback = generate_feedback(user_inputs, answ)
+                    feedback = generate_feedback(user_inputs, answ_list)
                     st.session_state[key_feedback] = feedback
 
             if st.session_state[key_feedback]:
                 with st.expander("📚 해설 및 정답 보기", expanded=True):
-                    st.markdown(f"**정답:** {answ}")
+                    st.markdown(f"**정답:** {answ_list}")
                     st.markdown(st.session_state[key_feedback])
-
 
 
 def reset_quiz():
