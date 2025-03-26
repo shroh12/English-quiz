@@ -26,7 +26,6 @@ def init_page():
 
     init_session(dict(quiz=[], answ=[], voice="en-US-Journey-F"))
 
-
 def set_quiz(img: ImageFile.ImageFile):
     if img and not st.session_state["quiz"]:
         with st.spinner("문제를 준비 중입니다...🤔"):
