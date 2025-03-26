@@ -14,19 +14,14 @@ def generate_quiz(img: ImageFile.ImageFile) -> tuple[list, list]:
     model_quiz = get_model(sys_prompt=prompt_quiz.read_text(encoding="utf8"))
     resp_quiz = model_quiz.generate_content(resp_desc.text)  # 퀴즈 생성
     return tokenize_sent(resp_quiz.text), tokenize_sent(resp_desc.text)
-def generate_feedback(user_inputs: list[str], answers: list[str]) -> str:
-    # 학생 입력과 정답을 표 형식으로 묶음
-    input_table = ""
-    for i, (inp, ans) in enumerate(zip(user_inputs, answers), start=1):
-        input_table += f"Blank {i}:\n- Student's Input: {inp}\n- Correct Answer: {ans}\n\n"
 
-    prompt_template = (IN_DIR / "p3_feedback_multi.txt").read_text(encoding="utf-8")
-    prompt = prompt_template.format(input_table=input_table)
-
-    model = get_model()
-    resp = model.generate_content(prompt)
-    return resp.text
-
+ef generate_feedback(user_input: str, answ: str) -> str:
+     prompt_feedback = IN_DIR / "p3_feedback.txt"  # 피드백 생성 프롬프트 템플릿
+     text = prompt_feedback.read_text(encoding="utf8")  # 템플릿 불러오기
+     prompt = text.format(user_input, answ)  # 중괄호 {}를 사용자 입력과 정답으로 대체
+     model = get_model()  # 시스템 프롬프트를 사용하지 않는 모델 객체 생성
+     resp = model.generate_content(prompt)  # 피드백 생성
+     return resp.text
 
 
 if __name__ == "__main__":
