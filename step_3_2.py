@@ -11,22 +11,18 @@ from step_3_1 import generate_quiz, generate_feedback
 
 def init_page():
     st.set_page_config(
-    layout="wide",
+    layout="wide", 
     page_icon="🦜",  # 앵무새 이모지로 변경
 )
 
     st.markdown(
         """
         <h1 style='text-align: center; font-size:48px; color: #4B89DC;'>🔊 영어 받아쓰기 연습</h1>
-        """, unsafe_allow_html=True)
+        """, unsafe_allow_html=True)	
 
     img = Image.open('img/angmose.jpg')
-	# 경로에 있는 이미지 파일을 통해 변수 저장
+    img = img.resize((500, 500))  # 이미지 크기 리사이즈
     st.image(img)
-	img = img.resize((500, 500))  # 이미지 크기 리사이즈
-
-	# streamlit를 통해 이미지를 보여준다.
-
     
     st.markdown(
         """
