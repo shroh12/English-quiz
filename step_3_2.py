@@ -1,6 +1,6 @@
 import streamlit as st
 from streamlit_extras.stylable_container import stylable_container
-from PIL import ImageFile
+from PIL import ImageFile, Image
 from pathlib import Path
 from step_1_1 import OUT_DIR
 from step_1_2 import uploaded_image
@@ -19,6 +19,11 @@ def init_page():
         """
         <h1 style='text-align: center; font-size:48px; color: #4B89DC;'>🔊 영어 받아쓰기 연습</h1>
         """, unsafe_allow_html=True)
+
+    img = Image.open('img/angmose.jpg')
+	# 경로에 있는 이미지 파일을 통해 변수 저장
+    st.image(img)
+	# streamlit를 통해 이미지를 보여준다.
     
     st.markdown(
         """
