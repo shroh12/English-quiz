@@ -34,18 +34,23 @@ def init_page():
 
     init_session(dict(quiz=[], answ=[], voice="en-US-Journey-F"))
 
-def preprocess_answers(quiz: str, answ: str):
-    # 빈칸의 개수 세기
+
+def preprocess_answers(quiz: str, answ) -> list[str]:
     num_blanks = quiz.count("_____")
-    
-    # 빈칸 개수만큼 정답을 나누기
-    answ_list = answ.split(",")  # 쉼표로 구분된 정답을 나누기
-    
-    # 빈칸 개수와 정답의 개수가 맞지 않으면 오류
+
+    # 이미 리스트인 경우 그대로 사용
+    if isinstance(answ, list):
+        answ_list = answ
+    elif isinstance(answ, str):
+        answ_list = [s.strip() for s in answ.split(",")]
+    else:
+        raise ValueError("정답은 문자열이나 리스트여야 합니다.")
+
     if len(answ_list) != num_blanks:
-        raise ValueError("빈칸의 개수와 정답 개수가 맞지 않습니다.")
+        raise ValueError(f"정답 개수({len(answ_list)})와 빈칸 개수({num_blanks})가 다릅니다.")
 
     return answ_list
+
 
 
 def set_quiz(img: ImageFile.ImageFile):
