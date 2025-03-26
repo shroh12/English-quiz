@@ -12,19 +12,24 @@ def show_quiz():  # 퀴즈 출력 위젯
         st.session_state["answ"],
         st.session_state["audio"],
     )
+
     for idx, quiz, answ_list, audio in zipped:
-        # answ_list가 리스트 형태로 정답이 여러 개 있을 수 있음
+        # 퀴즈 내 빈칸("_____") 개수를 세어서 정답 입력칸 생성
+        num_blanks = quiz.count("_____")
+
+        # answ_list를 빈칸 개수와 맞추기 위해 재조정
         if not isinstance(answ_list, list):
-            answ_list = [answ_list]  # 단일 정답을 리스트로 변환
+            answ_list = [answ_list]
+        answ_list = answ_list[:num_blanks]
 
         with st.form(f"form_question_{idx}", border=True):
             st.success(f"### {quiz}")
             st.audio(audio)
 
-            user_inputs = []  # 입력값 저장할 리스트
+            user_inputs = []
 
-            # 정답 개수만큼 입력창 생성
-            for answ_idx in range(len(answ_list)):
+            # 빈칸 수만큼 입력창 생성
+            for answ_idx in range(num_blanks):
                 key_input = f"input_{idx}_{answ_idx}"
                 init_session({key_input: ""})
 
@@ -40,12 +45,13 @@ def show_quiz():  # 퀴즈 출력 위젯
             if submitted:
                 with st.spinner():
                     feedbacks = []
-                    # 입력값과 정답을 하나씩 비교하여 피드백 생성
+
+                    # 입력값과 정답을 개수만큼 비교하여 피드백 생성
                     for input_val, correct_ans in zip(user_inputs, answ_list):
                         feedback = generate_feedback(input_val, correct_ans)
                         feedbacks.append(feedback)
 
-                    # 피드백 세션값 저장
+                    # 피드백 세션 저장
                     st.session_state[f"feedback_{idx}"] = feedbacks
 
             # 피드백 출력
