@@ -15,7 +15,7 @@ def generate_quiz(img: ImageFile.ImageFile) -> tuple[list, list]:
     resp_quiz = model_quiz.generate_content(resp_desc.text)  # 퀴즈 생성
     return tokenize_sent(resp_quiz.text), tokenize_sent(resp_desc.text)
 
-ef generate_feedback(user_input: str, answ: str) -> str:
+def generate_feedback(user_input: str, answ: str) -> str:
      prompt_feedback = IN_DIR / "p3_feedback.txt"  # 피드백 생성 프롬프트 템플릿
      text = prompt_feedback.read_text(encoding="utf8")  # 템플릿 불러오기
      prompt = text.format(user_input, answ)  # 중괄호 {}를 사용자 입력과 정답으로 대체
