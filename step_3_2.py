@@ -8,7 +8,14 @@ from step_1_3 import clear_session, init_session
 from step_2_2 import synth_speech
 from step_3_1 import generate_quiz, generate_feedback
 
+import base64
+from io import BytesIO
 
+def img_to_base64(img):
+    buffered = BytesIO()
+    img.save(buffered, format="PNG")
+    return base64.b64encode(buffered.getvalue()).decode()
+    
 def init_page():
     st.set_page_config(
     layout="wide", 
@@ -22,7 +29,16 @@ def init_page():
 
     img = Image.open('img/angmose.jpg')
     img = img.resize((500, 500))
-    st.image(img)
+    
+    # 가운데 정렬을 위한 HTML 마크업 사용
+    st.markdown(
+        f"""
+        <div style="text-align: center;">
+            <img src="data:image/png;base64,{img_to_base64(img)}" width="500"/>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
     st.markdown(
         """
