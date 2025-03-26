@@ -34,22 +34,33 @@ def init_page():
 
     init_session(dict(quiz=[], answ=[], voice="en-US-Journey-F"))
 
-
 def preprocess_answers(quiz: str, answ) -> list[str]:
     num_blanks = quiz.count("_____")
 
-    # 이미 리스트인 경우 그대로 사용
+    # answ가 리스트면 그대로, 문자열이면 쉼표 또는 and로 분리 시도
     if isinstance(answ, list):
         answ_list = answ
     elif isinstance(answ, str):
-        answ_list = [s.strip() for s in answ.split(",")]
+        # 쉼표나 and로 나눠보기 (예: "A, B" 또는 "A and B")
+        if "," in answ:
+            answ_list = [s.strip() for s in answ.split(",")]
+        elif " and " in answ:
+            answ_list = [s.strip() for s in answ.split(" and ")]
+        else:
+            answ_list = [answ.strip()]
     else:
         raise ValueError("정답은 문자열이나 리스트여야 합니다.")
 
-    if len(answ_list) != num_blanks:
-        raise ValueError(f"정답 개수({len(answ_list)})와 빈칸 개수({num_blanks})가 다릅니다.")
+    # 개수가 안 맞으면 자르거나 채우기
+    if len(answ_list) < num_blanks:
+        # 부족하면 공백으로 채움
+        answ_list += [""] * (num_blanks - len(answ_list))
+    elif len(answ_list) > num_blanks:
+        # 많으면 자름
+        answ_list = answ_list[:num_blanks]
 
     return answ_list
+
 
 
 
