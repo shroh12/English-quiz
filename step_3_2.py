@@ -91,7 +91,7 @@ def show_quiz():
             }
         """):
             # ✅ 문제 번호 표시 (눈에 잘 띄게)
-            st.markdown(f"<h4 style='color:#2c3e50;'>🧠 문제 {idx + 1}</h4>", unsafe_allow_html=True)
+            st.markdown(f"<h4 style='color:#2c3e50;'> 문제 {idx + 1}</h4>", unsafe_allow_html=True)
 
             # 오디오 재생
             st.audio(audio)
