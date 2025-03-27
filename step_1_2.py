@@ -18,7 +18,16 @@ def uploaded_image(on_change=None, args=None) -> Image.Image | None:
             "<div style='text-align: center; font-weight: bold; font-size: 18px;'>이미지 붙여넣기</div>",
             unsafe_allow_html=True
         )
-        
+        img = Image.open('img/angmose.jpg').resize((500, 500))
+        st.markdown(
+            f"""
+            <div style="text-align: center;">
+            <img src="data:image/png;base64,{img_to_base64(img)}" width="500"/>
+            </div>
+            """,
+            unsafe_allow_html=True
+         )
+            
         uploaded = st.file_uploader(
             label="",  # 빈 라벨
             label_visibility="collapsed",
