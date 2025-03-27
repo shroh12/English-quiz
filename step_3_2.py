@@ -20,15 +20,7 @@ def init_page():
     st.set_page_config(
     layout="wide", 
     page_icon="🦜",  # 앵무새 이모지로 변경
-)
-    st.markdown("""
-    <div style="border: 2px dashed #ccc; padding: 30px; text-align: center; border-radius: 10px;">
-    <p style="font-size: 16px;">이미지 붙여넣기 또는 업로드</p>
-    </div>
-    """, unsafe_allow_html=True)
-
-    uploaded_file = st.file_uploader(" ", type=["png", "jpg", "jpeg"])
-    
+)   
     st.markdown(
         """
         <h1 style='text-align: center; font-size:48px; color: #4B89DC;'>🔊 영어 받아쓰기 연습</h1>
