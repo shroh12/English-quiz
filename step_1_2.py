@@ -12,7 +12,6 @@ def get_model(sys_prompt: str = None) -> genai.GenerativeModel:
                                  system_instruction=sys_prompt)
     
 def uploaded_image(on_change=None, args=None) -> ImageFile.ImageFile | None:
-    def uploaded_image(on_change=None, args=None) -> ImageFile.ImageFile | None:
     with st.sidebar:
         uploaded = st.file_uploader(
             "이미지 붙여넣기",  # 여기서 텍스트 변경
