@@ -24,9 +24,10 @@ def generate_feedback(user_input: str, answ: str) -> str:
     return resp.text
 
 # 🔽 빈칸에 들어갈 단어만 추출
-def extract_blank_words(quiz_sentence: str, answer_sentence: str) -> list[str]:
+def extract_blank_words(quiz_sentence, answer_sentence):
     quiz_parts = quiz_sentence.split()
     answer_parts = answer_sentence.split()
+    return [a for q, a in zip(quiz_parts, answer_parts) if q == "_____"]
     
     blank_words = []
     for q, a in zip(quiz_parts, answer_parts):
