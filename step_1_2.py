@@ -32,7 +32,7 @@ def uploaded_image(on_change=None, args=None) -> Image.Image | None:
         st.markdown(
             f"""
             <div style="text-align: center; padding-bottom: 10px;">
-                <img src="data:image/png;base64,{img_to_base64(img)}" width="100"/>
+                <img src="data:image/png;base64,{img_to_base64(img)}" width="200"/>
             </div>
             """,
             unsafe_allow_html=True
