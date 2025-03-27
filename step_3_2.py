@@ -90,20 +90,20 @@ def show_quiz():
                 margin-bottom: 20px;
             }
         """):
-            # ✅ 문제 번호 출력
-            st.markdown(f"### 🧠 문제 {idx + 1}")
+            # ✅ 문제 번호 표시 (눈에 잘 띄게)
+            st.markdown(f"<h4 style='color:#2c3e50;'>🧠 문제 {idx + 1}</h4>", unsafe_allow_html=True)
 
-            # 오디오 출력
+            # 오디오 재생
             st.audio(audio)
 
-            # 퀴즈 문장 표시 (빈칸을 🔲 으로)
+            # 퀴즈 문장 표시
             quiz_display = quiz.replace("_____", "🔲")
             st.markdown(
                 f"<p style='font-size:20px; color:#333;'><b>문제:</b> {quiz_display}</p>",
                 unsafe_allow_html=True
             )
 
-            # 정답 입력란
+            # 사용자 입력란
             user_input = st.text_input(
                 "정답을 입력하세요👇",
                 value=st.session_state[key_input],
@@ -111,7 +111,7 @@ def show_quiz():
                 placeholder="빈칸에 들어갈 단어를 정확히 입력하세요!",
             )
 
-            # 정답 제출 버튼
+            # 제출 버튼
             submitted = st.button("정답 제출 ✅", key=f"submit_{idx}")
 
             # 제출 시 피드백 생성
@@ -125,8 +125,6 @@ def show_quiz():
                 with st.expander("📚 해설 및 정답 보기", expanded=True):
                     st.markdown(f"**정답:** {answ}")
                     st.markdown(st.session_state[key_feedback])
-
-
 
 def reset_quiz():
     if st.session_state["quiz"]:
