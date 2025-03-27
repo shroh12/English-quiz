@@ -28,11 +28,11 @@ def uploaded_image(on_change=None, args=None) -> Image.Image | None:
         )
 
         # angmose.jpg 이미지 삽입
-        img = Image.open('img/angmose.jpg').resize((100, 100))
+        img = Image.open('img/angmose.jpg').resize((300, 300))
         st.markdown(
             f"""
             <div style="text-align: center; padding-bottom: 10px;">
-                <img src="data:image/png;base64,{img_to_base64(img)}" width="300"/>
+                <img src="data:image/png;base64,{img_to_base64(img)}" width="100"/>
             </div>
             """,
             unsafe_allow_html=True
