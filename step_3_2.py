@@ -18,9 +18,10 @@ def img_to_base64(img):
     
 def init_page():
     st.set_page_config(
-    layout="wide", 
-    page_icon="🦜",  # 앵무새 이모지로 변경
-)   
+        page_title="영어 받아쓰기 연습",
+        layout="wide",
+        page_icon="🦜"  # 이모지 아이콘
+    )
     st.markdown(
         """
         <h1 style='text-align: center; font-size:48px; color: #4B89DC;'>🔊 영어 받아쓰기 연습</h1>
