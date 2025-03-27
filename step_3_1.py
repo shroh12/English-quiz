@@ -24,20 +24,11 @@ def generate_feedback(user_input: str, answ: str) -> str:
     return resp.text
 
 # 🔽 빈칸에 들어갈 단어만 추출
-def fill_in_blanks(quiz_sentence: str, words: list[str]) -> str:
-    parts = quiz_sentence.split()
-    result = []
-    word_index = 0
-    for token in parts:
-        if token == "_____":
-            if word_index < len(words):
-                result.append(words[word_index])
-                word_index += 1
-            else:
-                result.append("_____")
-        else:
-            result.append(token)
-    return " ".join(result)
+# 빈칸 단어 추출
+def extract_blank_words(quiz_sentence, answer_sentence):
+    quiz_parts = quiz_sentence.split()
+    answer_parts = answer_sentence.split()
+    return [a for q, a in zip(quiz_parts, answer_parts) if q == "_____"]
 
 
 if __name__ == "__main__":
