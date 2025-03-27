@@ -23,6 +23,14 @@ def generate_feedback(user_input: str, answ: str) -> str:
      resp = model.generate_content(prompt)  # 피드백 생성
      return resp.text
 
+# 🔽 빈칸에 들어갈 단어 추출 로직
+def extract_blank_word(quiz_sentence, answer_sentence):
+    quiz_parts = quiz_sentence.split()
+    answer_parts = answer_sentence.split()
+    for q_word, a_word in zip(quiz_parts, answer_parts):
+        if q_word == "_____":
+            return a_word
+    return None
 
 if __name__ == "__main__":
     img = Image.open(IMG_DIR / "billboard.jpg")
