@@ -91,7 +91,8 @@ def show_quiz():
             }
         """):
             # ✅ 문제 번호 표시 (눈에 잘 띄게)
-            st.subheader(f" 문제 {idx + 1}")
+            #st.subheader(f" 문제 {idx + 1}")
+            st.text(f" 문제 {idx + 1}")
 
             # 오디오 재생
             st.audio(audio)
