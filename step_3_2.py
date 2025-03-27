@@ -72,8 +72,13 @@ def show_quiz():
     st.divider()
     st.markdown("### 📌 문장을 듣고 빈칸을 채워주세요!")
 
-    for idx, (quiz, answ, audio) in enumerate(zip(st.session_state["quiz"], st.session_state["answ"], st.session_state["audio"])):
-        key_input, key_feedback = f"input_{idx}", f"feedback_{idx}"
+    for idx, (quiz, answ, audio) in enumerate(zip(
+        st.session_state["quiz"],
+        st.session_state["answ"],
+        st.session_state["audio"]
+    )):
+        key_input = f"input_{idx}"
+        key_feedback = f"feedback_{idx}"
         init_session({key_input: "", key_feedback: ""})
 
         with stylable_container(key=f"form_question_{idx}", css_styles="""
@@ -84,12 +89,21 @@ def show_quiz():
                 box-shadow: 0px 2px 4px rgba(0,0,0,0.1);
                 margin-bottom: 20px;
             }
-            """):
+        """):
+            # ✅ 문제 번호 출력
+            st.markdown(f"### 🧠 문제 {idx + 1}")
+
+            # 오디오 출력
             st.audio(audio)
 
+            # 퀴즈 문장 표시 (빈칸을 🔲 으로)
             quiz_display = quiz.replace("_____", "🔲")
-            st.markdown(f"<p style='font-size:20px; color:#333;'><b>문제:</b> {quiz_display}</p>", unsafe_allow_html=True)
+            st.markdown(
+                f"<p style='font-size:20px; color:#333;'><b>문제:</b> {quiz_display}</p>",
+                unsafe_allow_html=True
+            )
 
+            # 정답 입력란
             user_input = st.text_input(
                 "정답을 입력하세요👇",
                 value=st.session_state[key_input],
@@ -97,17 +111,21 @@ def show_quiz():
                 placeholder="빈칸에 들어갈 단어를 정확히 입력하세요!",
             )
 
+            # 정답 제출 버튼
             submitted = st.button("정답 제출 ✅", key=f"submit_{idx}")
 
+            # 제출 시 피드백 생성
             if user_input and submitted:
                 with st.spinner("정답 확인 중입니다...🔍"):
                     feedback = generate_feedback(user_input, answ)
                     st.session_state[key_feedback] = feedback
 
+            # 피드백 출력
             if st.session_state[key_feedback]:
                 with st.expander("📚 해설 및 정답 보기", expanded=True):
                     st.markdown(f"**정답:** {answ}")
                     st.markdown(st.session_state[key_feedback])
+
 
 
 def reset_quiz():
