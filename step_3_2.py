@@ -31,17 +31,6 @@ def init_page():
         <h1 style='text-align: center; font-size:48px; color: #4B89DC;'>🔊 영어 받아쓰기 연습</h1>
         """, unsafe_allow_html=True)
 
-    # 가운데 이미지
-    img = Image.open('img/angmose.jpg').resize((500, 500))
-    st.markdown(
-        f"""
-        <div style="text-align: center;">
-            <img src="data:image/png;base64,{img_to_base64(img)}" width="500"/>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-
     # 설명 텍스트
     st.markdown(
         """
