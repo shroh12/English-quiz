@@ -12,10 +12,11 @@ def get_model(sys_prompt: str = None) -> genai.GenerativeModel:
                                  system_instruction=sys_prompt)
     
 def uploaded_image(on_change=None, args=None) -> ImageFile.ImageFile | None:
+    def uploaded_image(on_change=None, args=None) -> ImageFile.ImageFile | None:
     with st.sidebar:
         uploaded = st.file_uploader(
-            "uploader",
-            label_visibility="collapsed",
+            "이미지 붙여넣기",  # 여기서 텍스트 변경
+            label_visibility="visible",  # 텍스트가 보이도록 설정
             on_change=on_change,
             args=args
         )
