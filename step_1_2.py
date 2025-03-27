@@ -11,14 +11,21 @@ def get_model(sys_prompt: str = None) -> genai.GenerativeModel:
     return genai.GenerativeModel(GEMINI_MODEL,
                                  system_instruction=sys_prompt)
     
-def uploaded_image(on_change=None, args=None) -> ImageFile.ImageFile | None:
+def uploaded_image(on_change=None, args=None) -> Image.Image | None:
     with st.sidebar:
+        # 중앙 정렬 + 굵은 텍스트
+        st.markdown(
+            "<div style='text-align: center; font-weight: bold; font-size: 18px;'>이미지 붙여넣기</div>",
+            unsafe_allow_html=True
+        )
+        
         uploaded = st.file_uploader(
-            "이미지 붙여넣기",  # 여기서 텍스트 변경
-            label_visibility="visible",  # 텍스트가 보이도록 설정
+            label="",  # 빈 라벨
+            label_visibility="collapsed",
             on_change=on_change,
             args=args
         )
+
         if uploaded is not None:
             with st.container(border=True):
                 tmp_path = OUT_DIR / f"{Path(__file__).stem}.tmp"
