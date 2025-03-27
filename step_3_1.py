@@ -24,7 +24,6 @@ def generate_feedback(user_input: str, answ: str) -> str:
     return resp.text
 
 # 🔽 빈칸에 들어갈 단어만 추출
-# 빈칸 단어 추출
 def extract_blank_words(quiz_sentence, answer_sentence):
     quiz_parts = quiz_sentence.split()
     answer_parts = answer_sentence.split()
