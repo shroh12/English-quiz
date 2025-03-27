@@ -77,6 +77,12 @@ def show_quiz():
     st.divider()
     st.markdown("### 📌 문장을 듣고 빈칸을 채워주세요!")
 
+    TAGS = [
+        {"difficulty": "하", "topic": "마케팅"},
+        {"difficulty": "중", "topic": "전략"},
+        {"difficulty": "상", "topic": "투자"},
+    ]
+
     for idx, (quiz, answ, audio) in enumerate(zip(
         st.session_state["quiz"],
         st.session_state["answ"],
@@ -86,7 +92,7 @@ def show_quiz():
         key_feedback = f"feedback_{idx}"
         init_session({key_input: "", key_feedback: ""})
 
-        with stylable_container(key=f"form_question_{idx}", css_styles="""
+        with stylable_container(key=f"form_question_{idx}", css_styles=""" 
             {
                 background-color: #F0F8FF;
                 border-radius: 10px;
@@ -95,20 +101,24 @@ def show_quiz():
                 margin-bottom: 20px;
             }
         """):
-            # ✅ 문제 번호 표시
-            st.subheader(f"문제 {idx + 1}")
+            # ✅ 문제 번호 + 태그 함께 출력
+            tag = TAGS[idx] if idx < len(TAGS) else {"difficulty": "정보 없음", "topic": "미지정"}
+            st.markdown(
+                f"<h4 style='margin-bottom: 5px;'>🧠 문제 {idx + 1} "
+                f"<span style='font-size:16px; color:#888;'>"
+                f"[난이도: {tag['difficulty']}] [유형: {tag['topic']}]"
+                f"</span></h4>",
+                unsafe_allow_html=True
+            )
 
-            # 오디오
             st.audio(audio)
 
-            # 퀴즈 문장
             quiz_display = quiz.replace("_____", "🔲")
             st.markdown(
                 f"<p style='font-size:20px; color:#333;'><b>문제:</b> {quiz_display}</p>",
                 unsafe_allow_html=True
             )
 
-            # 입력란
             user_input = st.text_input(
                 "정답을 입력하세요👇",
                 value=st.session_state[key_input],
@@ -116,16 +126,13 @@ def show_quiz():
                 placeholder="빈칸에 들어갈 단어를 정확히 입력하세요!",
             )
 
-            # 제출 버튼
             submitted = st.button("정답 제출 ✅", key=f"submit_{idx}")
 
-            # 피드백 생성
             if user_input and submitted:
                 with st.spinner("정답 확인 중입니다...🔍"):
                     feedback = generate_feedback(user_input, answ)
                     st.session_state[key_feedback] = feedback
 
-            # 해설 출력
             if st.session_state[key_feedback]:
                 with st.expander("📚 해설 및 정답 보기", expanded=True):
                     st.markdown(f"**정답:** {answ}")
