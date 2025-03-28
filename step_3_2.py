@@ -74,7 +74,22 @@ def show_quiz():
         key_input = f"input_{idx}"
         key_feedback = f"feedback_{idx}"
         init_session({key_input: "", key_feedback: ""})
-
+        st.markdown(
+    f"""
+    <div style='text-align:center; font-size: 36px; font-weight: bold; color: #4B89DC; margin-bottom: -10px;'>
+        {idx + 1}
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+        st.markdown(
+            f"""
+            <div style='text-align:center; font-size: 36px; font-weight: bold; color: #4B89DC; margin-bottom: -10px;'>
+                {idx + 1}
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
         with stylable_container(key=f"form_question_{idx}", css_styles="""{
             background-color: #F0F8FF;
             border-radius: 10px;
