@@ -91,8 +91,7 @@ def show_quiz():
             # quiz_display = quiz.replace("_____", "🔲")
             quiz_display = quiz
             st.markdown(
-                f"<p style='font-size:20px; color:#333;'><b>문제:</b> {quiz_display}</p>",
-                unsafe_allow_html=True
+                문제:<{quiz_display}
             )
 
             # 입력란
