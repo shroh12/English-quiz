@@ -28,7 +28,7 @@ def uploaded_image(on_change=None, args=None) -> Image.Image | None:
         )
 
         # angmose.jpg 이미지 삽입
-        img = Image.open('img/angmose.jpg').resize((300, 300))
+        img = Image.open('angmose.jpg').resize((300, 300))
         st.markdown(
             f"""
             <div style="text-align: center; padding-bottom: 10px;">
