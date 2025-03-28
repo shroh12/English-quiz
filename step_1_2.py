@@ -41,7 +41,7 @@ def uploaded_image(on_change=None, args=None) -> Image.Image | None:
         st.markdown(
             """
              <div style='text-align: left; font-size: 15px; color: #444; line-height: 1.6; padding-left: 5px;'>
-                이미지를 올려주시면<br>
+                이미지를 업로드 하시면<br>
                 AI가 문장을 생성해 퀴즈를 출제합니다.<br>
                 문장을 잘 듣고 퀴즈를 풀어보세요.
             </div>
