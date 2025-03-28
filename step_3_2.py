@@ -85,7 +85,14 @@ def show_quiz():
             }
         """):
             # ✅ 문제 번호 표시
-            st.subheader(f"🧠 문제 {idx + 1}")
+            st.markdown(
+                f"""
+                <div style='text-align:center; font-size: 36px; font-weight: bold; color: #4B89DC; margin-bottom: 10px;'>
+                    {idx + 1}
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
 
             # 오디오
             st.audio(audio)
