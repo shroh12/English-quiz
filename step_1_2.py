@@ -43,7 +43,6 @@ def uploaded_image(on_change=None, args=None) -> Image.Image | None:
             <div style='text-align: center; font-size: 16px; color: #444; 
                         line-height: 1.6; max-width: 250px; margin: 0 auto;'>
                 이미지를 올려주시면, AI가 문장을 생성해 문제를 출제합니다.<br>
-                문제를 출제합니다.<br>
                 문장을 잘 듣고 문제를 풀어보세요.
             </div>
             """,
