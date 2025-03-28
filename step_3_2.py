@@ -35,7 +35,7 @@ def init_page():
     st.markdown(
         """
         <p style='text-align: center; font-size: 20px; color: #555;'>
-        다 함께 퀴즈를 풀어봅시다!
+        <b>다 함께 퀴즈를 풀어봅시다!</b>
         </p>
         """, unsafe_allow_html=True)
 
