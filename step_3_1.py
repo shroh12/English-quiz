@@ -1,5 +1,5 @@
 from PIL import Image, ImageFile
-
+import random
 from step_1_1 import IMG_DIR, IN_DIR
 from step_1_2 import get_model
 from step_2_3 import tokenize_sent
@@ -23,11 +23,32 @@ def generate_feedback(user_input: str, answ: str) -> str:
     resp = model.generate_content(prompt)
     return resp.text
 
-# 🔽 빈칸에 들어갈 단어만 추출
-def extract_blank_words(quiz_sentence, answer_sentence):
+DISTRACTOR_POOL = [
+    "goal", "strategy", "success", "achievement", "target",
+    "vision", "effort", "result", "planning", "challenge",
+    "growth", "performance", "mission", "teamwork", "drive"
+]
+
+# 🔽 객관식 정답+오답 보기 생성
+def make_choices(correct_word: str) -> list[str]:
+    distractors = [w for w in DISTRACTOR_POOL if w.lower() != correct_word.lower()]
+    options = random.sample(distractors, 3) + [correct_word]
+    random.shuffle(options)
+    return options
+
+# 🔽 빈칸에 들어갈 정답 단어 + 보기 옵션 리스트 반환
+def extract_blank_words(quiz_sentence: str, answer_sentence: str) -> list[dict]:
     quiz_parts = quiz_sentence.split()
     answer_parts = answer_sentence.split()
-    return [a for q, a in zip(quiz_parts, answer_parts) if q == "_____"]
+
+    blanks = []
+    for q, a in zip(quiz_parts, answer_parts):
+        if q == "_____":
+            blanks.append({
+                "answer": a,
+                "choices": make_choices(a)
+            })
+    return blanks
 
 
 if __name__ == "__main__":
