@@ -11,19 +11,6 @@ from step_3_1 import generate_quiz, generate_feedback
 import base64
 from io import BytesIO
 
-# 이미지 b해 시작할 수 있습니다.
-    st.markdown(
-        """
-        <p style='text-align: center; font-size: 20px; color: #555;'>
-        이미지를 올려주시면, AI가 문장을 생성해 문제를 출제합니다.<br>
-        문장을 잘 듣고 빈칸을 채워보세요!<br>
-        왼쪽의 <b>이미지 업로드</b> 📷 에서 시작할 수 있습니다.
-        </p>
-        """, unsafe_allow_html=True)
-
-    # 세션 상태 초기화
-    init_session(dict(quiz=[], answ=[], audio=[], voice="en-US-Journey-F"))
-
 # 퀴즈 세팅
 def set_quiz(img: ImageFile.ImageFile):
     if img and not st.session_state["quiz"]:
