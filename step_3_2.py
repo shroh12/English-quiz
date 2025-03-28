@@ -20,7 +20,7 @@ def img_to_base64(img):
 # 초기 페이지 설정
 def init_page():
     st.set_page_config(
-        page_title="영어 받아쓰기 연습",
+        page_title="앵무 받아쓰기",
         layout="wide",
         page_icon="🦜"
     )
