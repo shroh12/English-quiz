@@ -50,7 +50,7 @@ def uploaded_image(on_change=None, args=None) -> Image.Image | None:
                 tmp_path = OUT_DIR / f"{Path(__file__).stem}.tmp"
                 tmp_path.write_bytes(uploaded.getvalue())
                 img = Image.open(tmp_path)
-                st.image(img, use_column_width=True)
+                st.image(img, use_container_width=True)
                 return img
 
 if __name__ == "__main__":
