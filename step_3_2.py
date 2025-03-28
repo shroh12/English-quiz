@@ -11,33 +11,7 @@ from step_3_1 import generate_quiz, generate_feedback
 import base64
 from io import BytesIO
 
-# 이미지 base64 인코딩
-def img_to_base64(img):
-    buffered = BytesIO()
-    img.save(buffered, format="PNG")
-    return base64.b64encode(buffered.getvalue()).decode()
-
-# 초기 페이지 설정
-def init_page():
-    st.set_page_config(
-        page_title="앵무새 받아쓰기",
-        layout="wide",
-        page_icon="🦜"
-    )
-
-    # 타이틀
-    st.markdown(
-        """
-        <h1 style='text-align: center; font-size:48px; color: #4B89DC;'>🔊앵무새 받아쓰기</h1>
-        """, unsafe_allow_html=True)
-
-    # 설명 텍스트
-    st.markdown(
-        """
-        <p style='text-align: center; font-size: 20px; color: #555;'>
-        이미지를 올려주시면, AI가 문장을 생성해 문제를 출제합니다.<br>
-        문장을 잘 듣고 빈칸을 채워보세요!<br>
-        왼쪽의 <b>이미지 업로드 📷</b> 에서 시작할 수 있습니다.
+# 이미지 b해 시작할 수 있습니다.
         </p>
         """, unsafe_allow_html=True)
 
