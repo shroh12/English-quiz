@@ -54,7 +54,7 @@ def uploaded_image(on_change=None, args=None) -> Image.Image | None:
                 return img
 
 if __name__ == "__main__":
-    st.set_page_config(page_title="영어 받아쓰기 연습", layout="wide", page_icon="🦜")
+    st.set_page_config(page_title="앵무 받아쓰기", layout="wide", page_icon="🦜")
     st.title("✨ 만들면서 배우는 멀티모달 AI")
     if img := uploaded_image():
         prompt = "공연은 어디에서 몇 시에 시작해? 한글로 대답해 줘."
