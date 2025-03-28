@@ -74,12 +74,7 @@ def show_quiz():
         key_input = f"input_{idx}"
         key_feedback = f"feedback_{idx}"
         init_session({key_input: "", key_feedback: ""})
-        st.markdown(
-            f"""
-            테스트2324343
-            """,
-            unsafe_allow_html=True
-        )
+        
         with stylable_container(key=f"form_question_{idx}", css_styles="""{
             background-color: #F0F8FF;
             border-radius: 10px;
@@ -87,16 +82,7 @@ def show_quiz():
             box-shadow: 0px 2px 4px rgba(0,0,0,0.1);
             margin-bottom: 20px;
         }"""):
-            # ✅ 중앙 정렬된 큰 숫자 문제 번호
-            st.markdown(
-                f"""
-                <div style='text-align:center; font-size: 36px; font-weight: bold; color: #4B89DC; margin-bottom: 10px;'>
-                    {idx + 1}
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
-            st.divider()
+            
             st.markdown("### 📌 문장을 듣고 빈칸을 채워주세요!")
             # 오디오
             st.audio(audio)
