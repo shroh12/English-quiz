@@ -91,7 +91,7 @@ def show_quiz():
             # quiz_display = quiz.replace("_____", "🔲")
             quiz_display = quiz
             st.markdown(
-                문제:<{quiz_display}
+                f"문제:{quiz_display}"
             )
 
             # 입력란
