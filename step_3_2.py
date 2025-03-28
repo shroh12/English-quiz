@@ -75,18 +75,8 @@ def show_quiz():
         key_feedback = f"feedback_{idx}"
         init_session({key_input: "", key_feedback: ""})
         st.markdown(
-    f"""
-    <div style='text-align:center; font-size: 36px; font-weight: bold; color: #4B89DC; margin-bottom: -10px;'>
-        {idx + 1}
-    </div>
-    """,
-    unsafe_allow_html=True
-)
-        st.markdown(
             f"""
-            <div style='text-align:center; font-size: 36px; font-weight: bold; color: #4B89DC; margin-bottom: -10px;'>
-                {idx + 1}
-            </div>
+            테스트2324343
             """,
             unsafe_allow_html=True
         )
