@@ -75,16 +75,14 @@ def show_quiz():
         key_feedback = f"feedback_{idx}"
         init_session({key_input: "", key_feedback: ""})
 
-        with stylable_container(key=f"form_question_{idx}", css_styles="""
-            {
-                background-color: #F0F8FF;
-                border-radius: 10px;
-                padding: 20px;
-                box-shadow: 0px 2px 4px rgba(0,0,0,0.1);
-                margin-bottom: 20px;
-            }
-        """):
-            # ✅ 문제 번호 표시
+        with stylable_container(key=f"form_question_{idx}", css_styles="""{
+            background-color: #F0F8FF;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0px 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }"""):
+            # ✅ 중앙 정렬된 큰 숫자 문제 번호
             st.markdown(
                 f"""
                 <div style='text-align:center; font-size: 36px; font-weight: bold; color: #4B89DC; margin-bottom: 10px;'>
