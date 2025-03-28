@@ -23,7 +23,7 @@ def uploaded_image(on_change=None, args=None) -> Image.Image | None:
     with st.sidebar:
         # 중앙 정렬 + 굵은 텍스트
         st.markdown(
-            "<div style='text-align: center; font-weight: bold; font-size: 25px;'>이미지 업로드'div>",
+            "<div style='text-align: center; font-weight: bold; font-size: 25px;'>이미지 업로드</div>",
             unsafe_allow_html=True
         )
 
