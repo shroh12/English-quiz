@@ -37,7 +37,7 @@ def init_page():
         <p style='text-align: center; font-size: 20px; color: #555;'>
         이미지를 올려주시면, AI가 문장을 생성해 문제를 출제합니다.<br>
         문장을 잘 듣고 빈칸을 채워보세요!<br>
-        왼쪽의 <b>이미지 붙여넣기 📷</b> 에서 시작할 수 있습니다.
+        왼쪽의 <b>이미지 업로드 📷</b> 에서 시작할 수 있습니다.
         </p>
         """, unsafe_allow_html=True)
 
