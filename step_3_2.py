@@ -28,7 +28,7 @@ def init_page():
     # 타이틀
     st.markdown(
         """
-        <h1 style='text-align: center; font-size:48px; color: #4B89DC;'>🔊 영어 받아쓰기 연습</h1>
+        <h1 style='text-align: center; font-size:48px; color: #4B89DC;'>🔊앵무새 받아쓰기</h1>
         """, unsafe_allow_html=True)
 
     # 설명 텍스트
