@@ -88,7 +88,8 @@ def show_quiz():
             st.audio(audio)
 
             # 퀴즈 문장
-            quiz_display = quiz.replace("_____", "🔲")
+            # quiz_display = quiz.replace("_____", "🔲")
+            quiz_display = quiz
             st.markdown(
                 f"<p style='font-size:20px; color:#333;'><b>문제:</b> {quiz_display}</p>",
                 unsafe_allow_html=True
