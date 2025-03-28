@@ -75,13 +75,7 @@ def show_quiz():
         key_feedback = f"feedback_{idx}"
         init_session({key_input: "", key_feedback: ""})
         
-        with stylable_container(key=f"form_question_{idx}", css_styles="""{
-            background-color: #F0F8FF;
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0px 2px 4px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-        }"""):
+        with stylable_container(key=f"form_question_{idx}"):
             
             st.markdown("### 📌 문장을 듣고 빈칸을 채워주세요!")
             # 오디오
