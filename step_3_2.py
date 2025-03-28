@@ -11,25 +11,11 @@ from step_3_1 import generate_quiz, generate_feedback
 import base64
 from io import BytesIO
 
-# 퀴즈 세팅
-def set_quiz(img: ImageFile.ImageFile):
-    if img and not st.session_state["quiz"]:
-        with st.spinner("문제를 준비 중입니다...🤔"):
-            quiz, answ = generate_quiz(img)
-
-            audio = []
-            for idx, sent in enumerate(answ):
-                wav_file = synth_speech(sent, st.session_state["voice"], "wav")
-                path = OUT_DIR / f"{Path(__file__).stem}_{idx}.wav"
-                with open(path, "wb") as fp:
-                    fp.write(wav_file)
-                    audio.append(path.as_posix())
-
-            st.session_state["quiz"] = quiz
-            st.session_state["answ"] = answ
-            st.session_state["audio"] = audio
-
-
+# 이미지 base64 인코딩
+def img_to_base64(img):
+    buffered = BytesIO()
+    img.save(buffered, format="PNG")
+    return base64.b64encode(buffered.getvalue()).decode()
 
 # 초기 페이지 설정
 def init_page():
@@ -51,12 +37,29 @@ def init_page():
         <p style='text-align: center; font-size: 20px; color: #555;'>
         이미지를 올려주시면, AI가 문장을 생성해 문제를 출제합니다.<br>
         문장을 잘 듣고 빈칸을 채워보세요!<br>
-        왼쪽의 <b>이미지 업로드 📷</b> 에서 시작할 수 있습니다.
+        왼쪽의 <b>이미지 붙여넣기 📷</b> 에서 시작할 수 있습니다.
         </p>
         """, unsafe_allow_html=True)
 
     init_session(dict(quiz=[], answ=[], voice="en-US-Journey-F"))
 
+# 퀴즈 세팅
+def set_quiz(img: ImageFile.ImageFile):
+    if img and not st.session_state["quiz"]:
+        with st.spinner("문제를 준비 중입니다...🤔"):
+            quiz, answ = generate_quiz(img)
+
+            audio = []
+            for idx, sent in enumerate(answ):
+                wav_file = synth_speech(sent, st.session_state["voice"], "wav")
+                path = OUT_DIR / f"{Path(__file__).stem}_{idx}.wav"
+                with open(path, "wb") as fp:
+                    fp.write(wav_file)
+                    audio.append(path.as_posix())
+
+            st.session_state["quiz"] = quiz
+            st.session_state["answ"] = answ
+            st.session_state["audio"] = audio
 
 # 퀴즈 표시
 def show_quiz():
