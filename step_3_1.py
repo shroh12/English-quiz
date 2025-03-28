@@ -59,28 +59,6 @@ answer_list = [
     "This image represents a team observing a leader who has achieved peak performance or reached a significant business goal, possibly exceeding revenue targets.",
     "The mountain symbolizes the challenges and hard work required to reach ambitious goals, and demonstrates a commitment to strategic planning."
 ]
-for quiz_idx, (quiz, answ) in enumerate(zip(quiz_list, answer_list)):
-    st.markdown(f"### 문제 {quiz_idx + 1}")
-    st.markdown(f"📝 {quiz}")
-
-    blanks = extract_blank_words(quiz, answ)
-    user_answers = []
-
-    for blank_idx, blank in enumerate(blanks):
-        selected = st.radio(
-            f"👉 빈칸 {blank_idx + 1}에 들어갈 단어를 고르세요:",
-            blank["choices"],
-            key=f"mcq_{quiz_idx}_{blank_idx}"
-        )
-        user_answers.append((selected, blank["answer"]))
-
-    if st.button(f"정답 제출 ✅ (문제 {quiz_idx + 1})", key=f"submit_{quiz_idx}"):
-        with st.expander("📚 해설 및 정답 보기", expanded=True):
-            for i, (selected, correct) in enumerate(user_answers):
-                if selected == correct:
-                    st.success(f"빈칸 {i+1}: 정답입니다! ✅ ({selected})")
-                else:
-                    st.error(f"빈칸 {i+1}: 오답입니다. ❌ 선택: {selected}, 정답: {correct}")
 
 if __name__ == "__main__":
     img = Image.open(IMG_DIR / "billboard.jpg")
