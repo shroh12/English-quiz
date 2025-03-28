@@ -96,7 +96,8 @@ def show_quiz():
                 """,
                 unsafe_allow_html=True
             )
-
+            st.divider()
+            st.markdown("### 📌 문장을 듣고 빈칸을 채워주세요!")
             # 오디오
             st.audio(audio)
 
