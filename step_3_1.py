@@ -6,22 +6,28 @@ from step_2_3 import tokenize_sent
 
 
 def generate_quiz(img: ImageFile.ImageFile) -> tuple[list, list]:
+    """
+    이미지를 받아서 퀴즈 문장과 빈칸 리스트(정답 + 객관식 보기)를 반환합니다.
+    반환 형식: (quiz_sentence, list of blanks with choices and answers)
+    """
+    # 🔹 1. 이미지 설명 생성
     prompt_desc = IN_DIR / "p1_desc.txt"
     model_desc = get_model(sys_prompt=prompt_desc.read_text(encoding="utf8"))
     resp_desc = model_desc.generate_content([img, "Describe this image"])
 
+    # 🔹 2. 설명을 기반으로 퀴즈 문장 생성
     prompt_quiz = IN_DIR / "p2_quiz.txt"
     model_quiz = get_model(sys_prompt=prompt_quiz.read_text(encoding="utf8"))
     resp_quiz = model_quiz.generate_content(resp_desc.text)
-    return tokenize_sent(resp_quiz.text), tokenize_sent(resp_desc.text)
 
-def generate_feedback(user_input: str, answ: str) -> str:
-    prompt_feedback = IN_DIR / "p3_feedback.txt"
-    text = prompt_feedback.read_text(encoding="utf8")
-    prompt = text.format(user_input, answ)
-    model = get_model()
-    resp = model.generate_content(prompt)
-    return resp.text
+    # 🔹 3. 첫 문장만 퀴즈로 사용 (필요 시 여러 문장 처리 가능)
+    quiz_sentence = tokenize_sent(resp_quiz.text)[0]
+    answer_sentence = tokenize_sent(resp_desc.text)[0]
+
+    # 🔹 4. 빈칸 정보 추출 (정답 + 객관식 보기)
+    blanks = extract_blank_words(quiz_sentence, answer_sentence)
+
+    return quiz_sentence, blanks
 
 DISTRACTOR_POOL = [
     "goal", "strategy", "success", "achievement", "target",
