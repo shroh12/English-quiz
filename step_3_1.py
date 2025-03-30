@@ -49,6 +49,28 @@ def extract_blank_words(quiz_sentence: str, answer_sentence: str) -> list[dict]:
                 "choices": make_choices(a)
             })
     return blanks
+
+def display_quiz(quiz_sentence: str, blanks: list[dict]):
+    st.subheader("📝 객관식 퀴즈를 풀어보세요")
+    quiz_parts = quiz_sentence.split()
+    blank_idx = 0
+    quiz_display = ""
+
+    for word in quiz_parts:
+        if word == "_____":
+            key = f"blank_{blank_idx}"
+            selected = st.radio(
+                f"빈칸 {blank_idx+1}",
+                blanks[blank_idx]["choices"],
+                key=key
+            )
+            quiz_display += f"**{selected}** "
+            blank_idx += 1
+        else:
+            quiz_display += word + " "
+
+    st.markdown("---")
+    st.markdown(f"🔎 완성된 문장:\n\n{quiz_display.strip()}")
 # 예시 퀴즈 세트
 quiz_list = [
     "This image represents a team observing a leader who has achieved peak _____ or reached a significant business _____, possibly exceeding _____ _____.",
@@ -64,16 +86,18 @@ if __name__ == "__main__":
     img = Image.open(IMG_DIR / "billboard.jpg")
     quiz, answ = generate_quiz(img)
 
-    print(f"quiz: {quiz[0]}")
-    print(f"answ: {answ[0]}")
+    # 퀴즈 문장 표시
+    st.image(img, caption="분석할 이미지", use_column_width=True)
+    st.markdown("### 🎯 생성된 퀴즈 문장")
+    st.write(quiz[0])
 
-    # ✨ 정답 단어만 추출해서 표시
+    # 정답 단어 + 선택지 생성
     blanks = extract_blank_words(quiz[0], answ[0])
-    print(f"# correct answer(s): {', '.join(blanks)}")
 
-    # 사용자의 오답 예시 → 정답 문장 전체 비교로 피드백 생성
-    resp = generate_feedback(
-        "this image showcase a bilboard advertise",
-        "This image showcases a billboard advertising",
-    )
-    print(resp)
+    # 객관식 퀴즈 표시
+    display_quiz(quiz[0], blanks)
+
+    # ✨ 선택된 정답 표시
+    if st.button("정답 보기"):
+        st.markdown("#### ✅ 정답 문장")
+        st.write(answ[0])
