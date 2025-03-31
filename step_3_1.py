@@ -24,15 +24,16 @@ def generate_quiz(img: ImageFile.ImageFile) -> tuple[list, list]:
     blanks_options_raw = re.findall(options_pattern, quiz_text)
 
     blanks = []
-    for options_raw in blanks_options_raw:
-        choices = re.findall(r'\d+\.\s(.+)', options_raw)
-        blanks.append({'choices': choices})
-
-    correct_answers = re.findall(r'Blank \d: \((\d)\)', quiz_text)
-    for idx, correct_idx in enumerate(correct_answers):
-        blanks[idx]['answer'] = blanks[idx]['choices'][int(correct_idx)-1]
+    for options_raw, correct_idx in zip(blanks_options_raw, correct_answers_raw):
+        choices = re.findall(r'\d+\.\s(.+)', options_raw.strip())
+        correct_choice = choices[int(correct_idx)-1]
+        blanks.append({
+            'choices': choices,
+            'answer': correct_choice
+        })
 
     return quiz_sentence, blanks
+
 
 def generate_feedback(user_input: str, answ: str) -> str:
     prompt_feedback = IN_DIR / "p3_feedback.txt"
@@ -78,7 +79,6 @@ def make_choices(correct_word: str) -> list[str]:
     options = distractors + [correct_word]
     random.shuffle(options)
     return options
-
 
 def extract_blank_words(quiz_sentence: str, answer_sentence: str) -> list[dict]:
     quiz_parts = quiz_sentence.split()
@@ -155,7 +155,7 @@ if __name__ == "__main__":
     resp_quiz = model_quiz.generate_content(resp_desc.text)
 
     # AI 응답 파싱
-    quiz_sentence, blanks = parse_quiz_response(resp_quiz.text)
+    quiz_sentence, blanks = generate_quiz(img)
 
     # 화면 표시
     st.image(img, caption="분석 이미지", use_column_width=True)
