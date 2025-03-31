@@ -59,6 +59,25 @@ def set_quiz(img: ImageFile.ImageFile):
             st.session_state["answ"] = answ
             st.session_state["audio"] = audio
 
+def generate_hint(answer: str) -> str:
+    hint = f"""
+    - 이 단어는 **'{answer[0]}'**로 시작해요.
+    - 총 **{len(answer)}글자**입니다.
+    """
+    meaning_pool = {
+        "strategy": "계획, 접근 방식과 관련 있어요.",
+        "goal": "달성하고자 하는 최종 목적이에요.",
+        "teamwork": "협력, 협동과 관련 있어요.",
+        "challenge": "어려움, 시도와 관련된 단어예요.",
+        "growth": "확장, 발전과 관련 있어요.",
+        "effort": "노력, 열정과 관련 있어요.",
+        "mission": "역할, 중요한 임무를 뜻해요.",
+        "drive": "동기부여나 추진력을 의미할 수 있어요."
+    }
+    lower_ans = answer.lower()
+    if lower_ans in meaning_pool:
+        hint += f"\n- 💡 의미 힌트: {meaning_pool[lower_ans]}"
+    return hint.strip()
 # 퀴즈 표시
 def show_quiz():
     st.divider()
