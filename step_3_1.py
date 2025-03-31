@@ -49,16 +49,6 @@ def extract_blank_words(quiz_sentence: str, answer_sentence: str) -> list[dict]:
                 "choices": make_choices(a)
             })
     return blanks
-# 예시 퀴즈 세트
-quiz_list = [
-    "This image represents a team observing a leader who has achieved peak _____ or reached a significant business _____, possibly exceeding _____ _____.",
-    "The mountain symbolizes the challenges and _____ _____ required to reach _____ _____, and demonstrates a commitment to strategic _____."
-]
-
-answer_list = [
-    "This image represents a team observing a leader who has achieved peak performance or reached a significant business goal, possibly exceeding revenue targets.",
-    "The mountain symbolizes the challenges and hard work required to reach ambitious goals, and demonstrates a commitment to strategic planning."
-]
 
 if __name__ == "__main__":
     img = Image.open(IMG_DIR / "billboard.jpg")
