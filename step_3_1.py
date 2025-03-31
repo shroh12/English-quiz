@@ -9,15 +9,30 @@ def generate_quiz(img: ImageFile.ImageFile) -> tuple[list, list]:
     # 1. 이미지 설명 생성
     prompt_desc = IN_DIR / "p1_desc.txt"
     model_desc = get_model(sys_prompt=prompt_desc.read_text(encoding="utf8"))
-    resp_desc = model_desc.generate_content([img, "Describe this image"])
+    desc_resp = model_desc.generate_content([img, "Describe this image"])
 
     # 2. 설명을 바탕으로 객관식 퀴즈 문장 생성 (프롬프트 내용은 위와 같이 수정됨)
     prompt_quiz = IN_DIR / "p2_quiz.txt"
     model_quiz = get_model(sys_prompt=prompt_quiz.read_text(encoding="utf8"))
-    resp_quiz = model_quiz.generate_content(resp_desc.text)
+    quiz_resp = model_quiz.generate_content(desc_resp.text)
 
     # tokenize_sent() 함수는 문장을 리스트로 분리한다고 가정
-    return tokenize_sent(resp_quiz.text), tokenize_sent(resp_desc.text)
+    quiz_text = quiz_resp.text.strip()
+    quiz_sentence = re.search(r'Quiz:\s*(.+)', quiz_text).group(1)
+
+    options_pattern = r'Blank \d options:\n(?:\d+\.\s.+\n?){4}'
+    blanks_options_raw = re.findall(options_pattern, quiz_text)
+
+    blanks = []
+    for options_raw in blanks_options_raw:
+        choices = re.findall(r'\d+\.\s(.+)', options_raw)
+        blanks.append({'choices': choices})
+
+    correct_answers = re.findall(r'Blank \d: \((\d)\)', quiz_text)
+    for idx, correct_idx in enumerate(correct_answers):
+        blanks[idx]['answer'] = blanks[idx]['choices'][int(correct_idx)-1]
+
+    return quiz_sentence, blanks
 
 def generate_feedback(user_input: str, answ: str) -> str:
     prompt_feedback = IN_DIR / "p3_feedback.txt"
