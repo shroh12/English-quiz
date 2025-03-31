@@ -23,6 +23,21 @@ def generate_feedback(user_input: str, answ: str) -> str:
     resp = model.generate_content(prompt)
     return resp.text
 
+def generate_choices_with_answer(correct_answer: str, distractor_pool: list[str], n_choices: int = 4):
+    # 정답을 오답풀에서 제거
+    distractors = [d for d in distractor_pool if d.lower() != correct_answer.lower()]
+    
+    # 오답 n-1개 랜덤 선택
+    sampled_distractors = random.sample(distractors, n_choices - 1)
+
+    # 정답과 함께 보기 구성
+    choices = sampled_distractors + [correct_answer]
+    random.shuffle(choices)
+
+    # 정답 인덱스 반환
+    correct_index = choices.index(correct_answer)
+    return choices, correct_index
+    
 DISTRACTOR_POOL = [
     "goal", "strategy", "success", "achievement", "target",
     "vision", "effort", "result", "planning", "challenge",
