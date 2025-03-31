@@ -66,6 +66,7 @@ if __name__ == "__main__":
     print(f"answ: {answ[0]}")
 
     # ✨ 정답 단어만 추출해서 표시
+    blanks = extract_blank_words(quiz[0], answ[0])
     print(f"# correct answer(s): {', '.join([b['answer'] for b in blanks])}")
 
 # 각 객관식 보기 출력
