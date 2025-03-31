@@ -60,7 +60,7 @@ def uploaded_image(on_change=None, args=None) -> Image.Image | None:
 
         if uploaded is not None:
             with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as tmp:
-                tmp.write(uploaded_file.read())
+                tmp.write(uploaded.read()())
                 tmp_path = tmp.name
             img = Image.open(tmp_path)
             st.image(img, use_container_width=True)
