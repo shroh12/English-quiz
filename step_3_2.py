@@ -85,9 +85,6 @@ def show_quiz():
             quiz_display = quiz.replace("_____", "🔲")
             st.markdown(f"**문제:** {quiz_display}")
             
-            # 힌트 보기
-            with st.expander("💡 힌트 보기"):
-                st.markdown(generate_hint(answ))
             # 객관식 보기 선택
             selected = st.radio("보기 중 하나를 선택하세요👇", choices, key=key_choice)
 
