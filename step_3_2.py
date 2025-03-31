@@ -62,46 +62,39 @@ def set_quiz(img: ImageFile.ImageFile):
 # 퀴즈 표시
 def show_quiz():
     st.divider()
-    st.markdown("### 📌 문장을 듣고 빈칸을 채워주세요!")
+    st.markdown("### 📌 문장을 듣고 알맞은 단어를 고르세요!")
 
     for idx, (quiz, answ, audio) in enumerate(zip(
         st.session_state["quiz"],
         st.session_state["answ"],
         st.session_state["audio"]
     )):
-        key_input = f"input_{idx}"
+        key_choice = f"choice_{idx}"
         key_feedback = f"feedback_{idx}"
-        init_session({key_input: "", key_feedback: ""})
-        
+        init_session({key_choice: "", key_feedback: ""})
+
         with stylable_container(key=f"form_question_{idx}"):
-            
-            st.markdown("### 📌 문장을 듣고 빈칸을 채워주세요!")
-            # 오디오
+
+            st.markdown(f"####  문제 {idx + 1}")
             st.audio(audio)
 
-            # 퀴즈 문장
-            # quiz_display = quiz.replace("_____", "🔲")
-            quiz_display = quiz
-            st.markdown(
-                f"문제:{quiz_display}"
-            )
+            # 보기 생성
+            choices, correct_idx = generate_choices_with_answer(answ, DISTRACTOR_POOL)
 
-            # 입력란
-            user_input = st.text_input(
-                "정답을 입력하세요👇",
-                value=st.session_state[key_input],
-                key=key_input,
-                placeholder="빈칸에 들어갈 단어를 정확히 입력하세요!",
-            )
+            # 퀴즈 문장 표시
+            quiz_display = quiz.replace("_____", "🔲")
+            st.markdown(f"**문제:** {quiz_display}")
+
+            # 객관식 보기 선택
+            selected = st.radio("보기 중 하나를 선택하세요👇", choices, key=key_choice)
 
             # 제출 버튼
-            submitted = st.button("정답 제출 ✅", key=f"submit_{idx}")
-
-            # 피드백 생성
-            if user_input and submitted:
-                with st.spinner("정답 확인 중입니다...🔍"):
-                    feedback = generate_feedback(user_input, answ)
-                    st.session_state[key_feedback] = feedback
+            if st.button("정답 제출 ✅", key=f"submit_{idx}"):
+                if selected == choices[correct_idx]:
+                    st.session_state[key_feedback] = "✅ 정답입니다! 🎉"
+                else:
+                    feedback = generate_feedback(selected, answ)
+                    st.session_state[key_feedback] = f"❌ 오답입니다.\n\n{feedback}"
 
             # 해설 출력
             if st.session_state[key_feedback]:
