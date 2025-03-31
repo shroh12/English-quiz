@@ -67,13 +67,7 @@ if __name__ == "__main__":
 
     # ✨ 정답 단어만 추출해서 표시
     blanks = extract_blank_words(quiz[0], answ[0])
-    print(f"# correct answer(s): {', '.join([b['answer'] for b in blanks])}")
-
-# 각 객관식 보기 출력
-for i, b in enumerate(blanks):
-    print(f"\nBlank {i+1}")
-    print("Answer:", b["answer"])
-    print("Choices:", ", ".join(b["choices"]))
+    print(f"# correct answer(s): {', '.join(blanks)}")
 
     # 사용자의 오답 예시 → 정답 문장 전체 비교로 피드백 생성
     resp = generate_feedback(
