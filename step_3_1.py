@@ -44,7 +44,6 @@ def make_choices(correct_word: str) -> list[str]:
     random.shuffle(options)
     return options
 
-# 🔽 빈칸에 들어갈 정답 단어 + 보기 옵션 리스트 반환
 def extract_blank_words(quiz_sentence: str, answer_sentence: str) -> list[dict]:
     quiz_parts = quiz_sentence.split()
     answer_parts = answer_sentence.split()
@@ -52,9 +51,10 @@ def extract_blank_words(quiz_sentence: str, answer_sentence: str) -> list[dict]:
     blanks = []
     for q, a in zip(quiz_parts, answer_parts):
         if q == "_____":
+            choices, _ = generate_choices_with_answer(a, DISTRACTOR_POOL)
             blanks.append({
                 "answer": a,
-                "choices": make_choices(a)
+                "choices": choices
             })
     return blanks
 
