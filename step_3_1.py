@@ -69,7 +69,7 @@ if __name__ == "__main__":
     print(f"# correct answer(s): {', '.join([b['answer'] for b in blanks])}")
 
 # 각 객관식 보기 출력
-for i, b in enumerate(blank):
+for i, b in enumerate(blanks):
     print(f"\nBlank {i+1}")
     print("Answer:", b["answer"])
     print("Choices:", ", ".join(b["choices"]))
