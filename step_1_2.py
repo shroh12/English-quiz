@@ -4,7 +4,6 @@ import google.generativeai as genai
 import streamlit as st 
 from PIL import Image, ImageFile
 from step_1_1 import OUT_DIR
-import tempfile
 
 def img_to_base64(img: Image.Image) -> str:
     import io
@@ -53,18 +52,20 @@ def uploaded_image(on_change=None, args=None) -> Image.Image | None:
         )
 
         uploaded = st.file_uploader(
-        label="",  # 빈 라벨
-        label_visibility="collapsed",
-        type=["png", "jpg", "jpeg"]
+            label="",  # 빈 라벨
+            label_visibility="collapsed",
+            on_change=on_change,
+            args=args
         )
 
         if uploaded is not None:
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as tmp:
-            tmp.write(uploaded_image.read())  # 여기서 uploaded를 사용해야 함
-            tmp_path = tmp.name
+            with st.container(border=True):
+                tmp_path = OUT_DIR / f"{Path(__file__).stem}.tmp"
+                tmp_path.write_bytes(uploaded.getvalue())
+                img = Image.open(tmp_path)
+                st.image(img, use_container_width=True)
+                return img
 
-        img = Image.open(tmp_path)
-        st.image(img, use_container_width=True)
 if __name__ == "__main__":
     st.set_page_config(page_title="앵무 받아쓰기", layout="wide", page_icon="🦜")
     st.title("✨ 만들면서 배우는 멀티모달 AI")
