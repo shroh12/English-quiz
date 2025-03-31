@@ -57,14 +57,24 @@ def uploaded_image(on_change=None, args=None) -> Image.Image | None:
             on_change=on_change,
             args=args
         )
+OUT_DIR = Path("tmp")  # 저장 경로 설정
+OUT_DIR.mkdir(exist_ok=True)
 
-        if uploaded is not None:
-            with st.container(border=True):
-                tmp_path = OUT_DIR / f"{Path(__file__).stem}.tmp"
-                tmp_path.write_bytes(uploaded.getvalue())
-                img = Image.open(tmp_path)
-                st.image(img, use_container_width=True)
-                return img
+def on_change():
+    pass  # 필요 시 동작 정의
+
+uploaded = st.file_uploader(
+    label="",
+    label_visibility="collapsed",
+    type=["png", "jpg", "jpeg"],
+    on_change=on_change
+)
+
+if uploaded is not None:
+    tmp_path = OUT_DIR / "temp_image"
+    tmp_path.write_bytes(uploaded.getvalue())
+    img = Image.open(tmp_path)
+    st.image(img, use_container_width=True)
 
 if __name__ == "__main__":
     st.set_page_config(page_title="앵무 받아쓰기", layout="wide", page_icon="🦜")
