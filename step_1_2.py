@@ -52,18 +52,20 @@ def uploaded_image(on_change=None, args=None) -> Image.Image | None:
             unsafe_allow_html=True
         )
 
-        uploaded = st.file_uploader(
-            label="",  # 빈 라벨
-            label_visibility="collapsed",
-            type=["png", "jpg", "jpeg"]
-        )
+            uploaded = st.file_uploader(
+                label="",  # 빈 라벨
+                label_visibility="collapsed",
+                on_change=on_change,
+                args=args
+            )
 
         if uploaded is not None:
-            with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as tmp:
-                tmp.write(uploaded.read())
-                tmp_path = tmp.name
-            img = Image.open(tmp_path)
-            st.image(img, use_container_width=True)
+            with st.container(border=True):
+                tmp_path = OUT_DIR / f"{Path(__file__).stem}.tmp"
+                tmp_path.write_bytes(uploaded.getvalue())
+                img = Image.open(tmp_path)
+                st.image(img, use_container_width=True)
+                return img
                 
 if __name__ == "__main__":
     st.set_page_config(page_title="앵무 받아쓰기", layout="wide", page_icon="🦜")
