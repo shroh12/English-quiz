@@ -51,13 +51,31 @@ def extract_blank_words(quiz_sentence: str, answer_sentence: str) -> list[dict]:
     blanks = []
     for q, a in zip(quiz_parts, answer_parts):
         if q == "_____":
+            # 첫 번째 빈칸만 처리하고 종료
             choices, _ = generate_choices_with_answer(a, DISTRACTOR_POOL)
             blanks.append({
                 "answer": a,
                 "choices": choices
             })
+            break  # ← 여기 추가! 하나만 생성하고 바로 종료
     return blanks
 
+def simplify_quiz_sentence(quiz_sentence: str) -> str:
+    # 빈칸이 2개 이상일 때 하나만 남기고 나머지는 원래 단어로 대체하거나 제거
+    parts = quiz_sentence.split()
+    blank_found = False
+    result = []
+    for p in parts:
+        if p == "_____":
+            if not blank_found:
+                result.append("_____")
+                blank_found = True
+            else:
+                result.append("[삭제]")  # 또는 원래 단어
+        else:
+            result.append(p)
+    return " ".join(result)
+    
 if __name__ == "__main__":
     img = Image.open(IMG_DIR / "billboard.jpg")
     quiz, answ = generate_quiz(img)
