@@ -57,12 +57,6 @@ def uploaded_image(on_change=None, args=None) -> Image.Image | None:
             on_change=on_change,
             args=args
         )
-    uploaded = st.file_uploader(
-            label="",  # 빈 라벨
-            label_visibility="collapsed",
-            on_change=on_change,
-            args=args
-        )
 
         if uploaded is not None:
             with st.container(border=True):
@@ -71,13 +65,7 @@ def uploaded_image(on_change=None, args=None) -> Image.Image | None:
                 img = Image.open(tmp_path)
                 st.image(img, use_container_width=True)
                 return img
-
-if uploaded is not None:
-    tmp_path = OUT_DIR / "temp_image"
-    tmp_path.write_bytes(uploaded.getvalue())
-    img = Image.open(tmp_path)
-    st.image(img, use_container_width=True)
-
+                
 if __name__ == "__main__":
     st.set_page_config(page_title="앵무 받아쓰기", layout="wide", page_icon="🦜")
     st.title("✨ 만들면서 배우는 멀티모달 AI")
