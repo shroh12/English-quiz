@@ -3,7 +3,7 @@ import random
 from step_1_1 import IMG_DIR, IN_DIR
 from step_1_2 import get_model
 from step_2_3 import tokenize_sent
-
+import re
 
 def generate_quiz(img: ImageFile.ImageFile) -> tuple[list, list]:
     # 1. 이미지 설명 생성
@@ -77,45 +77,72 @@ def extract_blank_words(quiz_sentence: str, answer_sentence: str) -> list[dict]:
             })
     return blanks
 
+
+def parse_quiz_response(resp_text: str):
+    quiz_match = re.search(r'Quiz: (.+?)\n', resp_text)
+    quiz_sentence = quiz_match.group(1).strip()
+
+    blanks = []
+    options_matches = re.findall(r'Blank \d options:\n(.*?)\n\n', resp_text, re.DOTALL)
+    correct_matches = re.findall(r'Blank \d: (\d)', resp_text)
+
+    for options_text, correct_idx in zip(options_matches, correct_matches):
+        choices = re.findall(r'\d+\.\s(.+)', options_text)
+        correct_choice = choices[int(correct_idx) - 1]
+        blanks.append({
+            'choices': choices,
+            'answer': correct_choice
+        })
+
+    return quiz_sentence, blanks
+
 def display_quiz_radio(quiz_sentence: str, blanks: list[dict]):
     st.subheader("📝 객관식 퀴즈를 풀어보세요")
 
-    quiz_parts = quiz_sentence.split()
-    blank_idx = 0
-    displayed_sentence = ""
+    quiz_parts = quiz_sentence.split('_____')
+    user_answers = []
 
-    for word in quiz_parts:
-        if word == "_____":
-            options = blanks[blank_idx]["choices"]
-            selected = st.radio(
-                label=f"빈칸 {blank_idx + 1}",
-                options=options,
-                key=f"radio_{blank_idx}"
-            )
-            displayed_sentence += f" **{selected}** "
-            blank_idx += 1
+    # 각 빈칸마다 선택지 표시
+    for idx, blank in enumerate(blanks):
+        st.markdown(quiz_parts[idx])
+        selected = st.radio(
+            label=f'빈칸 {idx + 1}',
+            options=blank['choices'],
+            key=f'blank_{idx}'
+        )
+        user_answers.append(selected)
+
+    st.markdown(quiz_parts[-1])  # 마지막 빈칸 뒤 문장
+
+    if st.button("정답 확인"):
+        correct_answers = [blank['answer'] for blank in blanks]
+        result = all(user == correct for user, correct in zip(user_answers, correct_answers))
+        if result:
+            st.success("🎉 모든 정답이 맞았습니다!")
         else:
-            displayed_sentence += f"{word} "
-
-    st.markdown("---")
-    st.markdown(f"🔎 **선택한 문장:**\n\n{displayed_sentence.strip()}")
+            st.error("❌ 오답이 포함되었습니다. 다시 시도해보세요!")
+            for i, (user, correct) in enumerate(zip(user_answers, correct_answers)):
+                if user == correct:
+                    st.write(f"✅ 빈칸 {i+1}: 맞음")
+                else:
+                    st.write(f"❌ 빈칸 {i+1}: 틀림 (정답: **{correct}**)")
 
 if __name__ == "__main__":
     img = Image.open(IMG_DIR / "billboard.jpg")
-    quiz_sentences, answer_sentences = generate_quiz(img)
+    
+    # 이미지 → AI 퀴즈 생성
+    prompt_desc = IN_DIR / "p1_desc.txt"
+    model_desc = get_model(sys_prompt=prompt_desc.read_text(encoding="utf8"))
+    resp_desc = model_desc.generate_content([img, "Describe this image"])
 
-    # 화면에 이미지와 퀴즈 문장 표시
-    st.image(img, caption="분석할 이미지", use_column_width=True)
-    st.markdown("### 🎯 생성된 퀴즈 문장")
-    st.write(quiz_sentences[0])
+    prompt_quiz = IN_DIR / "p2_quiz.txt"
+    model_quiz = get_model(sys_prompt=prompt_quiz.read_text(encoding="utf8"))
+    resp_quiz = model_quiz.generate_content(resp_desc.text)
 
-    # 정답 단어 및 객관식 선택지 생성
-    blanks = extract_blank_words(quiz_sentences[0], answer_sentences[0])
+    # AI 응답 파싱
+    quiz_sentence, blanks = parse_quiz_response(resp_quiz.text)
 
-    # 🔥 radio 버튼으로 객관식 퀴즈 표시
-    display_quiz_radio(quiz_sentences[0], blanks)
-
-    # 정답 확인 버튼 추가
-    if st.button("정답 보기"):
-        st.markdown("#### ✅ 정답 문장")
-        st.write(answer_sentences[0])
+    # 화면 표시
+    st.image(img, caption="분석 이미지", use_column_width=True)
+    st.markdown("### 🎯 생성된 객관식 퀴즈")
+    display_quiz_radio(quiz_sentence, blanks)
