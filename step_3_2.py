@@ -44,7 +44,7 @@ def init_page():
 # 퀴즈 세팅
 def set_quiz(img: ImageFile.ImageFile):
     if img and not st.session_state["quiz"]:
-        with st.spinner("문제를 준비 중입니다...🤔"):
+        with st.spinner("문제를 준비 중입니다...🦜"):
             quiz, answ = generate_quiz(img)
 
             audio = []
