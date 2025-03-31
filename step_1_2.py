@@ -60,7 +60,7 @@ def uploaded_image(on_change=None, args=None) -> Image.Image | None:
 
         if uploaded is not None:
         with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as tmp:
-            tmp.write(uploaded.read())  # 여기서 uploaded를 사용해야 함
+            tmp.write(uploaded_image.read())  # 여기서 uploaded를 사용해야 함
             tmp_path = tmp.name
 
         img = Image.open(tmp_path)
