@@ -13,7 +13,7 @@ def img_to_base64(img: Image.Image) -> str:
     return base64.b64encode(byte_data).decode()
 
 def get_model(sys_prompt: str = None) -> genai.GenerativeModel:
-    GEMINI_KEY = st.secrets.get("GEMINI_KEY", "DEFAULT-PLACEHOLDER")
+    GEMINI_KEY = st.secrets['GEMINI_KEY']
     GEMINI_MODEL = "gemini-2.0-flash"
     genai.configure(api_key=GEMINI_KEY, transport="rest")
     return genai.GenerativeModel(GEMINI_MODEL,
