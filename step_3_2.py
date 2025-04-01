@@ -77,7 +77,13 @@ def show_quiz():
             st.audio(audio)
 
             quiz_display = quiz
-            st.markdown(f"**문제:** {quiz_display}")
+            st.markdown(f"""
+            <div style="background-color:#f9f9f9;padding:15px;border-radius:10px;">
+                <h4>📘 문제 {idx + 1}</h4>
+                <p><strong>다음 문장을 읽고, 빈칸에 들어갈 가장 알맞은 단어를 고르세요.</strong></p>
+                <p style="font-size:17px;">{quiz_display}</p>
+            </div>
+            """, unsafe_allow_html=True)
 
             # choices의 유효성 검사
             if not choices or not isinstance(choices, list):
