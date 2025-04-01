@@ -80,12 +80,15 @@ def show_quiz():
             st.success(f"### 문제 {idx + 1}")
             st.audio(audio)
 
-            quiz_display = quiz
             st.markdown(f"""
-            <div style="background-color:#f9f9f9;padding:15px;border-radius:10px;">
-                <h4>📘 문제 {idx + 1}</h4>
-                <p><strong>다음 문장을 읽고, 빈칸에 들어갈 가장 알맞은 단어를 고르세요.</strong></p>
-                <p style="font-size:17px;">{quiz_display}</p>
+            <div style="background-color:#e6f4ea;padding:20px 20px 10px 20px;border-radius:12px;margin-bottom:10px;">
+                <h4 style="color:#006d2c;">문제 {idx + 1}</h4>
+                <audio controls style="width:100%;">
+                    <source src="{audio}" type="audio/wav">
+                    오디오를 지원하지 않는 브라우저입니다.
+                </audio>
+                <p style="margin-top:15px;"><strong>문제:</strong> 다음 문장을 읽고, 빈칸에 들어갈 가장 알맞은 단어를 고르세요.</p>
+                <p style="font-size:17px;">{quiz}</p>
             </div>
             """, unsafe_allow_html=True)
 
