@@ -15,18 +15,18 @@ def show_quiz():
     )
 
     for idx, quiz, answ, audio, choices in zipped:
-    key_choice = f"choice_{idx}"
-    key_feedback = f"feedback_{idx}"
-    init_session({key_choice: "", key_feedback: ""})
+        key_choice = f"choice_{idx}"
+        key_feedback = f"feedback_{idx}"
+        init_session({key_choice: "", key_feedback: ""})
 
-    with st.form(f"form_question_{idx}", border=True):
-        st.markdown("""
-        <div style="background-color:#e6f4ea; padding:10px; border-radius:10px; text-align: center;">
-            <h4 style="color:#006d2c; margin: 0;">문제</h4>
-        </div>
-        """, unsafe_allow_html=True)
+        with st.form(f"form_question_{idx}", border=True):
+            st.markdown("""
+            <div style="background-color:#e6f4ea; padding:10px; border-radius:10px; text-align: center;">
+                <h4 style="color:#006d2c; margin: 0;">문제</h4>
+            </div>
+            """, unsafe_allow_html=True)
 
-        st.audio(audio)
+            st.audio(audio)
 
             quiz_display = quiz
             st.markdown(f"**문제:** {quiz_display}")
