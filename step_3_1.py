@@ -59,6 +59,31 @@ def extract_blank_words(quiz_sentence: str, answer_sentence: str) -> list[dict]:
             break  
     return blanks
 
+def reduce_blanks_to_one(quiz_sentence: str, answer_sentence: str) -> tuple[str, str]:
+    quiz_parts = quiz_sentence.split()
+    answer_parts = answer_sentence.split()
+
+    new_quiz_parts = []
+    new_answer_parts = []
+    blank_found = False
+
+    for q, a in zip(quiz_parts, answer_parts):
+        if q == "_____":
+            if not blank_found:
+                new_quiz_parts.append("_____")
+                new_answer_parts.append(a)
+                blank_found = True
+            else:
+                new_quiz_parts.append(a)  # 복원: 빈칸 없앰
+                new_answer_parts.append(a)
+        else:
+            new_quiz_parts.append(q)
+            new_answer_parts.append(a)
+
+    new_quiz = " ".join(new_quiz_parts)
+    new_answer = " ".join(new_answer_parts)
+    return new_quiz, new_answer
+
 def simplify_quiz_sentence(quiz_sentence: str) -> str:
     # 빈칸이 2개 이상일 때 하나만 남기고 나머지는 원래 단어로 대체하거나 제거
     parts = quiz_sentence.split()
