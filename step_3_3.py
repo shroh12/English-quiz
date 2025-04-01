@@ -25,10 +25,13 @@ def show_quiz():
             quiz_display = quiz
             st.markdown(f"**문제:** {quiz_display}")
 
-            # choices의 유효성 검사
             if not choices or not isinstance(choices, list):
                 st.error("선택지가 없습니다. 다시 문제를 생성하세요.")
                 continue
+            
+            # 기본값 유효성 검증
+            if st.session_state[key_choice] not in choices:
+                st.session_state[key_choice] = choices[0]
 
             user_choice = st.radio(
                 "보기 중 하나를 선택하세요👇",
