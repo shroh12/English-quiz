@@ -51,13 +51,12 @@ def extract_blank_words(quiz_sentence: str, answer_sentence: str) -> list[dict]:
     blanks = []
     for q, a in zip(quiz_parts, answer_parts):
         if q == "_____":
-            # 첫 번째 빈칸만 처리하고 종료
             choices, _ = generate_choices_with_answer(a, DISTRACTOR_POOL)
             blanks.append({
                 "answer": a,
                 "choices": choices
             })
-            break  # ← 여기 추가! 하나만 생성하고 바로 종료
+            break  
     return blanks
 
 def simplify_quiz_sentence(quiz_sentence: str) -> str:
