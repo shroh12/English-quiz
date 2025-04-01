@@ -77,7 +77,6 @@ def show_quiz():
         init_session({key_choice: "", key_feedback: ""})
 
         with st.form(f"form_question_{idx}", border=True):
-            st.markdown("### 문제", unsafe_allow_html=True)
             st.audio(audio)
 
             quiz_highlighted = quiz.replace("_____", "<span style='color:red; font-weight:bold;'>_____</span>")
