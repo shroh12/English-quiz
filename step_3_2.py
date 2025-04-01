@@ -53,7 +53,7 @@ def set_quiz(img: ImageFile.ImageFile):
                 fp.write(wav_file)
 
             # 보기 좋게 꾸민 문제 텍스트
-            quiz_display = f"""다음 문장을 읽고, 빈칸에 들어갈 가장 알맞은 단어를 고르세요.  
+            quiz_display = f"""다음 문장을 듣고, 빈칸에 들어갈 단어를 고르세요.  
     **{quiz_sentence}**"""
 
         st.session_state["quiz"] = [quiz_display]
