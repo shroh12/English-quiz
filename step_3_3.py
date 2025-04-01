@@ -21,7 +21,7 @@ def show_quiz():  # 완전한 객관식 전환 (st.radio)
             st.success(f"### 문제 {idx + 1}")
             st.audio(audio)
 
-            quiz_display = quiz.replace("_____", "🔲")
+            quiz_display = quiz
             st.markdown(f"**문제:** {quiz_display}")
 
             user_choice = st.radio(
