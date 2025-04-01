@@ -15,15 +15,16 @@ def generate_quiz(img: ImageFile.ImageFile):
     resp_quiz = model_quiz.generate_content(resp_desc.text)
 
     # AI의 응답을 parsing하여 Quiz, Answer, Choices 얻음
+    original_match = re.search(r'Original:\s*"(.*?)"', resp_quiz.text)
     quiz_match = re.search(r'Quiz:\s*"(.*?)"', resp_quiz.text)
     answer_match = re.search(r'Answer:\s*"(.*?)"', resp_quiz.text)
     choices_match = re.search(r'Choices:\s*(\[[^\]]+\])', resp_quiz.text)
 
-    if quiz_match and answer_match and choices_match:
+    if quiz_match and answer_match and choices_match and original_match:
         quiz_sentence = quiz_match.group(1)
         answer_word = answer_match.group(1)
         choices = ast.literal_eval(choices_match.group(1))
-        return quiz_sentence, answer_word, choices, resp_desc.text
+        return quiz_sentence, answer_word, choices, original_match
     else:
         raise ValueError("AI 응답 파싱 실패!")
 
