@@ -126,7 +126,7 @@ def show_quiz():
 # 퀴즈 리셋
 def reset_quiz():
     if st.session_state["quiz"]:
-        if st.button("🔄 새로운 문제로 연습하기", type="primary"):
+        if st.button("🔄 새로운 문제", type="primary"):
             clear_session()
             st.rerun()
 
