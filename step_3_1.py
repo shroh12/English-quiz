@@ -1,11 +1,11 @@
 from PIL import Image, ImageFile
-import random
+import re
+import ast
 from step_1_1 import IMG_DIR, IN_DIR
 from step_1_2 import get_model
 from step_2_3 import tokenize_sent
 
-
-def generate_quiz(img: ImageFile.ImageFile) -> tuple[list, list]:
+def generate_quiz(img: ImageFile.ImageFile):
     prompt_desc = IN_DIR / "p1_desc.txt"
     model_desc = get_model(sys_prompt=prompt_desc.read_text(encoding="utf8"))
     resp_desc = model_desc.generate_content([img, "Describe this image"])
@@ -13,7 +13,19 @@ def generate_quiz(img: ImageFile.ImageFile) -> tuple[list, list]:
     prompt_quiz = IN_DIR / "p2_quiz.txt"
     model_quiz = get_model(sys_prompt=prompt_quiz.read_text(encoding="utf8"))
     resp_quiz = model_quiz.generate_content(resp_desc.text)
-    return tokenize_sent(resp_quiz.text), tokenize_sent(resp_desc.text)
+
+    # AI의 응답을 parsing하여 Quiz, Answer, Choices 얻음
+    quiz_match = re.search(r'Quiz:\s*"(.*?)"', resp_quiz.text)
+    answer_match = re.search(r'Answer:\s*"(.*?)"', resp_quiz.text)
+    choices_match = re.search(r'Choices:\s*(\[[^\]]+\])', resp_quiz.text)
+
+    if quiz_match and answer_match and choices_match:
+        quiz_sentence = quiz_match.group(1)
+        answer_word = answer_match.group(1)
+        choices = ast.literal_eval(choices_match.group(1))
+        return quiz_sentence, answer_word, choices, resp_desc.text
+    else:
+        raise ValueError("AI 응답 파싱 실패!")
 
 def generate_feedback(user_input: str, answ: str) -> str:
     prompt_feedback = IN_DIR / "p3_feedback.txt"
@@ -22,102 +34,16 @@ def generate_feedback(user_input: str, answ: str) -> str:
     model = get_model()
     resp = model.generate_content(prompt)
     return resp.text
-    
-DISTRACTOR_POOL = [
-    "goal", "strategy", "success", "achievement", "target",
-    "vision", "effort", "result", "planning", "challenge",
-    "growth", "performance", "mission", "teamwork", "drive"
-]
 
-def generate_choices_with_answer(correct_answer: str, distractor_pool: list[str], n_choices: int = 4):
-    distractors = [d for d in distractor_pool if d.lower() != correct_answer.lower()]
-    sampled_distractors = random.sample(distractors, n_choices - 1)
-    choices = sampled_distractors + [correct_answer]
-    random.shuffle(choices)
-    correct_index = choices.index(correct_answer)
-    return choices, correct_index
-    
-# 🔽 객관식 정답+오답 보기 생성
-def make_choices(correct_word: str) -> list[str]:
-    distractors = [w for w in DISTRACTOR_POOL if w.lower() != correct_word.lower()]
-    options = random.sample(distractors, 3) + [correct_word]
-    random.shuffle(options)
-    return options
-
-def extract_blank_words(quiz_sentence: str, answer_sentence: str) -> list[dict]:
-    quiz_parts = quiz_sentence.split()
-    answer_parts = answer_sentence.split()
-
-    blanks = []
-    for q, a in zip(quiz_parts, answer_parts):
-        if q == "_____":
-            choices, _ = generate_choices_with_answer(a, DISTRACTOR_POOL)
-            blanks.append({
-                "answer": a,
-                "choices": choices
-            })
-            break  
-    return blanks
-
-def reduce_blanks_to_one(quiz_sentence: str, answer_sentence: str) -> tuple[str, str]:
-    quiz_parts = quiz_sentence.split()
-    answer_parts = answer_sentence.split()
-
-    new_quiz_parts = []
-    new_answer_parts = []
-    blank_found = False
-
-    for q, a in zip(quiz_parts, answer_parts):
-        if q == "_____":
-            if not blank_found:
-                new_quiz_parts.append("_____")
-                new_answer_parts.append(a)
-                blank_found = True
-            else:
-                new_quiz_parts.append(a)  # 복원: 빈칸 없앰
-                new_answer_parts.append(a)
-        else:
-            new_quiz_parts.append(q)
-            new_answer_parts.append(a)
-
-    new_quiz = " ".join(new_quiz_parts)
-    new_answer = " ".join(new_answer_parts)
-    return new_quiz, new_answer
-
-def simplify_quiz_sentence(quiz_sentence: str) -> str:
-    # 빈칸이 2개 이상일 때 하나만 남기고 나머지는 원래 단어로 대체하거나 제거
-    parts = quiz_sentence.split()
-    blank_found = False
-    result = []
-    for p in parts:
-        if p == "_____":
-            if not blank_found:
-                result.append("_____")
-                blank_found = True
-            else:
-                result.append("[삭제]")  # 또는 원래 단어
-        else:
-            result.append(p)
-    return " ".join(result)
-    
 if __name__ == "__main__":
     img = Image.open(IMG_DIR / "billboard.jpg")
-    quiz, answ = generate_quiz(img)
+    quiz_sentence, answer_word, choices, full_desc = generate_quiz(img)
 
-    print(f"quiz: {quiz[0]}")
-    print(f"answ: {answ[0]}")
-
-    # ✨ 정답 단어만 추출해서 표시 (하나만 원할 경우 extract 함수에 break 필요)
-    blanks = extract_blank_words(quiz[0], answ[0])
-    
-    if blanks:
-        print(f"# correct answer(s): {', '.join([b['answer'] for b in blanks])}")
-    else:
-        print("No blanks found.")
+    print(f"Quiz: {quiz_sentence}")
+    print(f"Answer: {answer_word}")
+    print(f"Choices: {choices}")
 
     # 예시 오답에 대한 피드백
-    resp = generate_feedback(
-        "this image showcase a bilboard advertise",
-        "This image showcases a billboard advertising",
-    )
-    print(resp)
+    user_wrong_input = choices[0] if choices[0] != answer_word else choices[1]
+    feedback = generate_feedback(user_wrong_input, answer_word)
+    print(f"\nFeedback: {feedback}")
