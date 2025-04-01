@@ -11,7 +11,7 @@ from step_3_1 import generate_quiz, generate_feedback
 import base64
 from io import BytesIO
 
-# 이미지 base64 인코딩
+# 이미지 base64 인코딩 (필요한 경우 유지)
 def img_to_base64(img):
     buffered = BytesIO()
     img.save(buffered, format="PNG")
@@ -39,64 +39,55 @@ def init_page():
         </p>
         """, unsafe_allow_html=True)
 
-    init_session(dict(quiz=[], answ=[], voice="en-US-Journey-F"))
+    init_session(dict(quiz=[], answ=[], audio=[], choices=[], voice="en-US-Journey-F"))
 
-# 퀴즈 세팅
+# 퀴즈 세팅 (객관식 보기 포함)
 def set_quiz(img: ImageFile.ImageFile):
     if img and not st.session_state["quiz"]:
         with st.spinner("문제를 준비 중입니다...🦜"):
-            quiz, answ = generate_quiz(img)
+            quiz_sentence, answer_word, choices, full_desc = generate_quiz(img)
 
-            audio = []
-            for idx, sent in enumerate(answ):
-                wav_file = synth_speech(sent, st.session_state["voice"], "wav")
-                path = OUT_DIR / f"{Path(__file__).stem}_{idx}.wav"
-                with open(path, "wb") as fp:
-                    fp.write(wav_file)
-                    audio.append(path.as_posix())
+            wav_file = synth_speech(full_desc, st.session_state["voice"], "wav")
+            path = OUT_DIR / f"{Path(__file__).stem}.wav"
+            with open(path, "wb") as fp:
+                fp.write(wav_file)
 
-            st.session_state["quiz"] = quiz
-            st.session_state["answ"] = answ
-            st.session_state["audio"] = audio
+            st.session_state["quiz"] = [quiz_sentence]
+            st.session_state["answ"] = [answer_word]
+            st.session_state["audio"] = [path.as_posix()]
+            st.session_state["choices"] = [choices]
 
-# 퀴즈 표시
+# 객관식 퀴즈 표시 (주관식 제거, 객관식 전환)
 def show_quiz():
     st.divider()
     st.markdown("### 📌 문장을 듣고 알맞은 단어를 고르세요!")
 
-    for idx, (quiz, answ, audio) in enumerate(zip(
+    for idx, (quiz, answ, audio, choices) in enumerate(zip(
         st.session_state["quiz"],
         st.session_state["answ"],
-        st.session_state["audio"]
+        st.session_state["audio"],
+        st.session_state["choices"]
     )):
         key_choice = f"choice_{idx}"
         key_feedback = f"feedback_{idx}"
         init_session({key_choice: "", key_feedback: ""})
 
         with stylable_container(key=f"form_question_{idx}"):
-
-            st.markdown(f"####  문제 {idx + 1}")
+            st.markdown(f"#### 문제 {idx + 1}")
             st.audio(audio)
 
-            # 보기 생성
-            choices, correct_idx = generate_choices_with_answer(answ, DISTRACTOR_POOL)
-
-            # 퀴즈 문장 표시
             quiz_display = quiz.replace("_____", "🔲")
             st.markdown(f"**문제:** {quiz_display}")
-            
-            # 객관식 보기 선택
+
             selected = st.radio("보기 중 하나를 선택하세요👇", choices, key=key_choice)
 
-            # 제출 버튼
             if st.button("정답 제출 ✅", key=f"submit_{idx}"):
-                if selected == choices[correct_idx]:
+                if selected == answ:
                     st.session_state[key_feedback] = "✅ 정답입니다! 🎉"
                 else:
                     feedback = generate_feedback(selected, answ)
                     st.session_state[key_feedback] = f"❌ 오답입니다.\n\n{feedback}"
 
-            # 해설 출력
             if st.session_state[key_feedback]:
                 with st.expander("📚 해설 및 정답 보기", expanded=True):
                     st.markdown(f"**정답:** {answ}")
