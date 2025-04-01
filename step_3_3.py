@@ -3,13 +3,14 @@ from step_1_2 import uploaded_image
 from step_1_3 import clear_session, init_session
 from step_3_1 import generate_feedback
 from step_3_2 import init_page, reset_quiz, set_quiz
-def show_quiz():  # 완전한 객관식 전환 (st.radio)
+
+def show_quiz():
     zipped = zip(
         range(len(st.session_state["quiz"])),
         st.session_state["quiz"],
         st.session_state["answ"],
         st.session_state["audio"],
-        st.session_state["choices"]
+        st.session_state["choices"],
     )
 
     for idx, quiz, answ, audio, choices in zipped:
@@ -24,13 +25,19 @@ def show_quiz():  # 완전한 객관식 전환 (st.radio)
             quiz_display = quiz
             st.markdown(f"**문제:** {quiz_display}")
 
+            # choices의 유효성 검사
+            if not choices or not isinstance(choices, list):
+                st.error("선택지가 없습니다. 다시 문제를 생성하세요.")
+                continue
+
             user_choice = st.radio(
-                label="정답을 선택하세요👇",
-                options=choices,
+                "보기 중 하나를 선택하세요👇",
+                choices,
                 key=key_choice
             )
 
-            submitted = st.form_submit_button("정답 제출", use_container_width=True)
+            # 반드시 form_submit_button 포함
+            submitted = st.form_submit_button("정답 제출 ✅", use_container_width=True)
 
             if submitted:
                 with st.spinner("채점 중입니다..."):
@@ -45,7 +52,7 @@ def show_quiz():  # 완전한 객관식 전환 (st.radio)
         if feedback:
             with st.expander("📚 해설 보기", expanded=True):
                 st.markdown(f"**정답:** {answ}")
-                st.markdown(f"**피드백:** {feedback}")
+                st.markdown(feedback)
 
 if __name__ == "__main__":
     init_page()  # 페이지 초기화
