@@ -87,7 +87,7 @@ def show_quiz():
                     <source src="{audio}" type="audio/wav">
                     오디오를 지원하지 않는 브라우저입니다.
                 </audio>
-                <p style="margin-top:15px;"><strong>문제:</strong> 다음 문장을 읽고, 빈칸에 들어갈 가장 알맞은 단어를 고르세요.</p>
+                <p style="margin-top:15px;"><strong>문제:</strong> 다음 문장을 듣고, 빈칸에 들어갈 단어를 고르세요.</p>
                 <p style="font-size:17px;">{quiz}</p>
             </div>
             """, unsafe_allow_html=True)
