@@ -12,16 +12,7 @@ def show_quiz():
         st.session_state["audio"],
         st.session_state["choices"],
     )
-    question = get_current_question()  # 문제 텍스트
-    options = get_current_options()    # 보기 리스트
 
-    st.markdown(f"**문제:** {question}")
-
-    if options:
-        user_choice = st.radio("정답을 고르세요:", options)
-        # 선택 후 정답 확인 로직
-    else:
-        st.error("보기 항목이 로딩되지 않았습니다. 데이터를 확인해주세요.")
     for idx, quiz, answ, audio, choices in zipped:
         key_choice = f"choice_{idx}"
         key_feedback = f"feedback_{idx}"
