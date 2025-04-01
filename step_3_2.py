@@ -84,7 +84,7 @@ def show_quiz():
 
             st.markdown(f"""
             <div style="background-color:#e6f4ea;padding:20px 20px 10px 20px;border-radius:12px;margin-bottom:10px;">
-                <h4 style="color:#006d2c;">문제 {idx + 1}</h4>
+                <h4 style="color:#006d2c;">문제</h4>
                 <audio controls style="width:100%; margin-bottom: 15px;">
                     <source src="{audio}" type="audio/wav">
                     오디오를 지원하지 않는 브라우저입니다.
