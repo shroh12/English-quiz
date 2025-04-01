@@ -52,10 +52,14 @@ def set_quiz(img: ImageFile.ImageFile):
             with open(path, "wb") as fp:
                 fp.write(wav_file)
 
-            st.session_state["quiz"] = [quiz_sentence]
-            st.session_state["answ"] = [answer_word]
-            st.session_state["audio"] = [path.as_posix()]
-            st.session_state["choices"] = [choices]
+            # 보기 좋게 꾸민 문제 텍스트
+            quiz_display = f"""다음 문장을 읽고, 빈칸에 들어갈 가장 알맞은 단어를 고르세요.  
+    **{quiz_sentence}**"""
+
+        st.session_state["quiz"] = [quiz_display]
+        st.session_state["answ"] = [answer_word]
+        st.session_state["audio"] = [path.as_posix()]
+        st.session_state["choices"] = [choices]
 
 
 def show_quiz():
