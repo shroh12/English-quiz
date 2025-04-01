@@ -83,7 +83,7 @@ def show_quiz():
             quiz_highlighted = quiz.replace("_____", "<span style='color:red; font-weight:bold;'>_____</span>")
 
             st.markdown(f"""
-            <div style="background-color:#e6f4ea;padding:20px 20px 10px 20px;border-radius:12px;margin-bottom:10px;">
+            <div style="background-color:#e6f4ea;padding:20px 20px 10px 20px;border-radius:12px;margin-bottom:10px; text-align: center;">
                 <h4 style="color:#006d2c;">문제</h4>
                 <audio controls style="width:100%; margin-bottom: 15px;">
                     <source src="{audio}" type="audio/wav">
