@@ -76,7 +76,7 @@ def show_quiz():
             st.success(f"### 문제 {idx + 1}")
             st.audio(audio)
 
-            quiz_display = quiz.replace("_____", "🔲")
+            quiz_display = quiz
             st.markdown(f"**문제:** {quiz_display}")
 
             # choices의 유효성 검사
