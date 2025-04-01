@@ -12,6 +12,6 @@ Example 2:
 Original: "Our quarterly performance exceeded market expectations significantly."
 Quiz: "Our quarterly _____ exceeded market expectations significantly."
 Answer: "performance"
-Choices: ["performance", "perfume", "perfect", "curse"]
+Choices: ["perfume", "performance" "perfect", "curse"]
 
 Now, based on the provided text, generate ONLY the Original, Quiz, Answer, and Choices formatted exactly as shown in the examples above without extra explanation.
