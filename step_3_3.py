@@ -20,7 +20,11 @@ def show_quiz():
         init_session({key_choice: "", key_feedback: ""})
 
         with st.form(f"form_question_{idx}", border=True):
-            st.success(f"### 문제 {idx + 1}")
+            st.markdown("""
+            <div style="background-color:#e6f4ea; padding:10px; border-radius:10px;">
+                <h4 style="color:#006d2c;">문제</h4>
+            </div>
+            """, unsafe_allow_html=True)
             st.audio(audio)
 
             quiz_display = quiz
