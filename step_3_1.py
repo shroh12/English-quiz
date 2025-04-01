@@ -83,11 +83,15 @@ if __name__ == "__main__":
     print(f"quiz: {quiz[0]}")
     print(f"answ: {answ[0]}")
 
-    # ✨ 정답 단어만 추출해서 표시
+    # ✨ 정답 단어만 추출해서 표시 (하나만 원할 경우 extract 함수에 break 필요)
     blanks = extract_blank_words(quiz[0], answ[0])
-    print(f"# correct answer(s): {', '.join(blanks)}")
+    
+    if blanks:
+        print(f"# correct answer(s): {', '.join([b['answer'] for b in blanks])}")
+    else:
+        print("No blanks found.")
 
-    # 사용자의 오답 예시 → 정답 문장 전체 비교로 피드백 생성
+    # 예시 오답에 대한 피드백
     resp = generate_feedback(
         "this image showcase a bilboard advertise",
         "This image showcases a billboard advertising",
