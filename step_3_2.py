@@ -108,9 +108,6 @@ def show_quiz():
                 st.markdown(f"**정답:** {answ}")
                 st.markdown(feedback)
 
-
-
-
 # 퀴즈 리셋
 def reset_quiz():
     if st.session_state["quiz"]:
