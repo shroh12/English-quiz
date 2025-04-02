@@ -44,7 +44,8 @@ def init_page():
 # 퀴즈 세팅 (객관식 보기 포함)
 def set_quiz(img: ImageFile.ImageFile):
     if img and not st.session_state["quiz"]:
-        with st.spinner("문제를 준비 중입니다...🦜"):
+        with st.spinner("이미지 퀴즈를 준비 중입니다...🦜"):
+            # 퀴즈 데이터 생성
             quiz_sentence, answer_word, choices, full_desc = generate_quiz(img)
 
             wav_file = synth_speech(full_desc, st.session_state["voice"], "wav")
@@ -52,10 +53,22 @@ def set_quiz(img: ImageFile.ImageFile):
             with open(path, "wb") as fp:
                 fp.write(wav_file)
 
-            # 보기 좋게 꾸민 문제 텍스트
-            quiz_display = f"""다음 문장을 듣고, 빈칸에 들어갈 단어를 선택하세요.  
-    **{quiz_sentence}**"""
+            # 이미지 출력 및 설명 듣기 안내
+            quiz_display = f"""
+            이미지를 보고 설명을 잘 들은 후, 빈칸에 들어갈 알맞은 단어를 선택하세요.  
+            
+            **{quiz_sentence}**
+            """
 
+            # 보기 선택지 구성
+            choices_display = "\n".join(
+                [f"{idx+1}. {choice}" for idx, choice in enumerate(choices)]
+            )
+
+            quiz_display += f"\n\n{choices_display}"
+
+        # 이미지 및 시각적 퀴즈 세션 상태 설정
+        st.session_state["img"] = img
         st.session_state["quiz"] = [quiz_display]
         st.session_state["answ"] = [answer_word]
         st.session_state["audio"] = [path.as_posix()]
@@ -65,6 +78,7 @@ def set_quiz(img: ImageFile.ImageFile):
 def show_quiz():
     zipped = zip(
         range(len(st.session_state["quiz"])),
+        st.session_state["img"],
         st.session_state["quiz"],
         st.session_state["answ"],
         st.session_state["audio"],
