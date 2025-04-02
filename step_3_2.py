@@ -76,6 +76,7 @@ def set_quiz(img: ImageFile.ImageFile):
 
 
 def show_quiz():
+    # 세션 상태에 저장된 퀴즈 데이터를 인덱스와 함께 묶어주는(zip) 작업 수행
     zipped = zip(
         range(len(st.session_state["quiz"])),
         st.session_state["img"],
@@ -84,7 +85,7 @@ def show_quiz():
         st.session_state["audio"],
         st.session_state["choices"],
     )
-
+    # zipped에 묶여진 데이터를 풀어내어 각 문제를 순서대로 처리
     for idx, quiz, answ, audio, choices in zipped:
         key_choice = f"choice_{idx}"
         key_feedback = f"feedback_{idx}"
