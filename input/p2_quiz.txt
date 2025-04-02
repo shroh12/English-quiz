@@ -3,15 +3,15 @@ As a highly skilled professor specializing in language education, your task is t
 Examples:
 
 Example 1:
-Original: "Effective marketing strategy leads to increased customer engagement."
-Quiz: "Effective _____ strategy leads to increased customer engagement."
-Answer: "marketing"
-Choices: ["marketing", "market", "marking", "meeting"]
+Original: "A peaceful beach with gentle waves and sunshine."
+Quiz: "A peaceful _____ with gentle waves and sunshine."
+Answer: "beach"
+Choices: ["river", "lake", "beach", "mountain"]
 
 Example 2:
-Original: "Our quarterly performance exceeded market expectations significantly."
-Quiz: "Our quarterly _____ exceeded market expectations significantly."
+Original: "In winter, everything looks white and beautiful because of the snow."
+Quiz: "In winter, everything looks white and beautiful because of the _____."
 Answer: "performance"
-Choices: ["perfume", "performance" "perfect", "curse"]
+Choices: ["rain", "snow" "wind", "fog"]
 
 Now, based on the provided text, generate ONLY the Original, Quiz, Answer, and Choices formatted exactly as shown in the examples above without extra explanation.
