@@ -11,7 +11,7 @@ Choices: ["river", "lake", "beach", "mountain"]
 Example 2:
 Original: "In winter, everything looks white and beautiful because of the snow."
 Quiz: "In winter, everything looks white and beautiful because of the _____."
-Answer: "performance"
+Answer: "snow"
 Choices: ["rain", "snow" "wind", "fog"]
 
 Now, based on the provided text, generate ONLY the Original, Quiz, Answer, and Choices formatted exactly as shown in the examples above without extra explanation.
