@@ -7,6 +7,7 @@ from step_2_3 import tokenize_sent
 
 def generate_quiz(img: ImageFile.ImageFile):
     prompt_desc = IN_DIR / "p1_desc.txt"
+    # 시스템 프롬프트로 초기화된 모델을 가져옴 (이미지 설명 생성용)
     model_desc = get_model(sys_prompt=prompt_desc.read_text(encoding="utf8"))
     resp_desc = model_desc.generate_content([img, "Describe this image"])
     prompt_quiz = IN_DIR / "p2_quiz.txt"
@@ -17,6 +18,7 @@ def generate_quiz(img: ImageFile.ImageFile):
     quiz_match = re.search(r'Quiz:\s*"(.*?)"', resp_quiz.text)
     answer_match = re.search(r'Answer:\s*"(.*?)"', resp_quiz.text)
     choices_match = re.search(r'Choices:\s*(\[[^\]]+\])', resp_quiz.text)
+    # 추출된 모든 항목이 존재할 경우 값을 추출하여 변수에 저장
     if quiz_match and answer_match and choices_match and original_match:
         quiz_sentence = quiz_match.group(1)
         answer_word = answer_match.group(1)
@@ -27,6 +29,8 @@ def generate_quiz(img: ImageFile.ImageFile):
         raise ValueError("AI 응답 파싱 실패!")
 
 def generate_feedback(user_input: str, answ: str) -> str:
+    # 사용자의 오답과 정답을 기반으로 피드백을 위한 프롬프트 생성
+    # AI 모델을 통해 맞춤형 피드백을 생성하여 반환
     prompt_feedback = IN_DIR / "p3_feedback.txt"
     text = prompt_feedback.read_text(encoding="utf8")
     prompt = text.format(user_input, answ)
