@@ -6,6 +6,7 @@ from step_3_2 import init_page, reset_quiz, set_quiz
 import random
 
 def show_quiz():
+    # 각 퀴즈 문항의 인덱스, 문제, 정답, 오디오, 보기 리스트를 함께 묶어서 처리
     zipped = zip(
         range(len(st.session_state["quiz"])),
         st.session_state["quiz"],
@@ -13,12 +14,13 @@ def show_quiz():
         st.session_state["audio"],
         st.session_state["choices"],
     )
-
+    # 묶은 데이터를 풀어 각 문항을 순서대로 처리
     for idx, quiz, answ, audio, choices in zipped:
         key_choice = f"choice_{idx}"
         key_feedback = f"feedback_{idx}"
         init_session({key_choice: "", key_feedback: ""})
-
+        
+         # 각 문항을 개별적인 Streamlit 폼으로 표시
         with st.form(f"form_question_{idx}", border=True):
             st.markdown("""
             <div style="background-color:#e6f4ea; padding:10px; border-radius:10px; text-align: center;">
