@@ -42,37 +42,37 @@ def init_page():
     init_session(dict(quiz=[], answ=[], audio=[], choices=[], voice="en-US-Journey-F"))
 
 # 퀴즈 세팅 (객관식 보기 포함)
-def set_quiz(img: ImageFile.ImageFile):
+def set_quiz(img: ImageFile.ImageFile, age: int):
     if img and not st.session_state["quiz"]:
         with st.spinner("이미지 퀴즈를 준비 중입니다...🦜"):
-            # 퀴즈 데이터 생성
-            quiz_sentence, answer_word, choices, full_desc = generate_quiz(img)
+            quiz_sentence, answer_words, choices_list, full_desc = generate_quiz(img, age)
 
             wav_file = synth_speech(full_desc, st.session_state["voice"], "wav")
             path = OUT_DIR / f"{Path(__file__).stem}.wav"
             with open(path, "wb") as fp:
                 fp.write(wav_file)
 
-            # 이미지 출력 및 설명 듣기 안내
             quiz_display = f"""
             이미지를 보고 설명을 잘 들은 후, 빈칸에 들어갈 알맞은 단어를 선택하세요.  
             
             **{quiz_sentence}**
             """
 
-            # 보기 선택지 구성
-            choices_display = "\n".join(
-                [f"{idx+1}. {choice}" for idx, choice in enumerate(choices)]
-            )
+            choices_display = ""
+            for idx, choices in enumerate(choices_list):
+                choices_display += f"\n\n🔸 **빈칸 {idx+1} 보기:**\n"
+                choices_display += "\n".join(
+                    [f"{i+1}. {choice}" for i, choice in enumerate(choices)]
+                )
 
-            quiz_display += f"\n\n{choices_display}"
+            quiz_display += choices_display
 
-        # 이미지 및 시각적 퀴즈 세션 상태 설정
+        # 세션 상태 설정
         st.session_state["img"] = img
         st.session_state["quiz"] = [quiz_display]
-        st.session_state["answ"] = [answer_word]
+        st.session_state["answ"] = answer_words
         st.session_state["audio"] = [path.as_posix()]
-        st.session_state["choices"] = [choices]
+        st.session_state["choices"] = choices_list
 
 
 def show_quiz():
