@@ -57,7 +57,7 @@ def show_quiz():
                 continue
 
             # ✅ 난이도 선택
-            difficulty_kor = st.selectbox("문제 난이도를 선택하세요 👇", ["쉬움", "중간", "어려움"], key=f"difficulty_{idx}")
+            difficulty_kor = st.selectbox("문제 난이도를 선택하세요.", ["쉬움", "중간", "어려움"], key=f"difficulty_{idx}")
             difficulty_map = {
                 "쉬움": "easy",
                 "중간": "medium",
