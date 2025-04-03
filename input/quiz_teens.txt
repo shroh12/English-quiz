@@ -10,5 +10,5 @@ Strictly follow this format (do NOT include additional explanations or notes):
 
 Original: "The green parrot is sitting alertly on a branch in a vibrant tropical forest."
 Quiz: "The green parrot is sitting alertly on a _____ in a vibrant _____ forest."
-Answer: "branch, tropical"
+Answer: "branch", "tropical"
 Choices: ["branch", "rock", "leaf", "flower"], ["tropical", "cold", "dry", "snowy"]
