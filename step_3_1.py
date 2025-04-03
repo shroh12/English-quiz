@@ -7,19 +7,17 @@ from step_1_1 import IMG_DIR, IN_DIR
 from step_1_2 import get_model
 from step_2_3 import tokenize_sent
 
-def get_prompt_by_age(age):
-    try:
-        age = int(age)
-    except (ValueError, TypeError):
-        raise ValueError(f"Invalid age value: {age}")
-
-    if 8 <= age <= 12:
-        return "prompt_for_8_to_12.txt"
-    elif 13 <= age <= 16:
-        return "prompt_for_13_to_16.txt"
+def get_prompt_by_group(group: str) -> str:
+    if group == "초등학생":
+        return "prompt_elementary.txt"
+    elif group == "중학생":
+        return "prompt_middle.txt"
+    elif group == "고등학생":
+        return "prompt_high.txt"
+    elif group == "성인":
+        return "prompt_adult.txt"
     else:
-        return "default_prompt.txt"
-
+        raise ValueError(f"지원하지 않는 그룹입니다: {group}")
 def generate_quiz(img: ImageFile.ImageFile, age: int):
     prompt_desc = IN_DIR / "p1_desc.txt"
     model_desc = get_model(sys_prompt=prompt_desc.read_text(encoding="utf8"))
@@ -31,7 +29,7 @@ def generate_quiz(img: ImageFile.ImageFile, age: int):
     resp_quiz = model_quiz.generate_content(resp_desc.text)
 
     # ✅ 여기! AI 응답 확인용 코드 추가
-    st.subheader("🧠 AI 응답 확인용 디버그 출력")
+    st.subheader("AI 응답 확인용 디버그 출력")
     st.code(resp_quiz.text, language="markdown")  # 이렇게 하면 화면에 응답이 나와요
 
     # AI 응답을 파싱하여 Quiz, Answer, Choices, Original 얻기
