@@ -40,13 +40,6 @@ def generate_quiz(img: ImageFile.ImageFile, group: str):
     answer_match = re.search(r'Answer:\s*["“”]?(.*?)["“”]?\s*$', resp_quiz.text, re.MULTILINE)
     choices_match = re.search(r'Choices:\s*(\[[^\]]+\])', resp_quiz.text)
 
-    st.write({
-        "original_match": bool(original_match),
-        "quiz_match": bool(quiz_match),
-        "answer_match": bool(answer_match),
-        "choices_match": bool(choices_match),
-    })
-    
     if quiz_match and answer_match and choices_match and original_match:
         quiz_sentence = quiz_match.group(1).strip()
         answer_word = answer_match.group(1).strip()
