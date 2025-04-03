@@ -68,12 +68,19 @@ def show_quiz():
 if __name__ == "__main__":
     init_page()  # 페이지 초기화
 
-    # ✅ 학령 구분 기준 선택 UI
-    group_input = st.selectbox("연령대를 선택하세요.", ["초등학생", "중학생", "고등학생", "성인"])
+    # ✅ 1. 학습자 그룹 선택 (UI용 한글 → 내부 코드로 변환)
+    group_display = st.selectbox("연령대를 선택하세요.", ["초등학생", "중학생", "고등학생", "성인"])
+    group_mapping = {
+        "초등학생": "elementary",
+        "중학생": "middle",
+        "고등학생": "high",
+        "성인": "adult"
+    }
+    group_code = group_mapping.get(group_display, "default")  # 예외 대응
 
-    # 이미지 업로드 + 퀴즈 실행
+    # ✅ 2. 이미지 업로드 → 퀴즈 생성
     if img := uploaded_image(on_change=clear_session):  # 이미지 등록
-        set_quiz(img, group_input)  # ✅ 학령 그룹으로 전달
+        set_quiz(img, group_code)  # 내부에서는 영문 코드로 처리
         show_quiz()
         reset_quiz()
 
