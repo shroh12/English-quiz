@@ -47,8 +47,6 @@ def generate_quiz(img: ImageFile.ImageFile, group: str):
         original_sentence = original_match.group(1).strip()
         return quiz_sentence, answer_word, choices, original_sentence
         
-    st.error("❌ AI 응답 파싱 실패! 아래 응답을 참고하세요.")
-    st.code(resp_quiz.text)
     raise ValueError("AI 응답 파싱 실패!")
 
 def generate_feedback(user_input: str, answ: str) -> str:
