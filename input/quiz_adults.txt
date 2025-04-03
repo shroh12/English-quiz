@@ -10,5 +10,5 @@ Use exactly the following format (do NOT include additional explanations):
 
 Original: "The executive's sagacious decision significantly augmented quarterly revenue, facilitating unprecedented market penetration."
 Quiz: "The executive's _____ decision significantly _____ quarterly revenue, facilitating unprecedented market _____."
-Answer: "sagacious, augmented, penetration"
+Answer: "sagacious", "augmented, "penetration"
 Choices: ["sagacious", "impetuous", "equivocal", "negligent"], ["augmented", "curtailed", "attenuated", "mitigated"], ["penetration", "withdrawal", "consolidation", "saturation"]
