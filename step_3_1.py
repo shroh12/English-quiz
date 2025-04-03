@@ -9,22 +9,23 @@ from step_2_3 import tokenize_sent
 
 def get_prompt_by_group(group: str) -> str:
     if group == "초등학생":
-        return "prompt_elementary.txt"
+        return "quiz_kids.txt"
     elif group == "중학생":
-        return "prompt_middle.txt"
+        return "quiz_teens.txt"
     elif group == "고등학생":
-        return "prompt_high.txt"
+        return "quiz_highschool.txt"
     elif group == "성인":
-        return "prompt_adult.txt"
+        return "quiz_adults.txt"
     else:
         raise ValueError(f"지원하지 않는 그룹입니다: {group}")
-def generate_quiz(img: ImageFile.ImageFile, age: int):
+        
+def generate_quiz(img: ImageFile.ImageFile, group: str):
     prompt_desc = IN_DIR / "p1_desc.txt"
     model_desc = get_model(sys_prompt=prompt_desc.read_text(encoding="utf8"))
     resp_desc = model_desc.generate_content([img, "Describe this image"])
 
     # 🔥 연령별 프롬프트 동적 선택
-    quiz_prompt_path = get_prompt_by_age(age)
+    quiz_prompt_path = get_prompt_by_group(group)
     model_quiz = get_model(sys_prompt=quiz_prompt_path.read_text(encoding="utf8"))
     resp_quiz = model_quiz.generate_content(resp_desc.text)
 
