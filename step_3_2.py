@@ -81,7 +81,10 @@ def set_quiz(img: ImageFile.ImageFile, group: str):
         st.session_state["answ"] = answer_words
         st.session_state["audio"] = [path.as_posix()]
         st.session_state["choices"] = choices_list
-
+        st.session_state["quiz_data"] = [{
+            "question": quiz_sentence,
+            "topic": "지문화"
+        }]
 
 def show_quiz():
     # 세션 상태에 저장된 퀴즈 데이터를 인덱스와 함께 묶어주는(zip) 작업 수행
