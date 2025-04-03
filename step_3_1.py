@@ -25,7 +25,8 @@ def generate_quiz(img: ImageFile.ImageFile, group: str):
     resp_desc = model_desc.generate_content([img, "Describe this image"])
 
     # 🔥 연령별 프롬프트 동적 선택
-    quiz_prompt_path = get_prompt_by_group(group)
+    quiz_prompt_filename = get_prompt_by_group(group)
+    quiz_prompt_path = Path(quiz_prompt_filename)
     model_quiz = get_model(sys_prompt=quiz_prompt_path.read_text(encoding="utf8"))
     resp_quiz = model_quiz.generate_content(resp_desc.text)
 
