@@ -15,25 +15,27 @@ def get_prompt_by_age(age: int) -> str:
     else:
         return IN_DIR / "quiz_adults.txt"
 
-def generate_quiz(img: ImageFile.ImageFile):
+def generate_quiz(img: ImageFile.ImageFile, age: int):
     prompt_desc = IN_DIR / "p1_desc.txt"
-    # 시스템 프롬프트로 초기화된 모델을 가져옴 (이미지 설명 생성용)
     model_desc = get_model(sys_prompt=prompt_desc.read_text(encoding="utf8"))
     resp_desc = model_desc.generate_content([img, "Describe this image"])
-    prompt_quiz = IN_DIR / "p2_quiz.txt"
-    model_quiz = get_model(sys_prompt=prompt_quiz.read_text(encoding="utf8"))
+
+    # 🔥 연령별 프롬프트 동적 선택
+    quiz_prompt_path = get_prompt_by_age(age)
+    model_quiz = get_model(sys_prompt=quiz_prompt_path.read_text(encoding="utf8"))
     resp_quiz = model_quiz.generate_content(resp_desc.text)
-    # AI의 응답을 parsing하여 Original, Quiz, Answer, Choices 얻음
+
+    # AI 응답을 파싱하여 Quiz, Answer, Choices, Original 얻기
     original_match = re.search(r'Original:\s*"(.*?)"', resp_quiz.text)
     quiz_match = re.search(r'Quiz:\s*"(.*?)"', resp_quiz.text)
     answer_match = re.search(r'Answer:\s*"(.*?)"', resp_quiz.text)
     choices_match = re.search(r'Choices:\s*(\[[^\]]+\])', resp_quiz.text)
-    # 추출된 모든 항목이 존재할 경우 값을 추출하여 변수에 저장
+
     if quiz_match and answer_match and choices_match and original_match:
         quiz_sentence = quiz_match.group(1)
         answer_word = answer_match.group(1)
         choices = ast.literal_eval(choices_match.group(1))
-        original_sentence = original_match.group(1)  # match 객체 대신 문자열로 반환
+        original_sentence = original_match.group(1)
         return quiz_sentence, answer_word, choices, original_sentence
     else:
         raise ValueError("AI 응답 파싱 실패!")
