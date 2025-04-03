@@ -7,9 +7,11 @@ from step_2_3 import tokenize_sent
 
 def get_prompt_by_age(age: int) -> str:
     if 8 <= age <= 12:
-        return IN_DIR / "quiz_kids.txt"
-    elif 13 <= age <= 18:
-        return IN_DIR / "quiz_teens.txt"
+        return IN_DIR / "quiz_kids.txt"        # 초등학생용 (쉬운 난이도, 빈칸 1개)
+    elif 13 <= age <= 15:
+        return IN_DIR / "quiz_teens.txt"       # 중학생용 (중간 난이도, 빈칸 2개)
+    elif 16 <= age <= 18:
+        return IN_DIR / "quiz_highschool.txt"  # 고등학생용 (심화 난이도, 빈칸 2개)
     else:
         return IN_DIR / "quiz_adults.txt"
 
