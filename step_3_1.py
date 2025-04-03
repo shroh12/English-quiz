@@ -7,17 +7,12 @@ from step_1_1 import IMG_DIR, IN_DIR
 from step_1_2 import get_model
 from step_2_3 import tokenize_sent
 
-def get_prompt_by_group(group: str) -> str:
-    if group == "초등학생":
-        return "quiz_kids.txt"
-    elif group == "중학생":
-        return "quiz_teens.txt"
-    elif group == "고등학생":
-        return "quiz_highschool.txt"
-    elif group == "성인":
-        return "quiz_adults.txt"
-    else:
-        raise ValueError(f"지원하지 않는 그룹입니다: {group}")
+def get_prompt_by_group(group: str) -> Path:
+    path = IN_DIR / f"quiz_{group}.txt"
+    if not path.exists():
+        st.warning(f"⚠️ '{group}' 그룹의 프롬프트가 존재하지 않아 기본값을 사용합니다.")
+        path = IN_DIR / "quiz_default.txt"
+    return path
         
 def generate_quiz(img: ImageFile.ImageFile, group: str):
     prompt_desc = IN_DIR / "p1_desc.txt"
