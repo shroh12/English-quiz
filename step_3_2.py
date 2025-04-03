@@ -45,19 +45,27 @@ def init_page():
 def set_quiz(img: ImageFile.ImageFile, age: int):
     if img and not st.session_state["quiz"]:
         with st.spinner("이미지 퀴즈를 준비 중입니다...🦜"):
-            quiz_sentence, answer_words, choices_list, full_desc = generate_quiz(img, age)
+            # 여기서 unpack
+            quiz_sentence, answer_word, choices, full_desc = generate_quiz(img, age)
 
+            # answer와 choices를 리스트 형태로 감싸줌 (빈칸 여러 개 대응을 위한 일관성)
+            answer_words = [answer_word]
+            choices_list = [choices]
+
+            # 음성 생성
             wav_file = synth_speech(full_desc, st.session_state["voice"], "wav")
             path = OUT_DIR / f"{Path(__file__).stem}.wav"
             with open(path, "wb") as fp:
                 fp.write(wav_file)
 
+            # 퀴즈 문장 출력
             quiz_display = f"""
             이미지를 보고 설명을 잘 들은 후, 빈칸에 들어갈 알맞은 단어를 선택하세요.  
             
             **{quiz_sentence}**
             """
 
+            # 보기 출력
             choices_display = ""
             for idx, choices in enumerate(choices_list):
                 choices_display += f"\n\n🔸 **빈칸 {idx+1} 보기:**\n"
@@ -67,7 +75,7 @@ def set_quiz(img: ImageFile.ImageFile, age: int):
 
             quiz_display += choices_display
 
-        # 세션 상태 설정
+        # 세션 상태 저장
         st.session_state["img"] = img
         st.session_state["quiz"] = [quiz_display]
         st.session_state["answ"] = answer_words
