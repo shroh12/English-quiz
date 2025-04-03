@@ -139,6 +139,17 @@ def show_quiz():
                     else:
                         feedback = generate_feedback(user_choice, answ)
                         st.session_state[key_feedback] = f"❌ 오답입니다.\n\n{feedback}"
+                    
+                    # ✅ 분석용 문제 데이터 저장 (누적)
+                    if "quiz_data" not in st.session_state:
+                        st.session_state["quiz_data"] = []
+
+                    st.session_state["quiz_data"].append({
+                        "question": quiz,              # 퀴즈 문장
+                        "topic": "지문화",             # 현재는 고정값. 나중에 자동 분류 가능
+                        "correct": is_correct,         # 정답 여부
+                        "difficulty": "medium"         # 난이도 (임시로 고정)
+                    })
 
         # 피드백 출력
         feedback = st.session_state.get(key_feedback, "")
