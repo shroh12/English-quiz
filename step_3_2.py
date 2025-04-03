@@ -86,7 +86,7 @@ def set_quiz(img: ImageFile.ImageFile, group: str):
             "topic": "지문화"
         }]
 
-def show_quiz():
+def show_quiz(difficulty):
     # 세션 상태에 저장된 퀴즈 데이터를 인덱스와 함께 묶어주는(zip) 작업 수행
     zipped = zip(
         range(len(st.session_state["quiz"])),
