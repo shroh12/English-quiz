@@ -12,3 +12,5 @@ Original: "The diligent student meticulously reviewed her notes to prepare for t
 Quiz: "The _____ student meticulously reviewed her notes to prepare for the _____ exam."
 Answer: "diligent", "challenging"
 Choices: ["diligent", "careless", "confused", "reluctant"], ["challenging", "easy", "brief", "casual"]
+
+Now, based on the provided text, generate ONLY the Original, Quiz, Answer, and Choices as shown above. Do not include any extra output.
