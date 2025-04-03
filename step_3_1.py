@@ -7,15 +7,18 @@ from step_1_1 import IMG_DIR, IN_DIR
 from step_1_2 import get_model
 from step_2_3 import tokenize_sent
 
-def get_prompt_by_age(age: int) -> str:
+def get_prompt_by_age(age):
+    try:
+        age = int(age)
+    except (ValueError, TypeError):
+        raise ValueError(f"Invalid age value: {age}")
+
     if 8 <= age <= 12:
-        return IN_DIR / "quiz_kids.txt"        # 초등학생용 (쉬운 난이도, 빈칸 1개)
-    elif 13 <= age <= 15:
-        return IN_DIR / "quiz_teens.txt"       # 중학생용 (중간 난이도, 빈칸 2개)
-    elif 16 <= age <= 18:
-        return IN_DIR / "quiz_highschool.txt"  # 고등학생용 (심화 난이도, 빈칸 2개)
+        return "prompt_for_8_to_12.txt"
+    elif 13 <= age <= 16:
+        return "prompt_for_13_to_16.txt"
     else:
-        return IN_DIR / "quiz_adults.txt"
+        return "default_prompt.txt"
 
 def generate_quiz(img: ImageFile.ImageFile, age: int):
     prompt_desc = IN_DIR / "p1_desc.txt"
