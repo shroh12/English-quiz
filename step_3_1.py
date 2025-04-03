@@ -5,6 +5,14 @@ from step_1_1 import IMG_DIR, IN_DIR
 from step_1_2 import get_model
 from step_2_3 import tokenize_sent
 
+def get_prompt_by_age(age: int) -> str:
+    if 8 <= age <= 12:
+        return IN_DIR / "quiz_kids.txt"
+    elif 13 <= age <= 18:
+        return IN_DIR / "quiz_teens.txt"
+    else:
+        return IN_DIR / "quiz_adults.txt"
+
 def generate_quiz(img: ImageFile.ImageFile):
     prompt_desc = IN_DIR / "p1_desc.txt"
     # 시스템 프롬프트로 초기화된 모델을 가져옴 (이미지 설명 생성용)
