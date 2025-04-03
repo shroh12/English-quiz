@@ -34,9 +34,9 @@ def generate_quiz(img: ImageFile.ImageFile, age: int):
     # AI 응답을 파싱하여 Quiz, Answer, Choices, Original 얻기
     original_match = re.search(r'Original:\s*"(.*?)"', resp_quiz.text)
     quiz_match = re.search(r'Quiz:\s*"(.*?)"', resp_quiz.text)
-    answer_match = re.search(r'Answer:\s*"(.*?)"', resp_quiz.text)
+    answer_match = re.search(r'Answer:\s*"?([a-zA-Z0-9\-_\' ]+)"?', resp_quiz.text)
     choices_match = re.search(r'Choices:\s*(\[[^\]]+\])', resp_quiz.text)
-
+    
     if quiz_match and answer_match and choices_match and original_match:
         quiz_sentence = quiz_match.group(1)
         answer_word = answer_match.group(1)
