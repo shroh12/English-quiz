@@ -68,7 +68,7 @@ def show_quiz():
 if __name__ == "__main__":
     init_page()  # 페이지 초기화
     if img := uploaded_image(on_change=clear_session):  # 이미지 등록
-        set_quiz(img)  # 퀴즈 출제 (객관식용)
+        set_quiz(img, age) # 퀴즈 출제 (객관식용)
         show_quiz()  # 객관식 퀴즈 출력
         reset_quiz()  # 퀴즈 재출제
 
