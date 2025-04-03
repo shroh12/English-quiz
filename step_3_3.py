@@ -109,7 +109,7 @@ def show_quiz():
 if __name__ == "__main__":
     init_page()  # 페이지 초기화
 
-    # ✅ 1. 학습자 그룹 선택
+    # ✅ 1. 연령대 선택
     group_display = st.selectbox("연령대를 선택하세요.", ["초등학생", "중학생", "고등학생", "성인"])
     group_mapping = {
         "초등학생": "elementary",
@@ -119,22 +119,30 @@ if __name__ == "__main__":
     }
     group_code = group_mapping.get(group_display, "default")
 
-    # ✅ 2. 이미지 업로드 → 퀴즈 생성
+    # ✅ 2. 난이도 선택 (폼 밖에서 전역으로 선택)
+    difficulty_kor = st.selectbox("문제 난이도를 선택하세요 👇", ["쉬움", "중간", "어려움"])
+    difficulty_map = {
+        "쉬움": "easy",
+        "중간": "medium",
+        "어려움": "hard"
+    }
+    difficulty = difficulty_map[difficulty_kor]
+
+    # ✅ 3. 이미지 업로드 → 퀴즈 생성
     if img := uploaded_image(on_change=clear_session):
         set_quiz(img, group_code)
-        
-        # ✅ 3. 퀴즈 출력
-        show_quiz()
-        
-        # ✅ 4. '지문화' 문제 비율 출력
+
+        # ✅ 4. 퀴즈 출력 (난이도 전달)
+        show_quiz(difficulty)  # ← 이 부분 중요: 난이도 전달
+
+        # ✅ 5. 지문화 비율 출력
         if "quiz_data" in st.session_state:
             show_jimunhwa_percentage(st.session_state["quiz_data"])
         elif "quiz" in st.session_state and "choices" in st.session_state:
-            # 예: topic이 포함되어 있다면 여기에 커스터마이징
             st.info("문제 데이터에 'topic' 정보가 없어서 분석할 수 없습니다.")
         else:
             st.info("지문 데이터가 없어 비율을 계산할 수 없습니다.")
-        
+
         if st.button("새로운 문제"):
             reset_quiz()
 
