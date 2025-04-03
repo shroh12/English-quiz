@@ -37,7 +37,7 @@ def generate_quiz(img: ImageFile.ImageFile, age: int):
         choices = ast.literal_eval(choices_match.group(1))
         original_sentence = original_match.group(1)
         quiz_sentence, answer_word, choices = generate_quiz(img)
-        return quiz_sentence, answer_word, choices, original_sentence
+        quiz_sentence, answer_word, choices, full_desc
     else:
         raise ValueError("AI 응답 파싱 실패!")
 
