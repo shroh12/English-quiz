@@ -10,5 +10,5 @@ Use exactly the following format (do NOT include additional explanations):
 
 Original: "The diligent student meticulously reviewed her notes to prepare for the challenging exam."
 Quiz: "The _____ student meticulously reviewed her notes to prepare for the _____ exam."
-Answer: "diligent, challenging"
+Answer: "diligent", "challenging"
 Choices: ["diligent", "careless", "confused", "reluctant"], ["challenging", "easy", "brief", "casual"]
