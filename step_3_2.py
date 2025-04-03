@@ -87,16 +87,15 @@ def set_quiz(img: ImageFile.ImageFile, group: str):
         }]
 
 def show_quiz(difficulty):
-    # 세션 상태에 저장된 퀴즈 데이터를 인덱스와 함께 묶어주는(zip) 작업 수행
+    # 세션 상태에서 문제 데이터 묶기
     zipped = zip(
         range(len(st.session_state["quiz"])),
-        st.session_state["img"],
         st.session_state["quiz"],
         st.session_state["answ"],
         st.session_state["audio"],
         st.session_state["choices"],
     )
-    # zipped에 묶여진 데이터를 풀어내어 각 문제를 순서대로 처리
+
     for idx, quiz, answ, audio, choices in zipped:
         key_choice = f"choice_{idx}"
         key_feedback = f"feedback_{idx}"
@@ -105,7 +104,9 @@ def show_quiz(difficulty):
         with st.form(f"form_question_{idx}", border=True):
             st.audio(audio)
 
-            quiz_highlighted = quiz.replace("_____", "<span style='color:red; font-weight:bold;'>_____</span>")
+            quiz_highlighted = quiz.replace(
+                "_____", "<span style='color:red; font-weight:bold;'>_____</span>"
+            )
 
             st.markdown(f"""
             <div style="background-color:#e6f4ea;padding:20px 20px 10px 20px;border-radius:12px;margin-bottom:10px; text-align: center;">
@@ -118,7 +119,6 @@ def show_quiz(difficulty):
             </div>
             """, unsafe_allow_html=True)
 
-            # choices의 유효성 검사
             if not choices or not isinstance(choices, list):
                 st.error("선택지가 없습니다. 다시 문제를 생성하세요.")
                 continue
@@ -129,28 +129,27 @@ def show_quiz(difficulty):
                 key=key_choice
             )
 
-            # 반드시 form_submit_button 포함
             submitted = st.form_submit_button("정답 제출 ✅", use_container_width=True)
 
             if submitted:
                 with st.spinner("채점 중입니다..."):
-                    is_correct = user_choice == answ
-                    
-                    if user_choice == answ:
+                    is_correct = user_choice == answ  # ✅ 정답 여부 판단
+
+                    if is_correct:
                         st.session_state[key_feedback] = "✅ 정답입니다! 🎉"
                     else:
                         feedback = generate_feedback(user_choice, answ)
                         st.session_state[key_feedback] = f"❌ 오답입니다.\n\n{feedback}"
-                    
-                    # ✅ 분석용 문제 데이터 저장 (누적)
+
+                    # ✅ quiz_data 누적 저장
                     if "quiz_data" not in st.session_state:
                         st.session_state["quiz_data"] = []
 
                     st.session_state["quiz_data"].append({
-                        "question": quiz,              # 퀴즈 문장
-                        "topic": "지문화",             # 현재는 고정값. 나중에 자동 분류 가능
-                        "correct": is_correct,         # 정답 여부
-                        "difficulty":difficulty         # 난이도 (임시로 고정)
+                        "question": quiz,
+                        "topic": "지문화",       # 지금은 고정값
+                        "correct": is_correct,
+                        "difficulty": difficulty  # 💡 외부에서 전달된 값 사용!
                     })
 
         # 피드백 출력
@@ -159,7 +158,6 @@ def show_quiz(difficulty):
             with st.expander("📚 해설 보기", expanded=True):
                 st.markdown(f"**정답:** {answ}")
                 st.markdown(feedback)
-
 # 퀴즈 리셋
 def reset_quiz():
     if st.session_state["quiz"]:
