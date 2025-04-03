@@ -134,6 +134,8 @@ def show_quiz(difficulty):
 
             if submitted:
                 with st.spinner("채점 중입니다..."):
+                    is_correct = user_choice == answ
+                    
                     if user_choice == answ:
                         st.session_state[key_feedback] = "✅ 정답입니다! 🎉"
                     else:
@@ -148,7 +150,7 @@ def show_quiz(difficulty):
                         "question": quiz,              # 퀴즈 문장
                         "topic": "지문화",             # 현재는 고정값. 나중에 자동 분류 가능
                         "correct": is_correct,         # 정답 여부
-                        "difficulty": "medium"         # 난이도 (임시로 고정)
+                        "difficulty":difficulty         # 난이도 (임시로 고정)
                     })
 
         # 피드백 출력
