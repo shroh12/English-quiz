@@ -32,19 +32,28 @@ def generate_quiz(img: ImageFile.ImageFile, age: int):
     st.code(resp_quiz.text, language="markdown")  # 이렇게 하면 화면에 응답이 나와요
 
     # AI 응답을 파싱하여 Quiz, Answer, Choices, Original 얻기
-    original_match = re.search(r'Original:\s*"(.*?)"', resp_quiz.text)
-    quiz_match = re.search(r'Quiz:\s*"(.*?)"', resp_quiz.text)
-    answer_match = re.search(r'Answer:\s*"?([a-zA-Z0-9\-_\' ]+)"?', resp_quiz.text)
+    original_match = re.search(r'Original:\s*["“”]?(.*?)["“”]?\s*$', resp_quiz.text, re.MULTILINE)
+    quiz_match = re.search(r'Quiz:\s*["“”]?(.*?)["“”]?\s*$', resp_quiz.text, re.MULTILINE)
+    answer_match = re.search(r'Answer:\s*["“”]?(.*?)["“”]?\s*$', resp_quiz.text, re.MULTILINE)
     choices_match = re.search(r'Choices:\s*(\[[^\]]+\])', resp_quiz.text)
+
+    st.write({
+        "original_match": bool(original_match),
+        "quiz_match": bool(quiz_match),
+        "answer_match": bool(answer_match),
+        "choices_match": bool(choices_match),
+    })
     
     if quiz_match and answer_match and choices_match and original_match:
-        quiz_sentence = quiz_match.group(1)
-        answer_word = answer_match.group(1)
+        quiz_sentence = quiz_match.group(1).strip()
+        answer_word = answer_match.group(1).strip()
         choices = ast.literal_eval(choices_match.group(1))
-        original_sentence = original_match.group(1)
+        original_sentence = original_match.group(1).strip()
         return quiz_sentence, answer_word, choices, original_sentence
-    else:
-        raise ValueError("AI 응답 파싱 실패!")
+        
+    st.error("❌ AI 응답 파싱 실패! 아래 응답을 참고하세요.")
+    st.code(resp_quiz.text)
+    raise ValueError("AI 응답 파싱 실패!")
 
 def generate_feedback(user_input: str, answ: str) -> str:
     # 사용자의 오답과 정답을 기반으로 피드백을 위한 프롬프트 생성
