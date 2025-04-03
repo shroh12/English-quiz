@@ -7,36 +7,24 @@ import random
 import pandas as  pd
 
 def show_jimunhwa_percentage(quiz_data):
-    df = pd.DataFrame(quiz_data)
+    """
+    '지문화' 주제가 전체 문제 중 몇 퍼센트인지 계산하고 Streamlit에 시각적으로 출력합니다.
+    """
+    if isinstance(quiz_data, list):
+        df = pd.DataFrame(quiz_data)
+    else:
+        df = quiz_data
 
-    # 필수 컬럼이 없으면 경고
-    if not all(col in df.columns for col in ["topic", "correct", "difficulty"]):
-        st.error("❌ topic, correct, difficulty 정보가 부족합니다.")
+    if "topic" not in df.columns:
+        st.error("❌ 'topic' 컬럼이 존재하지 않습니다.")
         return
 
-    # 가중치 설정 (틀렸을 때 감점 정도)
-    difficulty_weights = {
-        "easy": 1.0,
-        "medium": 1.5,
-        "hard": 2.0
-    }
-
     total = len(df)
-    jimunhwa_total = len(df[df["topic"] == "지문화"])
-
-    # ❌ 틀린 지문화 문제에만 패널티 적용
-    penalty = sum(
-        difficulty_weights.get(row["difficulty"], 1.0)
-        for _, row in df.iterrows()
-        if row["topic"] == "지문화" and not row["correct"]
-    )
-
-    # 감점 반영된 지문화 점수
-    adjusted_score = max(jimunhwa_total - penalty, 0)
-    percentage = round((adjusted_score / total) * 100, 2) if total > 0 else 0.0
+    count = len(df[df["topic"] == "지문화"])
+    percentage = round((count / total) * 100, 2) if total > 0 else 0.0
 
     st.subheader("📊 '지문화' 문제 비율")
-    st.metric(label="지문화 비율", value=f"{percentage}%", delta=f"{int(adjusted_score)} / {total}")
+    st.metric(label="지문화 비율", value=f"{percentage}%", delta=f"{count} / {total}")
     
 def show_quiz():
     # 각 퀴즈 문항의 인덱스, 문제, 정답, 오디오, 보기 리스트를 함께 묶어서 처리
