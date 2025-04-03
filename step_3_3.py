@@ -6,7 +6,7 @@ from step_3_2 import init_page, reset_quiz, set_quiz
 import random
 import pandas as  pd
 
-ddef show_jimunhwa_percentage(quiz_data):
+def show_jimunhwa_percentage(quiz_data):
     df = pd.DataFrame(quiz_data)
 
     # 필수 컬럼이 없으면 경고
