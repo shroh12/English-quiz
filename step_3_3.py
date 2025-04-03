@@ -67,8 +67,17 @@ def show_quiz():
 
 if __name__ == "__main__":
     init_page()  # 페이지 초기화
+
+    # ✅ 연령 선택 UI 추가 (성인 포함)
+    age_input = st.selectbox("사용자 연령을 선택하세요", ["8세", "9세", "10세", "11세", "12세", "13세", "14세", "15세", "16세", "17세", "18세", "19세", "성인"])
+    if age_input == "성인":
+        age = "adult"
+    else:
+        age = int(age_input.replace("세", ""))
+
+    # 이미지 업로드 + 퀴즈 실행
     if img := uploaded_image(on_change=clear_session):  # 이미지 등록
-        set_quiz(img, age) # 퀴즈 출제 (객관식용)
-        show_quiz()  # 객관식 퀴즈 출력
-        reset_quiz()  # 퀴즈 재출제
+        set_quiz(img, age)  # ✅ 여기서 age 변수 정상 전달됨
+        show_quiz()
+        reset_quiz()
 
