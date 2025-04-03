@@ -69,7 +69,7 @@ if __name__ == "__main__":
     init_page()  # 페이지 초기화
 
     # ✅ 학령 구분 기준 선택 UI
-    group_input = st.selectbox("대상 학습자 연령대를 선택하세요.", ["초등학생", "중학생", "고등학생", "성인"])
+    group_input = st.selectbox("연령대를 선택하세요.", ["초등학생", "중학생", "고등학생", "성인"])
 
     # 이미지 업로드 + 퀴즈 실행
     if img := uploaded_image(on_change=clear_session):  # 이미지 등록
