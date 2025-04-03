@@ -42,12 +42,12 @@ def init_page():
     init_session(dict(quiz=[], answ=[], audio=[], choices=[], voice="en-US-Journey-F"))
 
 # 퀴즈 세팅 (객관식 보기 포함)
-def set_quiz(img: ImageFile.ImageFile, age: int):
+def set_quiz(img: ImageFile.ImageFile, group: str):
     if img and not st.session_state["quiz"]:
         with st.spinner("이미지 퀴즈를 준비 중입니다...🦜"):
             # 여기서 unpack
-            quiz_sentence, answer_word, choices, full_desc = generate_quiz(img, age)
-
+            quiz_sentence, answer_word, choices, full_desc = generate_quiz(img, group)
+            
             # answer와 choices를 리스트 형태로 감싸줌 (빈칸 여러 개 대응을 위한 일관성)
             answer_words = [answer_word]
             choices_list = [choices]
