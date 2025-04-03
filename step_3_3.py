@@ -57,7 +57,7 @@ def show_quiz():
                 continue
 
             # ✅ 난이도 선택
-            difficulty_kor = st.selectbox("문제 난이도를 선택하세요.", ["쉬움", "중간", "어려움"], key=f"difficulty_{idx}")
+            difficulty_kor = st.selectbox("문제 난이도를 선택하세요 👇", ["쉬움", "중간", "어려움"], key=f"difficulty_{idx}")
             difficulty_map = {
                 "쉬움": "easy",
                 "중간": "medium",
@@ -134,7 +134,7 @@ if __name__ == "__main__":
             st.info("문제 데이터에 'topic' 정보가 없어서 분석할 수 없습니다.")
         else:
             st.info("지문 데이터가 없어 비율을 계산할 수 없습니다.")
-        
-        if st.button("새로운 문제"):
-            reset_quiz()
+
+        reset_quiz()
+
 
