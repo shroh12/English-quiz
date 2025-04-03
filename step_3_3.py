@@ -134,6 +134,7 @@ if __name__ == "__main__":
             st.info("문제 데이터에 'topic' 정보가 없어서 분석할 수 없습니다.")
         else:
             st.info("지문 데이터가 없어 비율을 계산할 수 없습니다.")
-
-        reset_quiz()
+        
+        if st.button("새로운 문제"):
+            reset_quiz()
 
