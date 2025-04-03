@@ -25,6 +25,10 @@ def generate_quiz(img: ImageFile.ImageFile, age: int):
     model_quiz = get_model(sys_prompt=quiz_prompt_path.read_text(encoding="utf8"))
     resp_quiz = model_quiz.generate_content(resp_desc.text)
 
+    # ✅ 여기! AI 응답 확인용 코드 추가
+    st.subheader("🧠 AI 응답 확인용 디버그 출력")
+    st.code(resp_quiz.text, language="markdown")  # 이렇게 하면 화면에 응답이 나와요
+
     # AI 응답을 파싱하여 Quiz, Answer, Choices, Original 얻기
     original_match = re.search(r'Original:\s*"(.*?)"', resp_quiz.text)
     quiz_match = re.search(r'Quiz:\s*"(.*?)"', resp_quiz.text)
