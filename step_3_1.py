@@ -11,7 +11,7 @@ def get_prompt_by_group(group: str) -> Path:
     path = IN_DIR / f"quiz_{group}.txt"
     if not path.exists():
         st.warning(f"⚠️ '{group}' 그룹의 프롬프트가 존재하지 않아 기본값을 사용합니다.")
-        path = IN_DIR / "quiz_default.txt"
+        path = IN_DIR / "prompt_default.txt"
     return path
         
 def generate_quiz(img: ImageFile.ImageFile, group: str, difficulty: str):
