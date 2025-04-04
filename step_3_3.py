@@ -47,6 +47,7 @@ def show_quiz(global_difficulty="medium"):
             """, unsafe_allow_html=True)
 
             st.audio(audio)
+            
             quiz_display = quiz
             st.markdown(f"**문제:** {quiz_display}")
 
@@ -54,10 +55,16 @@ def show_quiz(global_difficulty="medium"):
                 st.error("선택지가 없습니다. 다시 문제를 생성하세요.")
                 continue
 
+            # 여기서부터 '빈칸 1 보기' 부분이 있었던 곳 (삭제/주석 처리)
+            # st.markdown("🔸 **빈칸 1 보기:**")
+            # for i, choice in enumerate(choices, start=1):
+            #     st.markdown(f"{i}. {choice}")
+
             # 기본값 유효성 검증
             if st.session_state[key_choice] not in choices:
                 st.session_state[key_choice] = choices[0]
 
+            # 객관식 보기만 남김
             user_choice = st.radio(
                 "보기 중 하나를 선택하세요👇",
                 choices,
@@ -83,7 +90,7 @@ def show_quiz(global_difficulty="medium"):
                         "question": quiz_display,
                         "topic": "지문화",
                         "correct": is_correct,
-                        "difficulty": global_difficulty  # 공통으로 선택한 난이도
+                        "difficulty": global_difficulty
                     })
 
         feedback = st.session_state.get(key_feedback, "")
