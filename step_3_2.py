@@ -76,7 +76,6 @@ def set_quiz(img: ImageFile.ImageFile, group: str, difficulty: str):
         }]
 
 def show_quiz(difficulty):
-    # 세션 상태에서 문제 데이터 묶기
     zipped = zip(
         range(len(st.session_state["quiz"])),
         st.session_state["quiz"],
@@ -108,9 +107,10 @@ def show_quiz(difficulty):
             </div>
             """, unsafe_allow_html=True)
 
-            if not choices or not isinstance(choices, list):
-                st.error("선택지가 없습니다. 다시 문제를 생성하세요.")
-                continue
+            # 🔥🔥🔥 이 부분을 정확히 아래처럼 변경하세요
+            # 리스트 중첩 문제를 해결
+            if isinstance(choices[0], list):
+                choices = choices[0]
 
             user_choice = st.radio(
                 "보기 중 하나를 선택하세요👇",
@@ -130,15 +130,14 @@ def show_quiz(difficulty):
                         feedback = generate_feedback(user_choice, answ)
                         st.session_state[key_feedback] = f"❌ 오답입니다.\n\n{feedback}"
 
-                    # ✅ quiz_data 누적 저장
                     if "quiz_data" not in st.session_state:
                         st.session_state["quiz_data"] = []
 
                     st.session_state["quiz_data"].append({
                         "question": quiz,
-                        "topic": "지문화",       # 지금은 고정값
+                        "topic": "지문화",
                         "correct": is_correct,
-                        "difficulty": difficulty  # 💡 외부에서 전달된 값 사용!
+                        "difficulty": difficulty
                     })
 
         # 피드백 출력
@@ -147,6 +146,7 @@ def show_quiz(difficulty):
             with st.expander("📚 해설 보기", expanded=True):
                 st.markdown(f"**정답:** {answ}")
                 st.markdown(feedback)
+
 # 퀴즈 리셋
 def reset_quiz():
     if st.session_state["quiz"]:
