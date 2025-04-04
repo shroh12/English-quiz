@@ -45,10 +45,10 @@ def init_page():
 def set_quiz(img: ImageFile.ImageFile, group: str):
     if img and not st.session_state["quiz"]:
         with st.spinner("이미지 퀴즈를 준비 중입니다...🦜"):
-            # 여기서 unpack
+            # 퀴즈 생성
             quiz_sentence, answer_word, choices, full_desc = generate_quiz(img, group)
-            
-            # answer와 choices를 리스트 형태로 감싸줌 (빈칸 여러 개 대응을 위한 일관성)
+
+            # 리스트 형태로 감싸기 (일관성 유지)
             answer_words = [answer_word]
             choices_list = [choices]
 
@@ -58,22 +58,23 @@ def set_quiz(img: ImageFile.ImageFile, group: str):
             with open(path, "wb") as fp:
                 fp.write(wav_file)
 
-            # 퀴즈 문장 출력
+            # 퀴즈 문장 출력 ('빈칸 1 보기' 제외된 형태로 수정)
             quiz_display = f"""
             이미지를 보고 설명을 잘 들은 후, 빈칸에 들어갈 알맞은 단어를 선택하세요.  
             
             **{quiz_sentence}**
             """
 
-            # 보기 출력
-            choices_display = ""
-            for idx, choices in enumerate(choices_list):
-                choices_display += f"\n\n🔸 **빈칸 {idx+1} 보기:**\n"
-                choices_display += "\n".join(
-                    [f"{i+1}. {choice}" for i, choice in enumerate(choices)]
-                )
+            # 보기 출력 부분을 완전히 삭제했습니다. (이 부분이 원인이었음!)
+            # 원래 있던 아래 부분을 삭제하거나 주석처리:
+            # choices_display = ""
+            # for idx, choices in enumerate(choices_list):
+            #     choices_display += f"\n\n🔸 **빈칸 {idx+1} 보기:**\n"
+            #     choices_display += "\n".join(
+            #         [f"{i+1}. {choice}" for i, choice in enumerate(choices)]
+            #     )
 
-            quiz_display += choices_display
+            # quiz_display += choices_display (이 줄도 삭제)
 
         # 세션 상태 저장
         st.session_state["img"] = img
