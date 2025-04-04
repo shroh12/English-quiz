@@ -42,30 +42,25 @@ def init_page():
     init_session(dict(quiz=[], answ=[], audio=[], choices=[], voice="en-US-Journey-F"))
 
 # 퀴즈 세팅 (객관식 보기 포함)
-def set_quiz(img: ImageFile.ImageFile, group: str):
+def set_quiz(img: ImageFile.ImageFile, group: str, difficulty: str):
     if img and not st.session_state["quiz"]:
         with st.spinner("이미지 퀴즈를 준비 중입니다...🦜"):
-            # 퀴즈 생성
-            quiz_sentence, answer_word, choices, full_desc = generate_quiz(img, group)
+            quiz_sentence, answer_word, choices, full_desc = generate_quiz(img, group, difficulty)  # 💡 난이도 전달
 
-            # 리스트 형태로 감싸기 (일관성 유지)
             answer_words = [answer_word]
             choices_list = [choices]
 
-            # 음성 생성
             wav_file = synth_speech(full_desc, st.session_state["voice"], "wav")
             path = OUT_DIR / f"{Path(__file__).stem}.wav"
             with open(path, "wb") as fp:
                 fp.write(wav_file)
 
-            # 퀴즈 문장 출력 ('빈칸 1 보기' 제외된 형태로 수정)
             quiz_display = f"""
             이미지를 보고 설명을 잘 들은 후, 빈칸에 들어갈 알맞은 단어를 선택하세요.  
             
             **{quiz_sentence}**
             """
 
-        # 세션 상태 저장
         st.session_state["img"] = img
         st.session_state["quiz"] = [quiz_display]
         st.session_state["answ"] = answer_words
@@ -73,7 +68,8 @@ def set_quiz(img: ImageFile.ImageFile, group: str):
         st.session_state["choices"] = choices_list
         st.session_state["quiz_data"] = [{
             "question": quiz_sentence,
-            "topic": "지문화"
+            "topic": "지문화",
+            "difficulty": difficulty  # 기록 추가
         }]
 
 def show_quiz(difficulty):
@@ -159,6 +155,6 @@ def reset_quiz():
 if __name__ == "__main__":
     init_page()
     if img := uploaded_image(on_change=clear_session):
-        set_quiz(img)
-        show_quiz()
+        set_quiz(img, group_code, global_difficulty)
+        show_quiz(global_difficulty)
         reset_quiz()
