@@ -13,5 +13,6 @@ Quiz: "The executive's _____ decision significantly _____ quarterly revenue, fac
 Answer: "sagacious", "augmented", "penetration"
 Choices: ["sagacious", "impetuous", "equivocal", "negligent"], ["augmented", "curtailed", "attenuated", "mitigated"], ["penetration", "withdrawal", "consolidation", "saturation"]
 
-Strictly follow the provided format. Do not include numbering, additional explanations, or notes.
+Strictly follow the provided format, including the 'Original:' sentence.
+
 
