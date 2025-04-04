@@ -116,14 +116,14 @@ if __name__ == "__main__":
     difficulty_display = st.selectbox("문제 난이도를 선택하세요.", ["쉬움", "중간", "어려움"])
     difficulty_mapping = {
         "쉬움": "easy",
-        "중간": "medium",
+        "중간": "normal",
         "어려움": "hard"
     }
-    global_difficulty = difficulty_mapping.get(difficulty_display, "medium")
+    global_difficulty = difficulty_mapping.get(difficulty_display, "normal")
 
     # ✅ 3. 이미지 업로드 → 퀴즈 생성
     if img := uploaded_image(on_change=clear_session):
-        set_quiz(img, group_code)  # 퀴즈 세팅
+        set_quiz(img, group_code, global_difficulty)  # 퀴즈 세팅
         
         # ✅ 4. 퀴즈 출력 (난이도 전달)
         show_quiz(global_difficulty)
