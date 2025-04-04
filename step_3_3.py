@@ -27,7 +27,19 @@ def show_jimunhwa_percentage(quiz_data):
     st.metric(label="지문화 비율", value=f"{percentage}%", delta=f"{count} / {total}")
     
 def show_quiz():
-    # 각 퀴즈 문항의 인덱스, 문제, 정답, 오디오, 보기 리스트를 함께 묶어서 처리
+    # 난이도 선택 (모든 문제 공통)
+    st.markdown("### 문제 난이도를 선택하세요 👇")
+    difficulty_kor = st.selectbox("난이도", ["쉬움", "중간", "어려움"], key="global_difficulty")
+    difficulty_map = {
+        "쉬움": "easy",
+        "중간": "medium",
+        "어려움": "hard"
+    }
+    global_difficulty = difficulty_map[difficulty_kor]
+
+    # 연령대 선택이 있다면 이 위쪽에 추가하면 됩니다.
+    age_group = st.selectbox("연령대를 선택하세요.", ["초등학생", "중학생", "고등학생", "성인"], key="age_group")
+
     zipped = zip(
         range(len(st.session_state["quiz"])),
         st.session_state["quiz"],
@@ -56,15 +68,6 @@ def show_quiz():
                 st.error("선택지가 없습니다. 다시 문제를 생성하세요.")
                 continue
 
-            # ✅ 난이도 선택
-            difficulty_kor = st.selectbox("문제 난이도를 선택하세요 👇", ["쉬움", "중간", "어려움"], key=f"difficulty_{idx}")
-            difficulty_map = {
-                "쉬움": "easy",
-                "중간": "medium",
-                "어려움": "hard"
-            }
-            difficulty = difficulty_map[difficulty_kor]
-
             # 기본값 유효성 검증
             if st.session_state[key_choice] not in choices:
                 st.session_state[key_choice] = choices[0]
@@ -88,18 +91,17 @@ def show_quiz():
                         feedback = generate_feedback(user_choice, answ)
                         st.session_state[key_feedback] = f"❌ 오답입니다.\n\n{feedback}"
 
-                    # ✅ 지문화 비율 분석용 데이터 저장
+                    # 지문화 비율 분석용 데이터 저장 (공통 난이도 적용)
                     if "quiz_data" not in st.session_state:
                         st.session_state["quiz_data"] = []
 
                     st.session_state["quiz_data"].append({
                         "question": quiz_display,
-                        "topic": "지문화",         # 지금은 고정, 추후 자동 분류 가능
+                        "topic": "지문화",
                         "correct": is_correct,
-                        "difficulty": difficulty   # 선택한 난이도
+                        "difficulty": global_difficulty  # 공통으로 선택한 난이도 적용
                     })
 
-        # 피드백 출력 (form 외부)
         feedback = st.session_state.get(key_feedback, "")
         if feedback:
             with st.expander("📚 해설 보기", expanded=True):
