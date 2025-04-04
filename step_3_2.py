@@ -45,10 +45,13 @@ def init_page():
 def set_quiz(img: ImageFile.ImageFile, group: str, difficulty: str):
     if img and not st.session_state["quiz"]:
         with st.spinner("이미지 퀴즈를 준비 중입니다...🦜"):
-            quiz_sentence, answer_word, choices, full_desc = generate_quiz(img, group, difficulty)  # 💡 난이도 전달
+            quiz_sentence, answer_word, choices, full_desc = generate_quiz(img, group, difficulty)
+
+            # 🔥 이 부분 수정 (이중리스트 문제 해결)
+            if isinstance(choices[0], list):
+                choices = choices[0]
 
             answer_words = [answer_word]
-            choices_list = [choices]
 
             wav_file = synth_speech(full_desc, st.session_state["voice"], "wav")
             path = OUT_DIR / f"{Path(__file__).stem}.wav"
@@ -57,7 +60,7 @@ def set_quiz(img: ImageFile.ImageFile, group: str, difficulty: str):
 
             quiz_display = f"""
             이미지를 보고 설명을 잘 들은 후, 빈칸에 들어갈 알맞은 단어를 선택하세요.  
-            
+
             **{quiz_sentence}**
             """
 
@@ -65,11 +68,11 @@ def set_quiz(img: ImageFile.ImageFile, group: str, difficulty: str):
         st.session_state["quiz"] = [quiz_display]
         st.session_state["answ"] = answer_words
         st.session_state["audio"] = [path.as_posix()]
-        st.session_state["choices"] = choices_list
+        st.session_state["choices"] = [choices]  # 여기는 리스트로 감싸줘야 함 (이전 구조 유지)
         st.session_state["quiz_data"] = [{
             "question": quiz_sentence,
             "topic": "지문화",
-            "difficulty": difficulty  # 기록 추가
+            "difficulty": difficulty
         }]
 
 def show_quiz(difficulty):
