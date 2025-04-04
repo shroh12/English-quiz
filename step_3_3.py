@@ -26,7 +26,7 @@ def show_jimunhwa_percentage(quiz_data):
     st.subheader("📊 '지문화' 문제 비율")
     st.metric(label="지문화 비율", value=f"{percentage}%", delta=f"{count} / {total}")
     
-def show_quiz(global_difficulty="medium"):
+def show_quiz(difficulty):
     zipped = zip(
         range(len(st.session_state["quiz"])),
         st.session_state["quiz"],
@@ -34,70 +34,71 @@ def show_quiz(global_difficulty="medium"):
         st.session_state["audio"],
         st.session_state["choices"],
     )
-    for idx, quiz, answ, audio, choices in zipped:
-        key_choice = f"choice_{idx}"
+
+    for idx, quiz, answ, audio, choices_list in zipped:
         key_feedback = f"feedback_{idx}"
-        init_session({key_choice: "", key_feedback: ""})
+        init_session({key_feedback: ""})
 
         with st.form(f"form_question_{idx}", border=True):
-            st.markdown("""
-            <div style="background-color:#e6f4ea; padding:10px; border-radius:10px; text-align: center;">
-                <h4 style="color:#006d2c; margin: 0;">문제</h4>
+            st.audio(audio)
+
+            quiz_display = quiz
+
+            st.markdown(f"""
+            <div style="background-color:#e6f4ea;padding:20px 20px 10px 20px;border-radius:12px;margin-bottom:10px; text-align: center;">
+                <audio controls style="width:100%; margin-bottom: 15px;">
+                    <source src="{audio}" type="audio/wav">
+                    오디오를 지원하지 않는 브라우저입니다.
+                </audio>
+                <p style="margin-bottom: 5px;">다음 문장을 듣고, 빈칸에 들어갈 단어를 고르세요.</p>
+                <p style="font-size:17px;">{quiz_display}</p>
             </div>
             """, unsafe_allow_html=True)
 
-            st.audio(audio)
-            
-            quiz_display = quiz
-            st.markdown(f"**문제:** {quiz_display}")
+            user_answers = []  # ✅ 각 빈칸에 대한 사용자의 답안을 저장할 리스트
 
-            if not choices or not isinstance(choices, list):
-                st.error("선택지가 없습니다. 다시 문제를 생성하세요.")
-                continue
+            # 🔥 각 빈칸에 대해 반복문으로 객관식 보기 출력
+            for blank_idx, choices in enumerate(choices_list):
+                key_choice = f"choice_{idx}_{blank_idx}"
+                init_session({key_choice: ""})
 
-            # 여기서부터 '빈칸 1 보기' 부분이 있었던 곳 (삭제/주석 처리)
-            # st.markdown("🔸 **빈칸 1 보기:**")
-            # for i, choice in enumerate(choices, start=1):
-            #     st.markdown(f"{i}. {choice}")
+                user_choice = st.radio(
+                    f"빈칸 {blank_idx+1}의 정답을 선택하세요👇",
+                    choices,
+                    key=key_choice
+                )
 
-            # 기본값 유효성 검증
-            if st.session_state[key_choice] not in choices:
-                st.session_state[key_choice] = choices[0]
-
-            # 객관식 보기만 남김
-            user_choice = st.radio(
-                "보기 중 하나를 선택하세요👇",
-                choices,
-                key=key_choice
-            )
+                user_answers.append(user_choice)
 
             submitted = st.form_submit_button("정답 제출 ✅", use_container_width=True)
 
             if submitted:
                 with st.spinner("채점 중입니다..."):
-                    is_correct = user_choice == answ
+                    is_correct = user_answers == answ  # ✅ 정답 여부 판단
 
                     if is_correct:
                         st.session_state[key_feedback] = "✅ 정답입니다! 🎉"
                     else:
-                        feedback = generate_feedback(user_choice, answ)
+                        feedback = generate_feedback(user_answers, answ)
                         st.session_state[key_feedback] = f"❌ 오답입니다.\n\n{feedback}"
 
                     if "quiz_data" not in st.session_state:
                         st.session_state["quiz_data"] = []
 
                     st.session_state["quiz_data"].append({
-                        "question": quiz_display,
+                        "question": quiz,
                         "topic": "지문화",
                         "correct": is_correct,
-                        "difficulty": global_difficulty
+                        "difficulty": difficulty
                     })
 
+        # 피드백 출력
         feedback = st.session_state.get(key_feedback, "")
         if feedback:
             with st.expander("📚 해설 보기", expanded=True):
-                st.markdown(f"**정답:** {answ}")
+                st.markdown(f"**정답:** {', '.join(answ)}")
                 st.markdown(feedback)
+
                 
 if __name__ == "__main__":
     init_page()  # 페이지 초기화
