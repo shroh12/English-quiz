@@ -21,21 +21,20 @@ def generate_quiz(img: ImageFile.ImageFile, group: str, difficulty: str):
 
     description = resp_desc.text.strip()
 
-    # 🔥 난이도 및 연령대별 프롬프트 동적 선택
     quiz_prompt_filename = get_prompt_by_group_and_difficulty(group, difficulty)
-    quiz_prompt_path = IN_DIR / quiz_prompt_filename  # 🔥 반드시 IN_DIR 경로를 추가해야 합니다!
+    quiz_prompt_path = IN_DIR / quiz_prompt_filename
     
-    # 경로 및 파일 존재 여부 확인 (디버깅용 추가 추천)
-    if not quiz_prompt_path.exists():
-        raise FileNotFoundError(f"프롬프트 파일이 없습니다: {quiz_prompt_path}")
-
     model_quiz = get_model(sys_prompt=quiz_prompt_path.read_text(encoding="utf8"))
     resp_quiz = model_quiz.generate_content(description)
+
+    # 👇 이 부분을 추가하여 실제 AI 응답을 Streamlit 화면에서 즉시 확인 가능
+    st.write("🔍 **AI의 실제 응답 내용:**")
+    st.text_area("AI Response", resp_quiz.text, height=300)
 
     original_match = re.search(r'Original:\s*["“”]?(.*?)["“”]?\s*$', resp_quiz.text, re.MULTILINE)
     quiz_match = re.search(r'Quiz:\s*["“”]?(.*?)["“”]?\s*$', resp_quiz.text, re.MULTILINE)
     answer_match = re.search(r'Answer:\s*["“”]?(.*?)["“”]?\s*$', resp_quiz.text, re.MULTILINE)
-    choices_match = re.search(r'Choices:\s*(\[[^\]]+\])', resp_quiz.text)
+    choices_match = re.search(r'Choices:\s*(\[[^\]]+\](?:,\s*\[[^\]]+\])*)', resp_quiz.text, re.MULTILINE | re.DOTALL)
 
     if quiz_match and answer_match and choices_match and original_match:
         quiz_sentence = quiz_match.group(1).strip()
