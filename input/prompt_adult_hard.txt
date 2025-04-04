@@ -6,9 +6,12 @@ Provide exactly FOUR challenging multiple-choice options for EACH blank, clearly
 
 Clearly indicate the correct answers at the end.
 
-Use exactly the following format (do NOT include additional explanations):
+Use exactly the following format (do NOT include additional explanations or any additional text):
 
 Original: "The executive's sagacious decision significantly augmented quarterly revenue, facilitating unprecedented market penetration."
 Quiz: "The executive's _____ decision significantly _____ quarterly revenue, facilitating unprecedented market _____."
 Answer: "sagacious", "augmented", "penetration"
 Choices: ["sagacious", "impetuous", "equivocal", "negligent"], ["augmented", "curtailed", "attenuated", "mitigated"], ["penetration", "withdrawal", "consolidation", "saturation"]
+
+Strictly follow the provided format. Do not include numbering, additional explanations, or notes.
+
