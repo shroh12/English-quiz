@@ -14,18 +14,19 @@ def get_prompt_by_group(group: str) -> Path:
         path = IN_DIR / "quiz_default.txt"
     return path
         
-def generate_quiz(img: ImageFile.ImageFile, group: str):
+def generate_quiz(img: ImageFile.ImageFile, group: str, difficulty: str):
     prompt_desc = IN_DIR / "p1_desc.txt"
     model_desc = get_model(sys_prompt=prompt_desc.read_text(encoding="utf8"))
     resp_desc = model_desc.generate_content([img, "Describe this image"])
 
-    # 🔥 연령별 프롬프트 동적 선택
-    quiz_prompt_filename = get_prompt_by_group(group)
+    description = resp_desc.text.strip()
+
+    # 🔥 난이도 및 연령대별 프롬프트 동적 선택
+    quiz_prompt_filename = get_prompt_by_group_and_difficulty(group, difficulty)
     quiz_prompt_path = Path(quiz_prompt_filename)
     model_quiz = get_model(sys_prompt=quiz_prompt_path.read_text(encoding="utf8"))
-    resp_quiz = model_quiz.generate_content(resp_desc.text)
+    resp_quiz = model_quiz.generate_content(description)
 
-    # AI 응답을 파싱하여 Quiz, Answer, Choices, Original 얻기
     original_match = re.search(r'Original:\s*["“”]?(.*?)["“”]?\s*$', resp_quiz.text, re.MULTILINE)
     quiz_match = re.search(r'Quiz:\s*["“”]?(.*?)["“”]?\s*$', resp_quiz.text, re.MULTILINE)
     answer_match = re.search(r'Answer:\s*["“”]?(.*?)["“”]?\s*$', resp_quiz.text, re.MULTILINE)
@@ -37,8 +38,25 @@ def generate_quiz(img: ImageFile.ImageFile, group: str):
         choices = ast.literal_eval(choices_match.group(1))
         original_sentence = original_match.group(1).strip()
         return quiz_sentence, answer_word, choices, original_sentence
-        
+
     raise ValueError("AI 응답 파싱 실패!")
+
+def get_prompt_by_group_and_difficulty(group: str, difficulty: str) -> str:
+    prompts = {
+        ("elementary", "easy"): "prompt_elementary_easy.txt",
+        ("elementary", "medium"): "prompt_elementary_medium.txt",
+        ("elementary", "hard"): "prompt_elementary_hard.txt",
+        ("middle", "easy"): "prompt_middle_easy.txt",
+        ("middle", "medium"): "prompt_middle_medium.txt",
+        ("middle", "hard"): "prompt_middle_hard.txt",
+        ("high", "easy"): "prompt_high_easy.txt",
+        ("high", "medium"): "prompt_high_medium.txt",
+        ("high", "hard"): "prompt_high_hard.txt",
+        ("adult", "easy"): "prompt_adult_easy.txt",
+        ("adult", "medium"): "prompt_adult_medium.txt",
+        ("adult", "hard"): "prompt_adult_hard.txt",
+    }
+    return prompts.get((group, difficulty), "prompt_default.txt")
 
 def generate_feedback(user_input: str, answ: str) -> str:
     # 사용자의 오답과 정답을 기반으로 피드백을 위한 프롬프트 생성
