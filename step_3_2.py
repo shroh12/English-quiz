@@ -65,17 +65,6 @@ def set_quiz(img: ImageFile.ImageFile, group: str):
             **{quiz_sentence}**
             """
 
-            # 보기 출력 부분을 완전히 삭제했습니다. (이 부분이 원인이었음!)
-            # 원래 있던 아래 부분을 삭제하거나 주석처리:
-            # choices_display = ""
-            # for idx, choices in enumerate(choices_list):
-            #     choices_display += f"\n\n🔸 **빈칸 {idx+1} 보기:**\n"
-            #     choices_display += "\n".join(
-            #         [f"{i+1}. {choice}" for i, choice in enumerate(choices)]
-            #     )
-
-            # quiz_display += choices_display (이 줄도 삭제)
-
         # 세션 상태 저장
         st.session_state["img"] = img
         st.session_state["quiz"] = [quiz_display]
