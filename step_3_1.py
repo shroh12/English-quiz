@@ -23,7 +23,12 @@ def generate_quiz(img: ImageFile.ImageFile, group: str, difficulty: str):
 
     # 🔥 난이도 및 연령대별 프롬프트 동적 선택
     quiz_prompt_filename = get_prompt_by_group_and_difficulty(group, difficulty)
-    quiz_prompt_path = Path(quiz_prompt_filename)
+    quiz_prompt_path = IN_DIR / quiz_prompt_filename  # 🔥 반드시 IN_DIR 경로를 추가해야 합니다!
+    
+    # 경로 및 파일 존재 여부 확인 (디버깅용 추가 추천)
+    if not quiz_prompt_path.exists():
+        raise FileNotFoundError(f"프롬프트 파일이 없습니다: {quiz_prompt_path}")
+
     model_quiz = get_model(sys_prompt=quiz_prompt_path.read_text(encoding="utf8"))
     resp_quiz = model_quiz.generate_content(description)
 
@@ -40,6 +45,7 @@ def generate_quiz(img: ImageFile.ImageFile, group: str, difficulty: str):
         return quiz_sentence, answer_word, choices, original_sentence
 
     raise ValueError("AI 응답 파싱 실패!")
+
 
 def get_prompt_by_group_and_difficulty(group: str, difficulty: str) -> str:
     prompts = {
