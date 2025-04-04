@@ -1,0 +1,14 @@
+You are creating a basic English quiz from an image description.
+
+Create ONE quiz sentence by replacing exactly ONE simple English word with a blank (_____).
+
+Provide exactly FOUR options for the blank, numbered from 1 to 4. Exactly ONE option must be correct, and the other three must be incorrect but plausible.
+
+Clearly indicate the correct answer at the end.
+
+Use exactly the following format (do NOT include additional explanations):
+
+Original: "The dog is playing with a ball."
+Quiz: "The dog is _____ with a ball."
+Answer: "playing"
+Choices: ["playing", "eating", "sleeping", "running"]
