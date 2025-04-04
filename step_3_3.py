@@ -121,22 +121,29 @@ if __name__ == "__main__":
     }
     group_code = group_mapping.get(group_display, "default")
 
-    # ✅ 2. 이미지 업로드 → 퀴즈 생성
+    # ✅ 2. 난이도 선택 (공통 적용)
+    difficulty_display = st.selectbox("문제 난이도를 선택하세요.", ["쉬움", "중간", "어려움"])
+    difficulty_mapping = {
+        "쉬움": "easy",
+        "중간": "medium",
+        "어려움": "hard"
+    }
+    global_difficulty = difficulty_mapping.get(difficulty_display, "medium")
+
+    # ✅ 3. 이미지 업로드 → 퀴즈 생성
     if img := uploaded_image(on_change=clear_session):
-        set_quiz(img, group_code)
+        set_quiz(img, group_code)  # 퀴즈 세팅
         
-        # ✅ 3. 퀴즈 출력
-        show_quiz()
+        # ✅ 4. 퀴즈 출력 (난이도 전달)
+        show_quiz(global_difficulty)
         
-        # ✅ 4. '지문화' 문제 비율 출력
+        # ✅ 5. '지문화' 문제 비율 출력
         if "quiz_data" in st.session_state:
             show_jimunhwa_percentage(st.session_state["quiz_data"])
         elif "quiz" in st.session_state and "choices" in st.session_state:
-            # 예: topic이 포함되어 있다면 여기에 커스터마이징
             st.info("문제 데이터에 'topic' 정보가 없어서 분석할 수 없습니다.")
         else:
             st.info("지문 데이터가 없어 비율을 계산할 수 없습니다.")
 
-        reset_quiz()
 
 
