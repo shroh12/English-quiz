@@ -27,23 +27,24 @@ def generate_quiz(img: ImageFile.ImageFile, group: str, difficulty: str):
     model_quiz = get_model(sys_prompt=quiz_prompt_path.read_text(encoding="utf8"))
     resp_quiz = model_quiz.generate_content(description)
 
-    # 👇 이 부분을 추가하여 실제 AI 응답을 Streamlit 화면에서 즉시 확인 가능
-    st.write("🔍 **AI의 실제 응답 내용:**")
-    st.text_area("AI Response", resp_quiz.text, height=300)
-
-    original_match = re.search(r'Original:\s*["“”]?(.*?)["“”]?\s*$', resp_quiz.text, re.MULTILINE)
+    # Quiz, Answer, Choices만이라도 파싱하도록 유연화
     quiz_match = re.search(r'Quiz:\s*["“”]?(.*?)["“”]?\s*$', resp_quiz.text, re.MULTILINE)
     answer_match = re.search(r'Answer:\s*["“”]?(.*?)["“”]?\s*$', resp_quiz.text, re.MULTILINE)
     choices_match = re.search(r'Choices:\s*(\[[^\]]+\](?:,\s*\[[^\]]+\])*)', resp_quiz.text, re.MULTILINE | re.DOTALL)
 
-    if quiz_match and answer_match and choices_match and original_match:
+    if quiz_match and answer_match and choices_match:
         quiz_sentence = quiz_match.group(1).strip()
         answer_word = answer_match.group(1).strip()
-        choices = ast.literal_eval(choices_match.group(1))
-        original_sentence = original_match.group(1).strip()
+        choices = ast.literal_eval(f"[{choices_match.group(1)}]")
+
+        # Original 문장이 없다면 quiz 문장으로 대신함
+        original_sentence = quiz_sentence.replace("_____", answer_word.split('", "')[0])
+
         return quiz_sentence, answer_word, choices, original_sentence
 
-    raise ValueError("AI 응답 파싱 실패!")
+    # 에러 발생 시 실제 AI 응답 추가 제공 (디버깅용)
+    raise ValueError(f"AI 응답 파싱 실패! AI 응답 내용:\n{resp_quiz.text}")
+
 
 
 def get_prompt_by_group_and_difficulty(group: str, difficulty: str) -> str:
