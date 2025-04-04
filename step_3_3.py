@@ -136,5 +136,7 @@ if __name__ == "__main__":
         else:
             st.info("지문 데이터가 없어 비율을 계산할 수 없습니다.")
 
+        reset_quiz()
+
 
 
