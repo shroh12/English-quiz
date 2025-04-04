@@ -26,20 +26,7 @@ def show_jimunhwa_percentage(quiz_data):
     st.subheader("📊 '지문화' 문제 비율")
     st.metric(label="지문화 비율", value=f"{percentage}%", delta=f"{count} / {total}")
     
-def show_quiz():
-    # 난이도 선택 (모든 문제 공통)
-    st.markdown("### 문제 난이도를 선택하세요 👇")
-    difficulty_kor = st.selectbox("난이도", ["쉬움", "중간", "어려움"], key="global_difficulty")
-    difficulty_map = {
-        "쉬움": "easy",
-        "중간": "medium",
-        "어려움": "hard"
-    }
-    global_difficulty = difficulty_map[difficulty_kor]
-
-    # 연령대 선택이 있다면 이 위쪽에 추가하면 됩니다.
-    age_group = st.selectbox("연령대를 선택하세요.", ["초등학생", "중학생", "고등학생", "성인"], key="age_group")
-
+def show_quiz(global_difficulty="medium"):
     zipped = zip(
         range(len(st.session_state["quiz"])),
         st.session_state["quiz"],
@@ -51,7 +38,7 @@ def show_quiz():
         key_choice = f"choice_{idx}"
         key_feedback = f"feedback_{idx}"
         init_session({key_choice: "", key_feedback: ""})
-        
+
         with st.form(f"form_question_{idx}", border=True):
             st.markdown("""
             <div style="background-color:#e6f4ea; padding:10px; border-radius:10px; text-align: center;">
@@ -60,7 +47,6 @@ def show_quiz():
             """, unsafe_allow_html=True)
 
             st.audio(audio)
-
             quiz_display = quiz
             st.markdown(f"**문제:** {quiz_display}")
 
@@ -84,14 +70,12 @@ def show_quiz():
                 with st.spinner("채점 중입니다..."):
                     is_correct = user_choice == answ
 
-                    # 피드백 출력
                     if is_correct:
                         st.session_state[key_feedback] = "✅ 정답입니다! 🎉"
                     else:
                         feedback = generate_feedback(user_choice, answ)
                         st.session_state[key_feedback] = f"❌ 오답입니다.\n\n{feedback}"
 
-                    # 지문화 비율 분석용 데이터 저장 (공통 난이도 적용)
                     if "quiz_data" not in st.session_state:
                         st.session_state["quiz_data"] = []
 
@@ -99,7 +83,7 @@ def show_quiz():
                         "question": quiz_display,
                         "topic": "지문화",
                         "correct": is_correct,
-                        "difficulty": global_difficulty  # 공통으로 선택한 난이도 적용
+                        "difficulty": global_difficulty  # 공통으로 선택한 난이도
                     })
 
         feedback = st.session_state.get(key_feedback, "")
