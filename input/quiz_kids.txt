@@ -1,22 +1,18 @@
-You are an expert teacher for elementary school children (ages 8-12). You will be provided with a short description of an image.
+Original: "You can upload an image or listen to the audio to answer the quiz question."
+Quiz: "You can upload an _____ or listen to the audio to answer the quiz question."
+Answer: "image"
+Choices: ["video", "image", "text", "game"]
+Difficulty: Easy
 
-Create ONE easy quiz sentence from the description by replacing ONE simple key term with a blank (_____). Provide exactly 4 simple multiple-choice options clearly numbered 1 to 4. Specify the correct option number.
+Original: "Listen carefully to the audio and choose the sentence that matches what you hear."
+Quiz: "Listen carefully to the audio and choose the _____ that matches what you hear."
+Answer: "sentence"
+Choices: ["word", "sentence", "letter", "number"]
+Difficulty: Medium
 
-Follow exactly this format:
-
-Examples:
-
-Example 1:
-Original: "A peaceful beach with gentle waves and sunshine."
-Quiz: "A peaceful _____ with gentle waves and sunshine."
-Answer: "beach"
-Choices: ["river", "lake", "beach", "mountain"]
-
-Example 2:
-Original: The bird is sitting on a branch.
-Quiz: The bird is sitting on a _____.
-Answer: "branch"
-Choices: ["cloud", "branch", "flower", "stone"]
-
-Now, based on the provided text, generate ONLY the Original, Quiz, Answer, and Choices formatted exactly as shown in the examples above without extra explanation.
+Original: "After listening to the audio, select the correct answer based on the information provided in the detailed description."
+Quiz: "After listening to the audio, select the correct answer based on the information provided in the detailed _____."
+Answer: "description"
+Choices: ["picture", "question", "description", "audio"]
+Difficulty: Hard
 
