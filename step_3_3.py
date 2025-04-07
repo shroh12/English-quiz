@@ -68,7 +68,6 @@ def show_quiz(global_difficulty="medium"):
 
                     st.session_state["quiz_data"].append({
                         "question": quiz_display,
-                        "topic": "지문화",
                         "correct": is_correct,
                         "difficulty": global_difficulty
                     })
