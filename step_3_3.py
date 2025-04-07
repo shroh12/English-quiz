@@ -2,7 +2,7 @@ import streamlit as st
 from step_1_2 import uploaded_image
 from step_1_3 import clear_session, init_session
 from step_3_1 import generate_feedback
-from step_3_2 import init_page, reset_quiz, set_quiz
+from step_3_2 import set_quiz_batch, show_quiz_batch, reset_quiz
 import random
 import pandas as pd
 
