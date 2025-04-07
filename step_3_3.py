@@ -26,58 +26,78 @@ def show_jimunhwa_percentage(quiz_data):
     st.subheader("📊 '지문화' 문제 비율")
     st.metric(label="지문화 비율", value=f"{percentage}%", delta=f"{count} / {total}")
     
-def show_quiz_batch(global_difficulty="medium"):
-    total = len(st.session_state["quiz"])
+def show_quiz(global_difficulty="medium"):
+    zipped = zip(
+        range(len(st.session_state["quiz"])),
+        st.session_state["quiz"],
+        st.session_state["answ"],
+        st.session_state["audio"],
+        st.session_state["choices"],
+    )
+    for idx, quiz, answ, audio, choices in zipped:
+        key_choice = f"choice_{idx}"
+        key_feedback = f"feedback_{idx}"
+        init_session({key_choice: "", key_feedback: ""})
 
-    with st.form("quiz_form", clear_on_submit=False):
-        for idx in range(total):
-            quiz = st.session_state["quiz"][idx]
-            answ = st.session_state["answ"][idx]
-            audio = st.session_state["audio"][idx]
-            choices = st.session_state["choices"][idx]
-
-            key_choice = f"choice_{idx}"
-            if key_choice not in st.session_state:
-                st.session_state[key_choice] = ""
-
-            st.markdown(f"""
-                <div style="background-color:#e6f4ea;padding:10px;border-radius:10px;margin:10px 0;">
-                    <h5>📝 문제 {idx+1}</h5>
-                    <audio controls style="width:100%; margin-bottom: 10px;">
-                        <source src="{audio}" type="audio/wav">
-                    </audio>
-                    <p><strong>{quiz}</strong></p>
-                </div>
+        with st.form(f"form_question_{idx}", border=True):
+            st.markdown("""
+            <div style="background-color:#e6f4ea; padding:10px; border-radius:10px; text-align: center;">
+                <h4 style="color:#006d2c; margin: 0;">문제</h4>
+            </div>
             """, unsafe_allow_html=True)
 
-            if isinstance(choices[0], list):
-                choices = choices[0]
+            st.audio(audio)
+            
+            quiz_display = quiz
+            st.markdown(f"**문제:** {quiz_display}")
 
-            st.radio("보기", choices, key=key_choice, label_visibility="collapsed")
+            if not choices or not isinstance(choices, list):
+                st.error("선택지가 없습니다. 다시 문제를 생성하세요.")
+                continue
 
-        # ✅ 전체 문제 제출 버튼
-        submitted = st.form_submit_button("정답 제출 ✅", use_container_width=True)
+            # 여기서부터 '빈칸 1 보기' 부분이 있었던 곳 (삭제/주석 처리)
+            # st.markdown("🔸 **빈칸 1 보기:**")
+            # for i, choice in enumerate(choices, start=1):
+            #     st.markdown(f"{i}. {choice}")
 
-    # ✅ 채점 및 결과 출력
-    if submitted:
-        score = 0
-        st.subheader("📊 결과")
-        for idx in range(total):
-            user = st.session_state.get(f"choice_{idx}", "")
-            correct = st.session_state["answ"][idx]
-            if user == correct:
-                score += 1
-                st.success(f"문제 {idx+1}: ✅ 정답 ({user})")
-            else:
-                st.error(f"문제 {idx+1}: ❌ 오답 (선택: {user}, 정답: {correct})")
+            # 기본값 유효성 검증
+            if st.session_state[key_choice] not in choices:
+                st.session_state[key_choice] = choices[0]
 
-        st.markdown(f"## 🏁 총점: **{score} / {total}**")
-        if score >= 9:
-            st.success("🎉 훌륭해요! 퀴즈 마스터!")
-        elif score >= 6:
-            st.info("👍 꽤 잘했어요! 조금만 더 연습하면 완벽!")
-        else:
-            st.warning("📚 괜찮아요! 다시 도전해볼까요?")
+            # 객관식 보기만 남김
+            user_choice = st.radio(
+                "보기 중 하나를 선택하세요👇",
+                choices,
+                key=key_choice
+            )
+
+            submitted = st.form_submit_button("정답 제출 ✅", use_container_width=True)
+
+            if submitted:
+                with st.spinner("채점 중입니다..."):
+                    is_correct = user_choice == answ
+
+                    if is_correct:
+                        st.session_state[key_feedback] = "✅ 정답입니다! 🎉"
+                    else:
+                        feedback = generate_feedback(user_choice, answ)
+                        st.session_state[key_feedback] = f"❌ 오답입니다.\n\n{feedback}"
+
+                    if "quiz_data" not in st.session_state:
+                        st.session_state["quiz_data"] = []
+
+                    st.session_state["quiz_data"].append({
+                        "question": quiz_display,
+                        "topic": "지문화",
+                        "correct": is_correct,
+                        "difficulty": global_difficulty
+                    })
+
+        feedback = st.session_state.get(key_feedback, "")
+        if feedback:
+            with st.expander("📚 해설 보기", expanded=True):
+                st.markdown(f"**정답:** {answ}")
+                st.markdown(feedback)
                 
 if __name__ == "__main__":
     init_page()  # 페이지 초기화
@@ -117,5 +137,6 @@ if __name__ == "__main__":
             st.info("지문 데이터가 없어 비율을 계산할 수 없습니다.")
 
         reset_quiz()
+
 
 
