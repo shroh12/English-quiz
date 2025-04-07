@@ -5,26 +5,6 @@ from step_3_1 import generate_feedback
 from step_3_2 import init_page, reset_quiz, set_quiz
 import random
 import pandas as pd
-
-def show_jimunhwa_percentage(quiz_data):
-    """
-    '지문화' 주제가 전체 문제 중 몇 퍼센트인지 계산하고 Streamlit에 시각적으로 출력합니다.
-    """
-    if isinstance(quiz_data, list):
-        df = pd.DataFrame(quiz_data)
-    else:
-        df = quiz_data
-
-    if "topic" not in df.columns:
-        st.error("❌ 'topic' 컬럼이 존재하지 않습니다.")
-        return
-
-    total = len(df)
-    count = len(df[df["topic"] == "지문화"])
-    percentage = round((count / total) * 100, 2) if total > 0 else 0.0
-
-    st.subheader("📊 '지문화' 문제 비율")
-    st.metric(label="지문화 비율", value=f"{percentage}%", delta=f"{count} / {total}")
     
 def show_quiz(global_difficulty="medium"):
     zipped = zip(
@@ -127,14 +107,6 @@ if __name__ == "__main__":
         
         # ✅ 4. 퀴즈 출력 (난이도 전달)
         show_quiz(global_difficulty)
-        
-        # ✅ 5. '지문화' 문제 비율 출력
-        if "quiz_data" in st.session_state:
-            show_jimunhwa_percentage(st.session_state["quiz_data"])
-        elif "quiz" in st.session_state and "choices" in st.session_state:
-            st.info("문제 데이터에 'topic' 정보가 없어서 분석할 수 없습니다.")
-        else:
-            st.info("지문 데이터가 없어 비율을 계산할 수 없습니다.")
 
         reset_quiz()
 
