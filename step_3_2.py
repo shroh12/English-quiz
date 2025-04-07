@@ -42,105 +42,122 @@ def init_page():
     init_session(dict(quiz=[], answ=[], audio=[], choices=[], voice="en-US-Journey-F"))
 
 # 퀴즈 세팅 (객관식 보기 포함)
-def set_quiz_batch(img: ImageFile.ImageFile, group: str, difficulty: str):
-    if img and not st.session_state.get("quiz"):
-        with st.spinner("10문제 퀴즈를 준비 중입니다...📚"):
-            st.session_state["quiz"] = []
-            st.session_state["answ"] = []
-            st.session_state["choices"] = []
-            st.session_state["audio"] = []
+def set_quiz(img: ImageFile.ImageFile, group: str, difficulty: str):
+    if img and not st.session_state["quiz"]:
+        with st.spinner("이미지 퀴즈를 준비 중입니다...🦜"):
+            quiz_sentence, answer_word, choices, full_desc = generate_quiz(img, group, difficulty)
 
-            for i in range(10):
-                quiz_sentence, answer_word, choices, full_desc = generate_quiz(img, group, difficulty)
-
-                # 중첩 리스트 처리
-                if isinstance(choices[0], list):
-                    choices = choices[0]
-
-                wav_file = synth_speech(full_desc, st.session_state["voice"], "wav")
-                audio_path = OUT_DIR / f"{Path(__file__).stem}_{i}.wav"
-                with open(audio_path, "wb") as fp:
-                    fp.write(wav_file)
-
-                st.session_state["quiz"].append(quiz_sentence)
-                st.session_state["answ"].append(answer_word)
-                st.session_state["choices"].append(choices)
-                st.session_state["audio"].append(audio_path.as_posix())
-                
-def show_quiz_batch(difficulty: str):
-    total = len(st.session_state["quiz"])
-
-    with st.form("quiz_form", clear_on_submit=False):
-        for idx in range(total):
-            quiz = st.session_state["quiz"][idx]
-            answer = st.session_state["answ"][idx]
-            audio = st.session_state["audio"][idx]
-            choices = st.session_state["choices"][idx]
-
-            key_choice = f"choice_{idx}"
-            if key_choice not in st.session_state:
-                st.session_state[key_choice] = ""
-
-            # 문제 영역
-            quiz_highlighted = quiz.replace("_____", "<span style='color:red; font-weight:bold;'>_____</span>")
-            st.markdown(f"""
-                <div style="background-color:#f0f8ff;padding:15px;border-radius:12px;margin:10px 0;">
-                    <p style="font-size:16px;">📝 문제 {idx+1}</p>
-                    <audio controls style="width:100%; margin-bottom: 10px;">
-                        <source src="{audio}" type="audio/wav">
-                    </audio>
-                    <p>{quiz_highlighted}</p>
-                </div>
-            """, unsafe_allow_html=True)
-
+            # 🔥 이 부분 수정 (이중리스트 문제 해결)
             if isinstance(choices[0], list):
                 choices = choices[0]
 
-            st.radio("보기", choices, key=key_choice, label_visibility="collapsed")
+            answer_words = [answer_word]
 
-        submitted = st.form_submit_button("정답 제출 ✅", use_container_width=True)
+            wav_file = synth_speech(full_desc, st.session_state["voice"], "wav")
+            path = OUT_DIR / f"{Path(__file__).stem}.wav"
+            with open(path, "wb") as fp:
+                fp.write(wav_file)
 
-    # 결과 출력
-    if submitted:
-        score = 0
-        st.markdown("---")
-        st.subheader("📊 결과")
+            quiz_display = f"""
+            이미지를 보고 설명을 잘 들은 후, 빈칸에 들어갈 알맞은 단어를 선택하세요.  
 
-        for idx in range(total):
-            user = st.session_state.get(f"choice_{idx}", "")
-            correct = st.session_state["answ"][idx]
-            if user == correct:
-                score += 1
-                st.success(f"문제 {idx + 1}: ✅ 정답 ({user})")
-            else:
-                st.error(f"문제 {idx + 1}: ❌ 오답 (선택: {user}, 정답: {correct})")
+            **{quiz_sentence}**
+            """
 
-        st.markdown(f"## 🏁 총점: **{score} / {total}**")
-        if score >= 9:
-            st.success("🎉 대단해요! 퀴즈 마스터!")
-        elif score >= 6:
-            st.info("👍 좋은 성적이에요! 조금만 더 연습해요!")
-        else:
-            st.warning("📚 괜찮아요! 복습하고 다시 도전해보세요!")
+        st.session_state["img"] = img
+        st.session_state["quiz"] = [quiz_display]
+        st.session_state["answ"] = answer_words
+        st.session_state["audio"] = [path.as_posix()]
+        st.session_state["choices"] = [choices]  # 여기는 리스트로 감싸줘야 함 (이전 구조 유지)
+        st.session_state["quiz_data"] = [{
+            "question": quiz_sentence,
+            "topic": "지문화",
+            "difficulty": difficulty
+        }]
+
+def show_quiz(difficulty):
+    zipped = zip(
+        range(len(st.session_state["quiz"])),
+        st.session_state["quiz"],
+        st.session_state["answ"],
+        st.session_state["audio"],
+        st.session_state["choices"],
+    )
+
+    for idx, quiz, answ, audio, choices in zipped:
+        key_choice = f"choice_{idx}"
+        key_feedback = f"feedback_{idx}"
+        init_session({key_choice: "", key_feedback: ""})
+
+        with st.form(f"form_question_{idx}", border=True):
+            st.audio(audio)
+
+            quiz_highlighted = quiz.replace(
+                "_____", "<span style='color:red; font-weight:bold;'>_____</span>"
+            )
+
+            st.markdown(f"""
+            <div style="background-color:#e6f4ea;padding:20px 20px 10px 20px;border-radius:12px;margin-bottom:10px; text-align: center;">
+                <audio controls style="width:100%; margin-bottom: 15px;">
+                    <source src="{audio}" type="audio/wav">
+                    오디오를 지원하지 않는 브라우저입니다.
+                </audio>
+                <p style="margin-bottom: 5px;">다음 문장을 듣고, 빈칸에 들어갈 단어를 고르세요.</p>
+                <p style="font-size:17px;">{quiz_highlighted}</p>
+            </div>
+            """, unsafe_allow_html=True)
+
+            # 🔥🔥🔥 이 부분을 정확히 아래처럼 변경하세요
+            # 리스트 중첩 문제를 해결
+            if isinstance(choices[0], list):
+                choices = choices[0]
+
+            user_choice = st.radio(
+                "보기 중 하나를 선택하세요👇",
+                choices,
+                key=key_choice
+            )
+
+            submitted = st.form_submit_button("정답 제출 ✅", use_container_width=True)
+
+            if submitted:
+                with st.spinner("채점 중입니다..."):
+                    is_correct = user_choice == answ  # ✅ 정답 여부 판단
+
+                    if is_correct:
+                        st.session_state[key_feedback] = "✅ 정답입니다! 🎉"
+                    else:
+                        feedback = generate_feedback(user_choice, answ)
+                        st.session_state[key_feedback] = f"❌ 오답입니다.\n\n{feedback}"
+
+                    if "quiz_data" not in st.session_state:
+                        st.session_state["quiz_data"] = []
+
+                    st.session_state["quiz_data"].append({
+                        "question": quiz,
+                        "topic": "지문화",
+                        "correct": is_correct,
+                        "difficulty": difficulty
+                    })
+
+        # 피드백 출력
+        feedback = st.session_state.get(key_feedback, "")
+        if feedback:
+            with st.expander("📚 해설 보기", expanded=True):
+                st.markdown(f"**정답:** {answ}")
+                st.markdown(feedback)
+
 # 퀴즈 리셋
 def reset_quiz():
-    if st.button("🔄 다시 풀기", type="primary"):
-        for key in list(st.session_state.keys()):
-            if key.startswith("choice_") or key in ["quiz", "answ", "choices", "audio"]:
-                del st.session_state[key]
-        st.rerun()
-
+    if st.session_state["quiz"]:
+        if st.button("🔄 새로운 문제", type="primary"):
+            clear_session()
+            st.rerun()
 
 # 실행
 if __name__ == "__main__":
     init_page()
-
     if img := uploaded_image(on_change=clear_session):
-        # 🔁 단일 문제 대신 10문제 세팅
-        set_quiz_batch(img, group_code, global_difficulty)
-
-        # 🔁 전체 퀴즈 보여주기 + 점수 계산
-        show_quiz_batch(global_difficulty)
-
-        # 🔁 리셋 버튼
+        set_quiz(img, group_code, global_difficulty)
+        show_quiz(global_difficulty)
         reset_quiz()
