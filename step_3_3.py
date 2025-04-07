@@ -1,4 +1,4 @@
-import streamlit as st
+"""import streamlit as st
 from step_1_2 import uploaded_image
 from step_1_3 import clear_session, init_session
 from step_3_1 import generate_feedback
@@ -108,6 +108,6 @@ if __name__ == "__main__":
         show_quiz(global_difficulty)
 
         reset_quiz()
-
+"""
 
 
