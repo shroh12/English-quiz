@@ -103,11 +103,11 @@ if __name__ == "__main__":
 
     # ✅ 3. 이미지 업로드 → 퀴즈 생성
     if img := uploaded_image(on_change=clear_session):
-        set_quiz(img, group_code, global_difficulty)  # 퀴즈 세팅
-        
-        # ✅ 4. 퀴즈 출력 (난이도 전달)
-        show_quiz(global_difficulty)
-        
+        set_quiz_batch(img, group_code, global_difficulty)  # 🔁 다중 문제 세팅
+
+        # ✅ 4. 퀴즈 출력 (한 번에 10문제 + 점수 계산)
+        show_quiz_batch(global_difficulty)  # 🔁 변경된 함수 사용
+
         # ✅ 5. '지문화' 문제 비율 출력
         if "quiz_data" in st.session_state:
             show_jimunhwa_percentage(st.session_state["quiz_data"])
