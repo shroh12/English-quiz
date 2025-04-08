@@ -90,12 +90,14 @@ def show_quiz(difficulty):
         init_session({key_choice: "", key_feedback: ""})
 
         with st.form(f"form_question_{idx}", border=True):
+            st.audio(audio)
+
             quiz_highlighted = quiz.replace(
                 "_____", "<span style='color:red; font-weight:bold;'>_____</span>"
             )
 
             st.markdown(f"""
-            <div style="background-color:#e6f4ea;padding:20px;border-radius:12px;margin-bottom:10px; text-align: center;">
+            <div style="background-color:#e6f4ea;padding:20px 20px 10px 20px;border-radius:12px;margin-bottom:10px; text-align: center;">
                 <audio controls style="width:100%; margin-bottom: 15px;">
                     <source src="{audio}" type="audio/wav">
                     오디오를 지원하지 않는 브라우저입니다.
@@ -105,6 +107,8 @@ def show_quiz(difficulty):
             </div>
             """, unsafe_allow_html=True)
 
+            # 🔥🔥🔥 이 부분을 정확히 아래처럼 변경하세요
+            # 리스트 중첩 문제를 해결
             if isinstance(choices[0], list):
                 choices = choices[0]
 
@@ -118,14 +122,13 @@ def show_quiz(difficulty):
 
             if submitted:
                 with st.spinner("채점 중입니다..."):
-                    is_correct = user_choice == answ
+                    is_correct = user_choice == answ  # ✅ 정답 여부 판단
 
                     if is_correct:
-                        feedback = "✅ 정답입니다! 🎉"
+                        st.session_state[key_feedback] = "✅ 정답입니다! 🎉"
                     else:
-                        feedback = f"❌ 오답입니다.\n\n{generate_feedback(user_choice, answ)}"
-
-                    st.session_state[key_feedback] = feedback
+                        feedback = generate_feedback(user_choice, answ)
+                        st.session_state[key_feedback] = f"❌ 오답입니다.\n\n{feedback}"
 
                     if "quiz_data" not in st.session_state:
                         st.session_state["quiz_data"] = []
@@ -137,12 +140,13 @@ def show_quiz(difficulty):
                         "difficulty": difficulty
                     })
 
-            # ✅ 제출 후 피드백 표시 (폼 안에서)
-            feedback = st.session_state.get(key_feedback, "")
-            if feedback:
-                with st.expander("📚 해설 보기", expanded=True):
-                    st.markdown(f"**정답:** {answ}")
-                    st.markdown(feedback)
+        # 피드백 출력
+        feedback = st.session_state.get(key_feedback, "")
+        if feedback:
+            with st.expander("📚 해설 보기", expanded=True):
+                st.markdown(f"**정답:** {answ}")
+                st.markdown(feedback)
+
 # 퀴즈 리셋
 def reset_quiz():
     if st.session_state["quiz"]:
