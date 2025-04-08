@@ -26,7 +26,7 @@ def show_quiz(global_difficulty="medium"):
             """, unsafe_allow_html=True)
  
             st.audio(audio)
-            quiz_display = quiz
+            quiz_display = quiz.replace("**", "")
             st.markdown(f"문제: {quiz_display}")
  
             if not choices or not isinstance(choices, list):
