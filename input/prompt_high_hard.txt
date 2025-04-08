@@ -9,6 +9,6 @@ Clearly indicate the correct answers at the end.
 Use exactly the following format (do NOT include additional explanations):
 
 Original: "The journalist investigated allegations concerning unethical behavior within the organization."
-Quiz: "The journalist _____ allegations concerning _____ behavior within the _____."
-Answer: "investigated", "unethical", "organization"
-Choices: ["investigated", "reported", "denied", "ignored"], ["unethical", "unusual", "unexpected", "unintentional"], ["organization", "company", "community", "committee"]
+Quiz: "The journalist _____ allegations concerning unethical behavior within the organization."
+Answer: "investigated"
+Choices: ["investigated", "reported", "denied", "ignored"]
