@@ -27,7 +27,7 @@ def show_quiz(global_difficulty="medium"):
  
             st.audio(audio)
             quiz_display = quiz
-            st.markdown(f"**문제:** {quiz_display}")
+            st.markdown(f"문제: {quiz_display}")
  
             if not choices or not isinstance(choices, list):
                 st.error("선택지가 없습니다. 다시 문제를 생성하세요.")
