@@ -72,7 +72,7 @@ def show_quiz(global_difficulty="medium"):
                         "difficulty": global_difficulty
                     })
                     
-                     with st.expander("📚 해설 보기", expanded=True):
+                    with st.expander("📚 해설 보기", expanded=True):
                          st.markdown(f"**정답:** {answ}")
                          st.markdown(feedback)
                 
