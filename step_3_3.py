@@ -5,7 +5,6 @@ from step_3_1 import generate_feedback
 from step_3_2 import init_page, reset_quiz, set_quiz
 import random
 import pandas as pd
-
 def show_quiz(global_difficulty="medium"):
     zipped = zip(
         range(len(st.session_state["quiz"])),
@@ -14,79 +13,65 @@ def show_quiz(global_difficulty="medium"):
         st.session_state["audio"],
         st.session_state["choices"],
     )
-
-    # 점수 초기화
-    if "total_score" not in st.session_state:
-        st.session_state["total_score"] = 0
-
     for idx, quiz, answ, audio, choices in zipped:
         key_choice = f"choice_{idx}"
         key_feedback = f"feedback_{idx}"
         init_session({key_choice: "", key_feedback: ""})
-
+ 
         with st.form(f"form_question_{idx}", border=True):
             st.markdown("""
-            <div style="background-color:#e6f4ea; padding:10px; border-radius:10px; text-align: center;">
-                <h4 style="color:#006d2c; margin: 0;">문제</h4>
-            </div>
+<div style="background-color:#e6f4ea; padding:10px; border-radius:10px; text-align: center;">
+<h4 style="color:#006d2c; margin: 0;">문제</h4>
+</div>
             """, unsafe_allow_html=True)
-
+ 
             st.audio(audio)
             quiz_display = quiz.replace("**", "")
             st.markdown(f"문제: {quiz_display}")
-
+ 
             if not choices or not isinstance(choices, list):
                 st.error("선택지가 없습니다. 다시 문제를 생성하세요.")
                 continue
-
-            # 빈칸 수에 따라 선택지 출력
-            user_choices = []
-            for i, choice_set in enumerate(choices):
-                user_choice = st.radio(
-                    f"빈칸 {i + 1} 보기 👇",
-                    choice_set,
-                    key=f"{key_choice}_{i}"
-                )
-                user_choices.append(user_choice)
-
+ 
+            # 여기서부터 '빈칸 1 보기' 부분이 있었던 곳 (삭제/주석 처리)
+            # st.markdown("🔸 **빈칸 1 보기:**")
+            # for i, choice in enumerate(choices, start=1):
+            #     st.markdown(f"{i}. {choice}")
+ 
+            # 기본값 유효성 검증
+            if st.session_state[key_choice] not in choices:
+                st.session_state[key_choice] = choices[0]
+ 
+            # 객관식 보기만 남김
+            user_choice = st.radio(
+                "보기 중 하나를 선택하세요👇",
+                choices,
+                key=key_choice
+            )
+ 
             submitted = st.form_submit_button("정답 제출 ✅", use_container_width=True)
-
+ 
             if submitted:
                 with st.spinner("채점 중입니다..."):
-                    is_correct = user_choices == answ  # 정답 리스트와 비교
+                    is_correct = [user_choice] == answ
                     feedback = ""
-
+ 
                     if is_correct:
                         feedback = "✅ 정답입니다! 🎉"
-                        st.session_state["total_score"] += 10  # 정답당 10점
                     else:
-                        feedback = f"❌ 오답입니다.\n\n정답: {', '.join(answ)}"
-
+                        feedback = f"❌ 오답입니다.\n\n{generate_feedback(user_choice, answ)}"
+ 
                     if "quiz_data" not in st.session_state:
                         st.session_state["quiz_data"] = []
-
+ 
                     st.session_state["quiz_data"].append({
                         "question": quiz_display,
                         "correct": is_correct,
                         "difficulty": global_difficulty
                     })
-
                     with st.expander("📚 해설 보기", expanded=True):
-                        st.markdown(feedback)
-
-    # 최종 점수 출력
-    if "total_score" in st.session_state:
-        final_score = min(st.session_state["total_score"], 100)  # 최대 100점
-        st.markdown("---")
-        st.subheader("🎯 최종 점수")
-        st.markdown(f"**{final_score}점 / 100점**")
-
-        if final_score == 100:
-            st.success("💯 완벽합니다! 퀴즈 마스터네요!")
-        elif final_score >= 70:
-            st.info("👍 잘했어요! 조금만 더 연습해볼까요?")
-        else:
-            st.warning("📚 괜찮아요! 복습하고 다시 도전해봐요 :)")
+                         st.markdown(f"**정답:** {answ}")
+                         st.markdown(feedback)
 if __name__ == "__main__":
     init_page()  # 페이지 초기화
  
@@ -114,6 +99,5 @@ if __name__ == "__main__":
         set_quiz(img, group_code, global_difficulty)  # 퀴즈 세팅
         # ✅ 4. 퀴즈 출력 (난이도 전달)
         show_quiz(global_difficulty)
-        st.session_state["total_score"] = 0
  
         reset_quiz()
