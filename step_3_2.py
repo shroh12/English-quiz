@@ -108,16 +108,16 @@ def show_quiz(difficulty):
             """, unsafe_allow_html=True)
 
             # 🔥🔥🔥 이 부분을 정확히 아래처럼 변경하세요
-            # 리스트 중첩 문제를 해결
-            if isinstance(choices[0], list):
-                choices = choices[0]
-
-            user_choice = st.radio(
-                "보기 중 하나를 선택하세요👇",
-                choices,
-                key=key_choice
-            )
-
+            # 🔁 빈칸 수에 따라 보기 출력
+            user_choices = []
+            for i, choice_set in enumerate(choices):  # choices: List[List[str]]
+                user_choice = st.radio(
+                    f"빈칸 {i + 1} 보기 👇",
+                    choice_set,
+                    key=f"{key_choice}_{i}"  # unique 키: 문제번호+빈칸번호
+                )
+                user_choices.append(user_choice)
+                
             submitted = st.form_submit_button("정답 제출 ✅", use_container_width=True)
 
             if submitted:
