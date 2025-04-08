@@ -74,7 +74,7 @@ def show_quiz(global_difficulty="medium"):
                             st.markdown(f"**정답:** {answ[0]}")
                         else:
                             st.markdown(f"**정답:** {', '.join(answ)}") 
-                         st.markdown(feedback)
+                            st.markdown(feedback)
 if __name__ == "__main__":
     init_page()  # 페이지 초기화
  
