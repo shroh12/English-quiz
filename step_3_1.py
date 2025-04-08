@@ -34,7 +34,7 @@ def generate_quiz(img: ImageFile.ImageFile, group: str, difficulty: str):
 
     if quiz_match and answer_match and choices_match:
         quiz_sentence = quiz_match.group(1).strip()
-        answer_word = answer_match.group(1).strip()
+        answer_word = [w.strip().strip('"') for w in answer_match.group(1).split(",")]
         choices = ast.literal_eval(f"[{choices_match.group(1)}]")
 
         # Original 문장이 없다면 quiz 문장으로 대신함
