@@ -11,4 +11,4 @@ Use exactly the following format (do NOT include additional explanations):
 Original: "The student submitted her essay before the deadline."
 Quiz: "The student _____ her essay before the deadline."
 Answer: "submitted"
-Choices: ["submitted", "lost", "copied", "erased"]
+Choices: ["submitted", "commited", "admitted", "omitted"]
