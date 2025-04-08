@@ -56,12 +56,14 @@ def show_quiz(global_difficulty="medium"):
             if submitted:
                 with st.spinner("채점 중입니다..."):
                     is_correct = user_choice == answ
+                    feedback = ""
 
                     if is_correct:
-                        st.session_state[key_feedback] = "✅ 정답입니다! 🎉"
+                        feedback = "✅ 정답입니다! 🎉"
                     else:
-                        feedback = generate_feedback(user_choice, answ)
-                        st.session_state[key_feedback] = f"❌ 오답입니다.\n\n{feedback}"
+                        feedback = f"❌ 오답입니다.\n\n{generate_feedback(user_choice, answ)}"
+                        
+                    st.session_state[key_feedback] = f"❌ 오답입니다.\n\n{feedback}"
 
                     if "quiz_data" not in st.session_state:
                         st.session_state["quiz_data"] = []
@@ -71,12 +73,10 @@ def show_quiz(global_difficulty="medium"):
                         "correct": is_correct,
                         "difficulty": global_difficulty
                     })
-
-        feedback = st.session_state.get(key_feedback, "")
-        if feedback:
-            with st.expander("📚 해설 보기", expanded=True):
-                st.markdown(f"**정답:** {answ}")
-                st.markdown(feedback)
+                    
+                     with st.expander("📚 해설 보기", expanded=True):
+                         st.markdown(f"**정답:** {answ}")
+                         st.markdown(feedback)
                 
 if __name__ == "__main__":
     init_page()  # 페이지 초기화
