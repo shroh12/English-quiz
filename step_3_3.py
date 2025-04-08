@@ -5,6 +5,7 @@ from step_3_1 import generate_feedback
 from step_3_2 import init_page, reset_quiz, set_quiz
 import random
 import pandas as pd
+
 def show_quiz(global_difficulty="medium"):
     zipped = zip(
         range(len(st.session_state["quiz"])),
