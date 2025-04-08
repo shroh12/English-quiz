@@ -81,7 +81,7 @@ def show_quiz(global_difficulty="medium"):
                             st.markdown(feedback)
 if __name__ == "__main__":
     init_page()  # 페이지 초기화
- 
+
     # ✅ 1. 학습자 그룹 선택
     group_display = st.selectbox("연령대를 선택하세요.", ["초등학생", "중학생", "고등학생", "성인"])
     group_mapping = {
@@ -91,8 +91,8 @@ if __name__ == "__main__":
         "성인": "adult"
     }
     group_code = group_mapping.get(group_display, "default")
- 
-    # ✅ 2. 난이도 선택 (공통 적용)
+
+    # ✅ 2. 난이도 선택
     difficulty_display = st.selectbox("문제 난이도를 선택하세요.", ["쉬움", "중간", "어려움"])
     difficulty_mapping = {
         "쉬움": "easy",
@@ -100,11 +100,12 @@ if __name__ == "__main__":
         "어려움": "hard"
     }
     global_difficulty = difficulty_mapping.get(difficulty_display, "normal")
- 
+
     # ✅ 3. 이미지 업로드 → 퀴즈 생성
     if img := uploaded_image(on_change=clear_session):
+        st.session_state["total_score"] = 0  # 점수 초기화
+
         set_quiz(img, group_code, global_difficulty)  # 퀴즈 세팅
-        # ✅ 4. 퀴즈 출력 (난이도 전달)
-        show_quiz(global_difficulty)
- 
-        reset_quiz()
+        show_quiz(global_difficulty)  # 퀴즈 출력 (정답 제출 포함)
+
+        reset_quiz()  # 리셋 버튼
