@@ -11,4 +11,4 @@ Use exactly the following format (do NOT include additional explanations):
 Original: "The secretary organized the files neatly on the desk."
 Quiz: "The secretary _____ the files neatly on the desk."
 Answer: "organized"
-Choices: ["deleted", "organized", "printed", "mailed"]
+Choices: ["opened", "organized", "organized", "offered"]
