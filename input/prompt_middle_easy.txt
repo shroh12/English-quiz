@@ -11,6 +11,6 @@ Use exactly the following format (do NOT include additional explanations):
 Original: "The students are studying together in the classroom."
 Quiz: "The students are _____ together in the classroom."
 Answer: "studying"
-Choices: ["cooking", "sleeping", "studying", "running"]
+Choices: ["staying", "sleeping", "studying", "standing"]
 
 
