@@ -11,4 +11,4 @@ Use exactly the following format (do NOT include additional explanations):
 Original: "The committee approved the proposal after thorough discussion."
 Quiz: "The committee _____ the proposal after thorough discussion."
 Answer: "approved"
-Choices: ["approved", "rejected", "ignored", "delayed"]
+Choices: ["approved", "improved", "proved", "desproved"]
