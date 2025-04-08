@@ -9,6 +9,6 @@ Clearly indicate the correct answers at the end.
 Use exactly the following format (do NOT include additional explanations):
 
 Original: "The marketing team launched a new campaign targeting younger consumers."
-Quiz: "The marketing team _____ a new _____ targeting younger consumers."
-Answer: "launched", "campaign"
-Choices: ["launched", "canceled", "postponed", "approved"], ["campaign", "product", "survey", "website"]
+Quiz: "The marketing team launched a new _____ targeting younger consumers."
+Answer: "campaign"
+Choices: ["product", "survey", "website", "campaign"]
