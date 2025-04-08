@@ -11,4 +11,4 @@ Use exactly the following format (do NOT include additional explanations):
 Original: "The children planted flowers in the garden on a sunny afternoon."
 Quiz: "The children _____ flowers in the garden on a sunny afternoon."
 Answer: "planted"
-Choices: ["planted", "picked", "painted", "washed"]
+Choices: ["planted", "picked", "painted", "planned"]
