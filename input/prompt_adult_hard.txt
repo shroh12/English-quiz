@@ -11,7 +11,7 @@ Use exactly the following format (do NOT include additional explanations or any 
 Original: "The executive's sagacious decision significantly augmented quarterly revenue, facilitating unprecedented market penetration."
 Quiz: "The executive's sagacious decision significantly _____ quarterly revenue, facilitating unprecedented market penetration."
 Answer: "augmented"
-Choices: ["augments", "augment", "augmented", "augmentation"]
+Choices: ["augments", "augment", "augmented", "augmental"]
 
 Strictly follow the provided format, including the 'Original:' sentence.
 
