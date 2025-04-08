@@ -54,10 +54,9 @@ def show_quiz(global_difficulty="medium"):
  
             if submitted:
                 with st.spinner("채점 중입니다..."):
-                    user_choices = [...]
+                    user_choices = [user_choice]
                     is_correct = [user_choice] == answ
-                    feedback = ""
- 
+                    
                     if is_correct:
                         feedback = "✅ 정답입니다! 🎉"
                     else:
@@ -80,7 +79,9 @@ def show_quiz(global_difficulty="medium"):
                             st.markdown(f"**정답:** {answ[0]}")
                         else:
                             st.markdown(f"**정답:** {', '.join(answ)}") 
-                            st.markdown(feedback)
+                            
+                        st.markdown(feedback)
+                        
 if __name__ == "__main__":
     init_page()  # 페이지 초기화
 
