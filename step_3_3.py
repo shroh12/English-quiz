@@ -26,7 +26,7 @@ def show_quiz(global_difficulty="medium"):
             """, unsafe_allow_html=True)
 
             st.audio(audio)
-            st.markdown(f"**문제:** {quiz_display}")
+            st.markdown(f"**문제:** {quiz}")
 
             user_choices = []
             for i, choice_set in enumerate(choices):
