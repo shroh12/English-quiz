@@ -9,6 +9,6 @@ Clearly indicate the correct answers at the end.
 Use exactly the following format (do NOT include additional explanations):
 
 Original: "The children planted flowers in the garden on a sunny afternoon."
-Quiz: "The children _____ flowers in the _____ on a sunny _____."
-Answer: "planted", "garden", "afternoon"
-Choices: ["planted", "picked", "painted", "washed"], ["garden", "forest", "playground", "field"], ["afternoon", "morning", "evening", "night"]
+Quiz: "The children _____ flowers in the garden on a sunny afternoon."
+Answer: "planted"
+Choices: ["planted", "picked", "painted", "washed"]
