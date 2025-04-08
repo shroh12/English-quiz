@@ -70,7 +70,10 @@ def show_quiz(global_difficulty="medium"):
                         "difficulty": global_difficulty
                     })
                     with st.expander("📚 해설 보기", expanded=True):
-                         st.markdown(f"**정답:** {answ}")
+                        if len(answ) == 1:
+                            st.markdown(f"**정답:** {answ[0]}")
+                        else:
+                            st.markdown(f"**정답:** {', '.join(answ)}") 
                          st.markdown(feedback)
 if __name__ == "__main__":
     init_page()  # 페이지 초기화
