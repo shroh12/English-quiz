@@ -9,6 +9,6 @@ Clearly indicate the correct answers at the end.
 Use exactly the following format (do NOT include additional explanations):
 
 Original: "The girl is painting a colorful picture near the window."
-Quiz: "The girl is _____ a colorful picture near the _____."
-Answer: "painting", "window"
-Choices: ["painting", "reading", "washing", "holding"], ["window", "table", "door", "chair"]
+Quiz: "The girl is _____ a colorful picture near the window."
+Answer: "painting"
+Choices: ["painting", "reading", "washing", "holding"]
