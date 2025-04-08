@@ -11,4 +11,4 @@ Use exactly the following format (do NOT include additional explanations):
 Original: "The marketing team launched a new campaign targeting younger consumers."
 Quiz: "The marketing team launched a new _____ targeting younger consumers."
 Answer: "campaign"
-Choices: ["product", "survey", "website", "campaign"]
+Choices: ["company", "complaint","champion", "campaign"]
