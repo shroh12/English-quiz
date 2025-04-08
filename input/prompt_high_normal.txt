@@ -9,6 +9,6 @@ Clearly indicate the correct answers at the end.
 Use exactly the following format (do NOT include additional explanations):
 
 Original: "The committee approved the proposal after thorough discussion."
-Quiz: "The committee _____ the _____ after thorough discussion."
-Answer: "approved", "proposal"
-Choices: ["approved", "rejected", "ignored", "delayed"], ["proposal", "answer", "question", "request"]
+Quiz: "The committee _____ the proposal after thorough discussion."
+Answer: "approved"
+Choices: ["approved", "rejected", "ignored", "delayed"]
