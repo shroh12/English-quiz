@@ -11,5 +11,5 @@ Use exactly the following format (do NOT include additional explanations):
 Original: "The teacher explained the experiment carefully to the students."
 Quiz: "The teacher _____ the experiment carefully to the students."
 Answer: "explained"
-Choices: ["explained", "forgot", "completed", "started"]
+Choices: ["explained", "examined", "expected", "expressed"]
 
