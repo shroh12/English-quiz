@@ -11,5 +11,5 @@ Use exactly the following format (do NOT include additional explanations):
 Original: "The principal announced a significant change regarding school policies during the assembly."
 Quiz: "The principal _____ a significant change regarding school policies during the assembly."
 Answer: "announced"
-Choices: ["requested", "explained", "announced", "suggested"]
+Choices: ["pronounced", "renounced", "announced", "denounced"]
 
