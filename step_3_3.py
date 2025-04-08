@@ -62,8 +62,6 @@ def show_quiz(global_difficulty="medium"):
                         feedback = "✅ 정답입니다! 🎉"
                     else:
                         feedback = f"❌ 오답입니다.\n\n{generate_feedback(user_choice, answ)}"
-                        
-                    st.session_state[key_feedback] = f"❌ 오답입니다.\n\n{feedback}"
 
                     if "quiz_data" not in st.session_state:
                         st.session_state["quiz_data"] = []
