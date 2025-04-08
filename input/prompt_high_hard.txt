@@ -11,4 +11,4 @@ Use exactly the following format (do NOT include additional explanations):
 Original: "The journalist investigated allegations concerning unethical behavior within the organization."
 Quiz: "The journalist _____ allegations concerning unethical behavior within the organization."
 Answer: "investigated"
-Choices: ["reported", "denied", "investigated", "ignored"]
+Choices: ["instigated", "interrogated", "investigated", "interpreted"]
