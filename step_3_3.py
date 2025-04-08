@@ -41,7 +41,8 @@ def show_quiz(global_difficulty="medium"):
 
             # 빈칸 수에 따라 선택지 출력
             user_choices = []
-            for i, choice_set in enumerate(choices):
+            for i in range(len(answ)):
+                choice_set = choices[i] if i < len(choices) else []
                 user_choice = st.radio(
                     f"빈칸 {i + 1} 보기 👇",
                     choice_set,
