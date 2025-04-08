@@ -59,7 +59,11 @@ def show_quiz(global_difficulty="medium"):
                     if is_correct:
                         feedback = "✅ 정답입니다! 🎉"
                     else:
-                        feedback = f"❌ 오답입니다.\n\n{generate_feedback(user_choice, answ)}"
+                        # 오답일 경우 해설 생성
+                        student_word = user_choices[0]  # 첫 번째 빈칸 기준
+                        correct_word = answ[0]
+                        feedback_detail = generate_feedback(student_word, correct_word)
+                        feedback = f"❌ 오답입니다.\n\n{feedback_detail}"
  
                     if "quiz_data" not in st.session_state:
                         st.session_state["quiz_data"] = []
