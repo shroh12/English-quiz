@@ -15,9 +15,8 @@ def show_quiz(global_difficulty="medium"):
         st.session_state["choices"],
     )
     for idx, quiz, answ, audio, choices in zipped:
-        key_choice = f"choice_{idx}"
         key_feedback = f"feedback_{idx}"
-        init_session({key_choice: "", key_feedback: ""})
+        init_session({key_feedback: ""})
 
         with st.form(f"form_question_{idx}", border=True):
             st.markdown("""
@@ -27,29 +26,16 @@ def show_quiz(global_difficulty="medium"):
             """, unsafe_allow_html=True)
 
             st.audio(audio)
-            
-            quiz_display = quiz
             st.markdown(f"**문제:** {quiz_display}")
 
-            if not choices or not isinstance(choices, list):
-                st.error("선택지가 없습니다. 다시 문제를 생성하세요.")
-                continue
-
-            # 여기서부터 '빈칸 1 보기' 부분이 있었던 곳 (삭제/주석 처리)
-            # st.markdown("🔸 **빈칸 1 보기:**")
-            # for i, choice in enumerate(choices, start=1):
-            #     st.markdown(f"{i}. {choice}")
-
-            # 기본값 유효성 검증
-            if st.session_state[key_choice] not in choices:
-                st.session_state[key_choice] = choices[0]
-
-            # 객관식 보기만 남김
-            user_choice = st.radio(
-                "보기 중 하나를 선택하세요👇",
-                choices,
-                key=key_choice
-            )
+            user_choices = []
+            for i, choice_set in enumerate(choices):
+                user_choice = st.radio(
+                    f"빈칸 {i+1} 보기 👇",
+                    choice_set,
+                    key=f"blank_{idx}_{i}"
+                )
+                user_choices.append(user_choice)
 
             submitted = st.form_submit_button("정답 제출 ✅", use_container_width=True)
 
@@ -61,7 +47,7 @@ def show_quiz(global_difficulty="medium"):
                     if is_correct:
                         feedback = "✅ 정답입니다! 🎉"
                     else:
-                        feedback = f"❌ 오답입니다.\n\n{generate_feedback(user_choice, answ)}"
+                        feedback = f"❌ 오답입니다.\n\n정답: {', '.join(answ)}"
 
                     if "quiz_data" not in st.session_state:
                         st.session_state["quiz_data"] = []
@@ -73,7 +59,6 @@ def show_quiz(global_difficulty="medium"):
                     })
                     
                     with st.expander("📚 해설 보기", expanded=True):
-                         st.markdown(f"**정답:** {answ}")
                          st.markdown(feedback)
                 
 if __name__ == "__main__":
