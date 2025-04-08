@@ -9,7 +9,7 @@ Clearly indicate the correct answers at the end.
 Use exactly the following format (do NOT include additional explanations):
 
 Original: "The teacher explained the experiment carefully to the students."
-Quiz: "The teacher _____ the _____ carefully to the students."
-Answer: "explained", "experiment"
-Choices: ["explained", "forgot", "completed", "started"], ["experiment", "homework", "project", "game"]
+Quiz: "The teacher _____ the experiment carefully to the students."
+Answer: "explained"
+Choices: ["explained", "forgot", "completed", "started"]
 
