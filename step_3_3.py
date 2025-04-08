@@ -100,7 +100,7 @@ if __name__ == "__main__":
         "중간": "normal",
         "어려움": "hard"
     }
-        global_difficulty = difficulty_mapping.get(difficulty_display, "normal")
+    global_difficulty = difficulty_mapping.get(difficulty_display, "normal")
 
     # ✅ 3. 이미지 업로드 → 퀴즈 생성
     if img := uploaded_image(on_change=clear_session):
