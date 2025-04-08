@@ -146,14 +146,16 @@ def show_quiz(difficulty):
             with st.expander("📚 해설 보기", expanded=True):
                 st.markdown(f"**정답:** {answ}")
                 st.markdown(feedback)
+def init_score():
+    st.session_state["total_score"] = 0
 
 # 퀴즈 리셋
 def reset_quiz():
-    if st.session_state["quiz"]:
+    if st.session_state.get("quiz"):
         if st.button("🔄 새로운 문제", type="primary"):
+            st.session_state["total_score"] = 0  # ✅ 점수도 초기화
             clear_session()
             st.rerun()
-
 # 실행
 if __name__ == "__main__":
     init_page()
