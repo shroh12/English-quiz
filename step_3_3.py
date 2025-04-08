@@ -53,7 +53,7 @@ def show_quiz(global_difficulty="medium"):
  
             if submitted:
                 with st.spinner("채점 중입니다..."):
-                    is_correct = user_choice == answ
+                    is_correct = [user_choice] == answ
                     feedback = ""
  
                     if is_correct:
