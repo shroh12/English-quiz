@@ -76,7 +76,7 @@ def show_quiz(global_difficulty="medium"):
                         st.markdown(feedback)
 
                         
-if __name__ == \"__main__\":
+if __name__ == "__main__":
     init_page()  # 페이지 초기화
 
     # ✅ 1. 학습자 그룹 선택
