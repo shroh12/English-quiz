@@ -18,7 +18,12 @@ def show_quiz(global_difficulty="medium"):
     if "quiz_data" not in st.session_state:
         st.session_state["quiz_data"] = []
 
+    quiz_count = 0
+
     for idx, quiz, answ, audio, choices in zipped:
+        if quiz_count >= 10:
+            break  # 최대 10문제까지만 출력
+
         key_choice_1 = f"choice_{idx}_1"
         key_choice_2 = f"choice_{idx}_2"
         key_feedback = f"feedback_{idx}"
@@ -74,9 +79,11 @@ def show_quiz(global_difficulty="medium"):
                         st.markdown(f"**정답:** {', '.join(answ)}")
                         st.markdown(feedback)
 
+        quiz_count += 1
+
     # ✅ 10문제 풀이 후 점수 표시
     if len(st.session_state["quiz_data"]) >= 10:
-        total_correct = sum(q["correct"] for q in st.session_state["quiz_data"])
+        total_correct = sum(q["correct"] for q in st.session_state["quiz_data"][:10])
         st.markdown(f"## 🎉 총 10문제 중 {total_correct}문제를 맞추셨습니다! 🎉")
 
 
