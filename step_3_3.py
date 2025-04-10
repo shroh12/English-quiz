@@ -113,4 +113,4 @@ if __name__ == "__main__":
         # ✅ 4. 10문제 풀었을 때 점수 제공
         if len(st.session_state.get("quiz_data", [])) >= 10:
             total_correct = sum(q["correct"] for q in st.session_state["quiz_data"])
-            st.markdown(f"## 🎉 총 10문제 중 {total_correct}문제를 맞추셨습니다! 🎉"
+            st.markdown(f"## 🎉 총 10문제 중 {total_correct}문제를 맞추셨습니다! 🎉")
