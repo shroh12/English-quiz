@@ -104,6 +104,9 @@ if __name__ == "__main__":
         st.session_state["total_score"] = 0  # 점수 초기화
 
         set_quiz(img, group_code, global_difficulty)  # 퀴즈 세팅
-        show_quiz(global_difficulty)  # 퀴즈 출력 (정답 제출 포함)
+        show_quiz(global_difficulty)  # 수정된 퀴즈 출력 (두 개의 빈칸 처리)
 
-        reset_quiz()  # 리셋 버튼
+        # ✅ 4. 10문제 풀었을 때 점수 제공
+        if len(st.session_state.get("quiz_data", [])) >= 10:
+            total_correct = sum(q["correct"] for q in st.session_state["quiz_data"])
+            st.markdown(f"## 🎉 총 10문제 중 {total_correct}문제를 맞추셨습니다! 🎉"
