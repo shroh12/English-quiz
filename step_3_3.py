@@ -80,27 +80,27 @@ if __name__ == "__main__":
     init_page()  # 페이지 초기화
 
     # ✅ 1. 학습자 그룹 선택
-    group_display = st.selectbox(\"연령대를 선택하세요.\", [\"초등학생\", \"중학생\", \"고등학생\", \"성인\"])
+    group_display = st.selectbox("연령대를 선택하세요.", ["초등학생", "중학생", "고등학생", "성인"])
     group_mapping = {
-        \"초등학생\": \"elementary\",
-        \"중학생\": \"middle\",
-        \"고등학생\": \"high\",
-        \"성인\": \"adult\"
+        "초등학생": "elementary",
+        "중학생": "middle",
+        "고등학생": "high",
+        "성인": "adult"
     }
-    group_code = group_mapping.get(group_display, \"default\")
+    group_code = group_mapping.get(group_display, "default")
 
     # ✅ 2. 난이도 선택
-    difficulty_display = st.selectbox(\"문제 난이도를 선택하세요.\", [\"쉬움\", \"중간\", \"어려움\"])
+    difficulty_display = st.selectbox("문제 난이도를 선택하세요.", ["쉬움", "중간", "어려움"])
     difficulty_mapping = {
-        \"쉬움\": \"easy\",
-        \"중간\": \"normal\",
-        \"어려움\": \"hard\"
+        "쉬움": "easy",
+        "중간": "normal",
+        "어려움": "hard"
     }
-    global_difficulty = difficulty_mapping.get(difficulty_display, \"normal\")
+    global_difficulty = difficulty_mapping.get(difficulty_display, "normal")
 
     # ✅ 3. 이미지 업로드 → 퀴즈 생성
     if img := uploaded_image(on_change=clear_session):
-        st.session_state[\"total_score\"] = 0  # 점수 초기화
+        st.session_state["total_score"] = 0  # 점수 초기화
 
         set_quiz(img, group_code, global_difficulty)  # 퀴즈 세팅
         show_quiz(global_difficulty)  # 수정된 퀴즈 출력 (두 개의 빈칸 처리)
