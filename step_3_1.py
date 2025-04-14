@@ -65,9 +65,14 @@ def get_prompt_by_group_and_difficulty(group: str, difficulty: str) -> str:
     return prompts.get((group, difficulty), "prompt_default.txt")
 
 def generate_feedback(user_input: str, answ: str) -> str:
-    text = (IN_DIR / "p3_feedback.txt").read_text(encoding="utf8")
+    # 사용자의 오답과 정답을 기반으로 피드백을 위한 프롬프트 생성
+    # AI 모델을 통해 맞춤형 피드백을 생성하여 반환
+    prompt_feedback = IN_DIR / "p3_feedback.txt"
+    text = prompt_feedback.read_text(encoding="utf8")
     prompt = text.format(user_input, answ)
-    return get_model().generate_content(prompt).text
+    model = get_model()
+    resp = model.generate_content(prompt)
+    return resp.text
 
 if __name__ == "__main__":
     img = Image.open(IMG_DIR / "billboard.jpg")
