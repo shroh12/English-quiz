@@ -189,7 +189,7 @@ def reset_quiz():
     if st.session_state.get("quiz"):
         if st.button("🔄 새로운 문제", type="primary"):
             st.session_state["total_score"] = True  # ✅ 점수도 초기화
-            
+            clear_session()
             st.rerun()
 # 실행
 if __name__ == "__main__":
