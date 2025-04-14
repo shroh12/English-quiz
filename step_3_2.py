@@ -10,7 +10,6 @@ from step_3_1 import generate_quiz, generate_feedback
 
 import base64
 from io import BytesIO
-from utils import generate_feedback
 
 # 이미지 base64 인코딩 (필요한 경우 유지)
 def img_to_base64(img):
