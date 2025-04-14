@@ -10,6 +10,7 @@ from step_3_1 import generate_quiz, generate_feedback
 
 import base64
 from io import BytesIO
+from utils import generate_feedbac
 
 # 이미지 base64 인코딩 (필요한 경우 유지)
 def img_to_base64(img):
@@ -75,6 +76,7 @@ def set_quiz(img: ImageFile.ImageFile, group: str, difficulty: str):
             "difficulty": difficulty
         }]
 
+
 def show_quiz(difficulty="medium"):
     zipped = zip(
         range(len(st.session_state["quiz"])),
@@ -102,7 +104,6 @@ def show_quiz(difficulty="medium"):
             )
             st.markdown(f"<p style='font-size:17px;'>{quiz_display}</p>", unsafe_allow_html=True)
 
-            # 빈칸 개수 파악
             is_multi_blank = all(isinstance(c, list) for c in choices)
             user_choices = []
 
@@ -137,14 +138,14 @@ def show_quiz(difficulty="medium"):
             if submitted:
                 with st.spinner("채점 중입니다..."):
                     is_correct = user_choices == answ
+                    update_score(is_correct)  # ✅ 점수 누적
 
                     if is_correct:
                         feedback = "✅ 정답입니다! 🎉"
                     else:
-                        # 각 빈칸별 피드백 생성
-                        feedback_parts = []
-                        for u, a in zip(user_choices, answ):
-                            feedback_parts.append(generate_feedback(u, a))
+                        feedback_parts = [
+                            generate_feedback(u, a) for u, a in zip(user_choices, answ)
+                        ]
                         feedback = f"❌ 오답입니다.\n\n" + "\n\n".join(feedback_parts)
 
                     if "quiz_data" not in st.session_state:
@@ -158,7 +159,6 @@ def show_quiz(difficulty="medium"):
 
                     st.session_state[key_feedback] = feedback
 
-        # 해설 출력
         feedback = st.session_state.get(key_feedback, "")
         if feedback:
             with st.expander("📚 해설 보기", expanded=True):
@@ -167,6 +167,43 @@ def show_quiz(difficulty="medium"):
                 
 def init_score():
     st.session_state["total_score"] = 0
+    st.session_state["quiz_data"] = []
+
+def update_score(is_correct: bool):
+    if "total_score" not in st.session_state:
+        init_score()
+    if is_correct:
+        st.session_state["total_score"] += 10
+
+def show_score_summary():
+    if "quiz_data" not in st.session_state or not st.session_state["quiz_data"]:
+        return
+
+    total = len(st.session_state["quiz_data"])
+    correct = sum(1 for q in st.session_state["quiz_data"] if q["correct"])
+    accuracy = round((correct / total) * 100, 1)
+
+    st.markdown("---")
+    st.markdown("### 🏁 결과 요약")
+    st.success(f"총 {total}문제 중 **{correct}문제**를 맞췄어요! (**정답률: {accuracy}%**)")
+
+    st.progress(accuracy / 100)
+    st.metric("총 점수", f"{correct}점")
+
+def show_score_summary():
+    if "quiz_data" not in st.session_state or not st.session_state["quiz_data"]:
+        return
+
+    total = len(st.session_state["quiz_data"])
+    correct = sum(1 for q in st.session_state["quiz_data"] if q["correct"])
+    accuracy = round((correct / total) * 100, 1)
+
+    st.markdown("---")
+    st.markdown("### 🏁 결과 요약")
+    st.success(f"총 {total}문제 중 **{correct}문제**를 맞췄어요! (**정답률: {accuracy}%**)")
+
+    st.progress(accuracy / 100)
+    st.metric("총 점수", f"{correct}점")
 
 # 퀴즈 리셋
 def reset_quiz():
@@ -203,4 +240,5 @@ if __name__ == "__main__":
         st.session_state["total_score"] = 0  # 점수 초기화
         set_quiz(img, group_code, global_difficulty)
         show_quiz(global_difficulty)
+        show_score_summary()
         reset_quiz()
