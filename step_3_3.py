@@ -1,9 +1,8 @@
 import streamlit as st
 from step_1_2 import uploaded_image
 from step_1_3 import clear_session, init_session
-from step_3_1 import generate_feedback
-from step_3_2 import init_page, reset_quiz, set_quiz
-import random
+from step_3_1 import generate_quiz, generate_feedback
+from step_3_2 import img_to_base64, init_page, set_quiz, reset_quiz, show_quiz, init_score, update_score
 import pandas as pd
 
 def init_score():
@@ -96,7 +95,20 @@ def show_quiz(global_difficulty="medium"):
                             st.markdown(f"**정답:** {', '.join(answ)}") 
                             
                         st.markdown(feedback, unsafe_allow_html=True)
-                        
+def show_score_summary():
+    if "quiz_data" not in st.session_state or not st.session_state["quiz_data"]:
+        return
+
+    total = len(st.session_state["quiz_data"])
+    correct = sum(1 for q in st.session_state["quiz_data"] if q["correct"])
+    accuracy = round((correct / total) * 100, 1)
+
+    st.markdown("---")
+    st.markdown("### 🏁 결과 요약")
+    st.success(f"총 {total}문제 중 **{correct}문제**를 맞췄어요! (**정답률: {accuracy}%**)")
+
+    st.progress(accuracy / 100)
+    st.metric("총 점수", f"{st.session_state['total_score']}점")                 
 if __name__ == "__main__":
     init_page()  # 페이지 초기화
 
