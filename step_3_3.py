@@ -1,4 +1,12 @@
-def show_quiz(difficulty="medium"):
+import streamlit as st
+from step_1_2 import uploaded_image
+from step_1_3 import clear_session, init_session
+from step_3_1 import generate_feedback
+from step_3_2 import init_page, reset_quiz, set_quiz
+import random
+import pandas as pd
+
+def show_quiz(global_difficulty="medium"):
     zipped = zip(
         range(len(st.session_state["quiz"])),
         st.session_state["quiz"],
@@ -6,84 +14,101 @@ def show_quiz(difficulty="medium"):
         st.session_state["audio"],
         st.session_state["choices"],
     )
-
     for idx, quiz, answ, audio, choices in zipped:
+        key_choice = f"choice_{idx}"
         key_feedback = f"feedback_{idx}"
-        init_session({key_feedback: ""})
-
+        init_session({key_choice: "", key_feedback: ""})
+ 
         with st.form(f"form_question_{idx}", border=True):
             st.markdown("""
-            <div style="background-color:#e6f4ea; padding:10px; border-radius:10px; text-align: center;">
-                <h4 style="color:#006d2c; margin: 0;">문제</h4>
-            </div>
+<div style="background-color:#e6f4ea; padding:10px; border-radius:10px; text-align: center;">
+<h4 style="color:#006d2c; margin: 0;">문제</h4>
+</div>
             """, unsafe_allow_html=True)
-
+ 
             st.audio(audio)
-
-            quiz_display = quiz.replace("**", "").replace(
-                "_____", "<span style='color:red; font-weight:bold;'>_____</span>"
-            )
-            st.markdown(f"<p style='font-size:17px;'>{quiz_display}</p>", unsafe_allow_html=True)
-
-            # 빈칸 개수 파악
-            is_multi_blank = all(isinstance(c, list) for c in choices)
-            user_choices = []
-
-            if not choices:
+            quiz_display = quiz.replace("**", "")
+            st.markdown(f"문제: {quiz_display}")
+ 
+            if not choices or not isinstance(choices, list):
                 st.error("선택지가 없습니다. 다시 문제를 생성하세요.")
                 continue
-
-            if is_multi_blank:
-                for i, choice_set in enumerate(choices):
-                    key_choice = f"choice_{idx}_{i}"
-                    init_session({key_choice: ""})
-                    user_choice = st.radio(
-                        f"빈칸 {i + 1} 보기 👇",
-                        choice_set,
-                        key=key_choice
-                    )
-                    user_choices.append(user_choice)
-            else:
-                key_choice = f"choice_{idx}_0"
-                init_session({key_choice: ""})
-                if st.session_state[key_choice] not in choices:
-                    st.session_state[key_choice] = choices[0]
-                user_choice = st.radio(
-                    "보기 중 하나를 선택하세요👇",
-                    choices,
-                    key=key_choice
-                )
-                user_choices.append(user_choice)
-
+ 
+            # 여기서부터 '빈칸 1 보기' 부분이 있었던 곳 (삭제/주석 처리)
+            # st.markdown("🔸 **빈칸 1 보기:**")
+            # for i, choice in enumerate(choices, start=1):
+            #     st.markdown(f"{i}. {choice}")
+ 
+            # 기본값 유효성 검증
+            if st.session_state[key_choice] not in choices:
+                st.session_state[key_choice] = choices[0]
+ 
+            # 객관식 보기만 남김
+            user_choice = st.radio(
+                "보기 중 하나를 선택하세요👇",
+                choices,
+                key=key_choice
+            )
+ 
             submitted = st.form_submit_button("정답 제출 ✅", use_container_width=True)
-
+ 
             if submitted:
                 with st.spinner("채점 중입니다..."):
-                    is_correct = user_choices == answ
-
+                    user_choices = [user_choice]
+                    is_correct = [user_choice] == answ
+                    
                     if is_correct:
                         feedback = "✅ 정답입니다! 🎉"
                     else:
-                        # 각 빈칸별 피드백 생성
-                        feedback_parts = []
-                        for u, a in zip(user_choices, answ):
-                            feedback_parts.append(generate_feedback(u, a))
-                        feedback = f"❌ 오답입니다.\n\n" + "\n\n".join(feedback_parts)
-
+                        # 오답일 경우 해설 생성
+                        student_word = user_choices[0]  # 첫 번째 빈칸 기준
+                        correct_word = answ[0]
+                        feedback_detail = generate_feedback(student_word, correct_word)
+                        feedback = f"❌ 오답입니다.\n\n{feedback_detail}"
+ 
                     if "quiz_data" not in st.session_state:
                         st.session_state["quiz_data"] = []
-
+ 
                     st.session_state["quiz_data"].append({
                         "question": quiz_display,
                         "correct": is_correct,
-                        "difficulty": difficulty
+                        "difficulty": global_difficulty
                     })
+                    with st.expander("📚 해설 보기", expanded=True):
+                        if len(answ) == 1:
+                            st.markdown(f"**정답:** {answ[0]}")
+                        else:
+                            st.markdown(f"**정답:** {', '.join(answ)}") 
+                            
+                        st.markdown(feedback, unsafe_allow_html=True)
+                        
+if __name__ == "__main__":
+    init_page()  # 페이지 초기화
 
-                    st.session_state[key_feedback] = feedback
+    # ✅ 1. 학습자 그룹 선택
+    group_display = st.selectbox("연령대를 선택하세요.", ["초등학생", "중학생", "고등학생", "성인"])
+    group_mapping = {
+        "초등학생": "elementary",
+        "중학생": "middle",
+        "고등학생": "high",
+        "성인": "adult"
+    }
+    group_code = group_mapping.get(group_display, "default")
 
-        # 해설 출력
-        feedback = st.session_state.get(key_feedback, "")
-        if feedback:
-            with st.expander("📚 해설 보기", expanded=True):
-                st.markdown(f"**정답:** {', '.join(answ)}")
-                st.markdown(feedback, unsafe_allow_html=True)
+    # ✅ 2. 난이도 선택
+    difficulty_display = st.selectbox("문제 난이도를 선택하세요.", ["쉬움", "중간", "어려움"])
+    difficulty_mapping = {
+        "쉬움": "easy",
+        "중간": "normal",
+        "어려움": "hard"
+    }
+    global_difficulty = difficulty_mapping.get(difficulty_display, "normal")
+
+    # ✅ 3. 이미지 업로드 → 퀴즈 생성
+    if img := uploaded_image(on_change=clear_session):
+        st.session_state["total_score"] = 0  # 점수 초기화
+
+        set_quiz(img, group_code, global_difficulty)  # 퀴즈 세팅
+        show_quiz(global_difficulty)  # 퀴즈 출력 (정답 제출 포함)
+
+        reset_quiz()  # 리셋 버튼
