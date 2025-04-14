@@ -6,6 +6,16 @@ from step_3_2 import init_page, reset_quiz, set_quiz
 import random
 import pandas as pd
 
+def init_score():
+    st.session_state["total_score"] = 0
+    st.session_state["quiz_data"] = []
+
+def update_score(is_correct: bool):
+    if "total_score" not in st.session_state:
+        init_score()
+    if is_correct:
+        st.session_state["total_score"] += 10
+
 def show_quiz(global_difficulty="medium"):
     zipped = zip(
         range(len(st.session_state["quiz"])),
@@ -51,11 +61,16 @@ def show_quiz(global_difficulty="medium"):
             )
  
             submitted = st.form_submit_button("정답 제출 ✅", use_container_width=True)
+            submitted_flag_key = f"submitted_{idx}"
  
-            if submitted:
+            if submitted and not st.session_state.get(submitted_flag_key):
+                st.session_state[submitted_flag_key] = True  # 중복 제출 방지
+                
                 with st.spinner("채점 중입니다..."):
                     user_choices = [user_choice]
                     is_correct = [user_choice] == answ
+
+                    update_score(is_correct)  # ✅ 점수 누적
                     
                     if is_correct:
                         feedback = "✅ 정답입니다! 🎉"
@@ -106,9 +121,12 @@ if __name__ == "__main__":
 
     # ✅ 3. 이미지 업로드 → 퀴즈 생성
     if img := uploaded_image(on_change=clear_session):
-        st.session_state["total_score"] = 0  # 점수 초기화
+        init_score()
 
         set_quiz(img, group_code, global_difficulty)  # 퀴즈 세팅
         show_quiz(global_difficulty)  # 퀴즈 출력 (정답 제출 포함)
+
+        if st.session_state.get("quiz_data"):
+            show_score_summary()
 
         reset_quiz()  # 리셋 버튼
