@@ -100,15 +100,15 @@ def show_score_summary():
         return
 
     total = len(st.session_state["quiz_data"])
-    correct = sum(1 for q in st.session_state["quiz_data"] if q["correct"])
+    correct = sum(1 for q in st.session_state["quiz_data"] if q.get("correct") == True)  # 🔁 수정됨
     accuracy = round((correct / total) * 100, 1)
 
     st.markdown("---")
     st.markdown("### 🏁 결과 요약")
     st.success(f"총 {total}문제 중 **{correct}문제**를 맞췄어요! (**정답률: {accuracy}%**)")
-
     st.progress(accuracy / 100)
-    st.metric("총 점수", f"{st.session_state['total_score']}점")                 
+    st.metric("총 점수", f"{st.session_state['total_score']}점")
+점")                 
 if __name__ == "__main__":
     init_page()  # 페이지 초기화
 
