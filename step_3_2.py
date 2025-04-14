@@ -75,21 +75,6 @@ def set_quiz(img: ImageFile.ImageFile, group: str, difficulty: str):
             "difficulty": difficulty
         }]
 
-def show_score_summary():
-    if "quiz_data" not in st.session_state or not st.session_state["quiz_data"]:
-        return
-
-    total = len(st.session_state["quiz_data"])
-    correct = sum(1 for q in st.session_state["quiz_data"] if q["correct"])
-    accuracy = round((correct / total) * 100, 1)
-
-    st.markdown("---")
-    st.markdown("### 🏁 결과 요약")
-    st.success(f"총 {total}문제 중 **{correct}문제**를 맞췄어요! (**정답률: {accuracy}%**)")
-
-    st.progress(accuracy / 100)
-    st.metric("총 점수", f"{st.session_state['total_score']}점")
-
 def show_quiz(difficulty="medium"):
     zipped = zip(
         range(len(st.session_state["quiz"])),
