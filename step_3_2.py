@@ -101,7 +101,7 @@ def show_quiz(difficulty="medium"):
 
     for idx, quiz, answ, audio, choices in zipped:
         key_feedback = f"feedback_{idx}"
-        init_session({key_feedback: ""})
+        init_session({key_feedback: "", submitted_flag_key: False})
 
         with st.form(f"form_question_{idx}", border=True):
             st.markdown("""
@@ -148,11 +148,22 @@ def show_quiz(difficulty="medium"):
 
             submitted = st.form_submit_button("정답 제출 ✅", use_container_width=True)
 
-            if submitted:
+            if submitted and not st.session_state.get(submitted_flag_key):
+                st.session_state[submitted_flag_key] = True  # ✅ 중복 제출 방지 플래그
+                
                 with st.spinner("채점 중입니다..."):
                     is_correct = user_choices == answ
                     update_score(is_correct)  # ✅ 점수 누적
 
+                    if "quiz_data" not in st.session_state:
+                        st.session_state["quiz_data"] = []
+
+                    st.session_state["quiz_data"].append({
+                        "question": quiz_display,
+                        "correct": is_correct,
+                        "difficulty": difficulty
+                    })
+                    
                     if is_correct:
                         feedback = "✅ 정답입니다! 🎉"
                     else:
