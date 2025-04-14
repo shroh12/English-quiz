@@ -221,8 +221,10 @@ if __name__ == "__main__":
 
     # ✅ 3. 이미지 업로드 → 퀴즈 세팅
     if img := uploaded_image(on_change=clear_session):
-        st.session_state["total_score"] = 0  # 점수 초기화
+        init_score()  # 점수 초기화
         set_quiz(img, group_code, global_difficulty)
         show_quiz(global_difficulty)
-        show_score_summary()
+
+        if st.session_state.get("quiz_data"):
+            show_score_summary()
         reset_quiz()
