@@ -108,7 +108,7 @@ def show_score_summary():
     st.success(f"총 {total}문제 중 **{correct}문제**를 맞췄어요! (**정답률: {accuracy}%**)")
     st.progress(accuracy / 100)
     st.metric("총 점수", f"{st.session_state['total_score']}점")
-점")                 
+    
 if __name__ == "__main__":
     init_page()  # 페이지 초기화
 
