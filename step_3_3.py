@@ -133,7 +133,10 @@ if __name__ == "__main__":
 
     # ✅ 3. 이미지 업로드 → 퀴즈 생성
     if img := uploaded_image(on_change=clear_session):
-        init_score()
+        if not st.session_state.get("keep_score"):
+            init_score()
+        else:
+            st.session_state["keep_score"] = False
 
         set_quiz(img, group_code, global_difficulty)  # 퀴즈 세팅
         show_quiz(global_difficulty)  # 퀴즈 출력 (정답 제출 포함)
