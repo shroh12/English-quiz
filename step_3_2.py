@@ -188,12 +188,14 @@ def update_score(is_correct: bool):
 def reset_quiz():
     if st.session_state.get("quiz"):
         if st.button("🔄 새로운 문제", type="primary"):
-            st.session_state["keep_score"] = True          # 점수 유지
-            st.session_state["new_problem"] = True         # 문제 재생성 플래그     
+            st.session_state["keep_score"] = True           # ✅ 점수는 유지
+            st.session_state["new_problem"] = True          # ✅ 문제 리셋 트리거
 
+            # 문제 관련 세션 키만 초기화
             for key in ["quiz", "answ", "audio", "choices", "quiz_data"]:
                 if key in st.session_state:
                     del st.session_state[key]
+
             st.rerun()
 # 실행
 if __name__ == "__main__":
