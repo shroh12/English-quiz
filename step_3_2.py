@@ -188,8 +188,9 @@ def update_score(is_correct: bool):
 def reset_quiz():
     if st.session_state.get("quiz"):
         if st.button("🔄 새로운 문제", type="primary"):
-            st.session_state["keep_score"] = True
-            st.session_state["img_reset"] = True  # 👉 강제로 리셋 트리거
+            st.session_state["keep_score"] = True          # 점수 유지
+            st.session_state["new_problem"] = True         # 문제 재생성 플래그
+            clear_session()                                # 기존 퀴즈 상태 초기화
             st.rerun()
 # 실행
 if __name__ == "__main__":
@@ -215,20 +216,19 @@ if __name__ == "__main__":
     global_difficulty = difficulty_mapping.get(difficulty_display, "normal")
 
     # ✅ 3. 이미지 업로드 → 퀴즈 세팅
-    if st.session_state.get("img_reset"):
+    if st.session_state.get("new_problem"):
         img = st.session_state.get("img")  # 이전 이미지 재활용
-        st.session_state["img_reset"] = False
+        st.session_state["new_problem"] = False
     else:
-        img = uploaded_image(on_change=clear_session)
+        img = uploaded_image()
 
     if img:
-        # ✅ 점수 초기화 조건 분기
+        st.session_state["img"] = img  # 이미지 저장 (재사용을 위해)
+        
         if not st.session_state.get("keep_score"):
             init_score()
         else:
             st.session_state["keep_score"] = False  # 한 번 유지 후 초기화
-
-        st.session_state["img"] = img  # 이미지 저장 (리셋 시 재사용용)
         
         set_quiz(img, group_code, global_difficulty)
         show_quiz(global_difficulty)
