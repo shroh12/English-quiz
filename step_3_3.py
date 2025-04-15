@@ -103,7 +103,7 @@ def show_score_summary():
     st.markdown("### 🏁 총 점수")
     st.success(f"총 {total}문제 중 **{correct}문제**를 맞췄어요! (**정답률: {accuracy}%**)")
     st.progress(accuracy / 100)
-    st.metric(label="총 점수", value=f"{st.session_state['total_score']}점")
+    st.markdown(f"<h3 style='text-align:center;'>{st.session_state['total_score']}점</h3>", unsafe_allow_html=True)
     
 if __name__ == "__main__":
     init_page()  # 페이지 초기화
