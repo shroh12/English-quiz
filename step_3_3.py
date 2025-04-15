@@ -43,10 +43,6 @@ def show_quiz(global_difficulty="medium"):
                 st.error("선택지가 없습니다. 다시 문제를 생성하세요.")
                 continue
  
-            # 여기서부터 '빈칸 1 보기' 부분이 있었던 곳 (삭제/주석 처리)
-            # st.markdown("🔸 **빈칸 1 보기:**")
-            # for i, choice in enumerate(choices, start=1):
-            #     st.markdown(f"{i}. {choice}")
  
             # 기본값 유효성 검증
             if st.session_state[key_choice] not in choices:
