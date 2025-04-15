@@ -63,7 +63,7 @@ def show_quiz(global_difficulty="medium"):
                 
                 with st.spinner("채점 중입니다..."):
                     user_choices = [user_choice]
-                    is_correct = [user_choice] == answ
+                    is_correct = user_choice == answ[0]
 
                     update_score(is_correct)  # ✅ 점수 누적
                     
