@@ -189,8 +189,7 @@ def reset_quiz():
     if st.session_state.get("quiz"):
         if st.button("🔄 새로운 문제", type="primary"):
             st.session_state["keep_score"] = True          # 점수 유지
-            st.session_state["new_problem"] = True         # 문제 재생성 플래그
-            clear_session()                                # 기존 퀴즈 상태 초기화
+            st.session_state["new_problem"] = True         # 문제 재생성 플래그                             
             st.rerun()
 # 실행
 if __name__ == "__main__":
