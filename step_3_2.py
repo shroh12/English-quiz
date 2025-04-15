@@ -184,11 +184,11 @@ def update_score(is_correct: bool):
     if is_correct:
         st.session_state["total_score"] += 10
 
-# 퀴즈 리셋
+# 퀴즈 리셋 (점수는 유지)
 def reset_quiz():
     if st.session_state.get("quiz"):
         if st.button("🔄 새로운 문제", type="primary"):
-            st.session_state["keep_score"] = True  # ✅ 점수도 초기화
+            st.session_state["keep_score"] = True  # 👉 점수 유지 플래그 설정
             clear_session()
             st.rerun()
 # 실행
@@ -217,9 +217,9 @@ if __name__ == "__main__":
     # ✅ 3. 이미지 업로드 → 퀴즈 세팅
     if img := uploaded_image(on_change=clear_session):
         if not st.session_state.get("keep_score"):
-            init_score()  # 점수 초기화
+             init_score()  # 처음 실행일 때만 점수 초기화
         else:
-            st.session_state["keep_score"] = False
+            st.session_state["keep_score"] = False  # 이후 초기화 방지용 플래그 해제
             
         set_quiz(img, group_code, global_difficulty)
         show_quiz(global_difficulty)
