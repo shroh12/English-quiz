@@ -217,7 +217,7 @@ if __name__ == "__main__":
     # ✅ 3. 이미지 업로드 → 퀴즈 세팅
     if st.session_state.get("img_reset"):
         img = st.session_state.get("img")  # 이전 이미지 재활용
-             st.session_state["img_reset"] = False
+        st.session_state["img_reset"] = False
     else:
         img = uploaded_image(on_change=clear_session)
 
