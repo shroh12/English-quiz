@@ -128,8 +128,7 @@ if __name__ == "__main__":
     global_difficulty = difficulty_mapping.get(difficulty_display, "normal")
 
     # ✅ 3. 이미지 업로드 → 퀴즈 생성
-    img = uploaded_image()
-    if img:
+    if img := uploaded_image(on_change=clear_session):
         if not st.session_state.get("keep_score"):
             init_score()
         else:
