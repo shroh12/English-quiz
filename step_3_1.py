@@ -73,14 +73,21 @@ def generate_feedback(user_input: str, answ: str) -> str:
 
 
 if __name__ == "__main__":
+
+    IMG_DIR = Path("images")  # 이미지 경로 설정 (수정 필요)
     img = Image.open(IMG_DIR / "billboard.jpg")
+
     quiz_sentence, answer_word, choices, full_desc = generate_quiz(img)
 
     print(f"Quiz: {quiz_sentence}")
     print(f"Answer: {answer_word}")
     print(f"Choices: {choices}")
 
-    # 예시 오답에 대한 피드백
-    user_wrong_input = choices[0] if choices[0] != answer_word else choices[1]
-    feedback = generate_feedback(user_wrong_input, answer_word)
-    print(f"\nFeedback: {feedback}")
+    # 안전하게 오답 선택 (정답이 아닌 첫 번째 보기)
+    user_wrong_input = next((c for c in choices if c != answer_word), None)
+
+    if user_wrong_input:
+        feedback = generate_feedback(user_wrong_input, answer_word)
+        print(f"\nFeedback for wrong input ({user_wrong_input}): {feedback}")
+    else:
+        print("⚠️ 오답 피드백 테스트용 보기를 찾을 수 없습니다.")
