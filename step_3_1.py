@@ -66,10 +66,15 @@ def get_prompt_by_group_and_difficulty(group: str, difficulty: str) -> str:
 
 def generate_feedback(user_input: str, answ: str) -> str:
     try:
-        prompt = (IN_DIR / "p3_feedback.txt").read_text(encoding="utf8").format(user_input, answ)
-        return get_model().generate_content(prompt).text
+        prompt_path = IN_DIR / "p3_feedback.txt"
+        template = prompt_path.read_text(encoding="utf8")
+        prompt = template.format(user=user_input, correct=answ)
+
+        model = get_model()
+        response = model.generate_content(prompt)
+        return response.text.strip() if response and response.text else "(⚠️ 응답 없음)"
     except Exception as e:
-        return f"(⚠️ 피드백 생성 오류: {e})"
+        return f"(⚠️ 피드백 생성 중 오류: {e})"
 
 
 if __name__ == "__main__":
