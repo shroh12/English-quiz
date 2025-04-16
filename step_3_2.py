@@ -191,10 +191,18 @@ def reset_quiz():
             st.session_state["keep_score"] = True           # ✅ 점수는 유지
             st.session_state["new_problem"] = True          # ✅ 문제 리셋 트리거
 
-            # 문제 관련 세션 키만 초기화
+            # 문제 관련 세션 키 초기화
             for key in ["quiz", "answ", "audio", "choices", "quiz_data"]:
                 if key in st.session_state:
                     del st.session_state[key]
+
+            # ❗ 문제별 상태 키도 초기화
+            for key in list(st.session_state.keys()):
+                if key.startswith("submitted_") or key.startswith("feedback_") or key.startswith("choice_"):
+                    del st.session_state[key]
+
+            st.rerun()
+
 
             st.rerun()
 # 실행
