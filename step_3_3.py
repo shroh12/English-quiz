@@ -6,12 +6,16 @@ from step_3_2 import img_to_base64, init_page, set_quiz, reset_quiz, show_quiz, 
 import pandas as pd
 
 def init_score():
-    st.session_state["total_score"] = 0
-    st.session_state["quiz_data"] = []
+    if "total_score" not in st.session_state:
+        st.session_state["total_score"] = 0
+    if "quiz_data" not in st.session_state:
+        st.session_state["quiz_data"] = []
 
 def update_score(is_correct: bool):
+    # 점수만 조건부 초기화 (퀴즈 기록은 건드리지 않음)
     if "total_score" not in st.session_state:
-        init_score()
+        st.session_state["total_score"] = 0
+
     if is_correct:
         st.session_state["total_score"] += 10
 
