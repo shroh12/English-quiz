@@ -175,15 +175,17 @@ def show_quiz(difficulty="medium"):
                 st.markdown(feedback, unsafe_allow_html=True)
                 
 def init_score():
-    st.session_state["total_score"] = 0
-    st.session_state["quiz_data"] = []
+    if "total_score" not in st.session_state:
+        st.session_state["total_score"] = 0
+    if "quiz_data" not in st.session_state:
+        st.session_state["quiz_data"] = []
 
 def update_score(is_correct: bool):
     if "total_score" not in st.session_state:
-        init_score()
+        st.session_state["total_score"] = 0
     if is_correct:
         st.session_state["total_score"] += 10
-
+        
 # 퀴즈 리셋 (점수는 유지)
 def reset_quiz():
     if st.session_state.get("quiz"):
