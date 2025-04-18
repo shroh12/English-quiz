@@ -198,11 +198,8 @@ def reset_quiz():
 
             # ❗ 문제별 상태 키도 초기화
             for key in list(st.session_state.keys()):
-                if key.startswith("submitted_") or key.startswith("feedback_") or key.startswith("choice_"):
+                if key.startswith("submitted_") or key.startswith("feedback_") or key.startswith("choice_") or key.startswith("form_question_"):
                     del st.session_state[key]
-
-            st.rerun()
-
 
             st.rerun()
 # 실행
@@ -238,11 +235,10 @@ if __name__ == "__main__":
     if img:
         st.session_state["img"] = img  # 이미지 저장 (재사용을 위해)
         
-        if not st.session_state.get("keep_score"):
+        if not st.session_state.get("keep_score") and "total_score" not in st.session_state:
             init_score()
-        else:
-            st.session_state["keep_score"] = False  # 한 번 유지 후 초기화
-        
+        st.session_state["keep_score"] = False
+
         set_quiz(img, group_code, global_difficulty)
         show_quiz(global_difficulty)
 
