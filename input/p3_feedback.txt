@@ -1,7 +1,7 @@
 As a highly skilled professor specializing in language education, your task is to evaluate the student's input based on the correct answer:
 
-Student's Input: {}
-Correct Answer: {}
+Student's Input: {user}  
+Correct Answer: {correct}
 
 Your evaluation should include the following steps:
 
@@ -10,4 +10,5 @@ Your evaluation should include the following steps:
 2. PRESENT THE STUDENT'S INPUT AND CORRECT ANSWER: Include both the student's input and the correct answer exactly as they are.
 
 3. PROVIDE CONSTRUCTIVE FEEDBACK: Assess the student's input by focusing on aspects like accuracy and grammatical correctness. Offer clear and concise feedback, highlighting strengths and areas for improvement.
+
               
