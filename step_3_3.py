@@ -98,13 +98,12 @@ def show_score_summary():
 
     total = len(st.session_state["quiz_data"])
     correct = sum(1 for q in st.session_state["quiz_data"] if q.get("correct") is True)
-
-    score = correct * 10  # ✅ 문제당 10점 기준
     accuracy = round((correct / total) * 100, 1) if total else 0.0
+    score = correct * 10
 
     st.markdown("---")
     st.markdown("### 🏁 총 점수")
-    st.success(f"총 {total}문제 중 **{correct}문제**를 맞췄어요! (**정답률: {accuracy}%**)")
+    st.success(f"총 {total}문제 중 **{correct}문제**를 맞췄어요! (**정답률: {accuracy}%**)" )
     st.progress(accuracy / 100)
     st.markdown(f"<h3 style='text-align:center;'>{score}점</h3>", unsafe_allow_html=True)
 
