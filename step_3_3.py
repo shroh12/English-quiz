@@ -108,7 +108,7 @@ def show_score_summary():
 if __name__ == "__main__":
     init_page()  # 페이지 초기화
 
-    # ✅ 1. 학습자 그룹 선택
+    # 1. 학습자 그룹 선택
     group_display = st.selectbox("연령대를 선택하세요.", ["초등학생", "중학생", "고등학생", "성인"])
     group_mapping = {
         "초등학생": "elementary",
@@ -118,7 +118,7 @@ if __name__ == "__main__":
     }
     group_code = group_mapping.get(group_display, "default")
 
-    # ✅ 2. 난이도 선택
+    # 2. 난이도 선택
     difficulty_display = st.selectbox("문제 난이도를 선택하세요.", ["쉬움", "중간", "어려움"])
     difficulty_mapping = {
         "쉬움": "easy",
@@ -127,17 +127,16 @@ if __name__ == "__main__":
     }
     global_difficulty = difficulty_mapping.get(difficulty_display, "normal")
 
-    # ✅ 3. 이미지 업로드 → 퀴즈 생성
-    if img := uploaded_image(on_change=clear_session):
-        if not st.session_state.get("keep_score"):
+    # 3. 이미지 업로드 → 퀴즈 생성
+    if img := uploaded_image():
+        if "total_score" not in st.session_state:  # ✅ 딱 한 번만 초기화
             init_score()
-        else:
-            st.session_state["keep_score"] = False
 
-        set_quiz(img, group_code, global_difficulty)  # 퀴즈 세팅
-        show_quiz(global_difficulty)  # 퀴즈 출력 (정답 제출 포함)
+        set_quiz(img, group_code, global_difficulty)
+        show_quiz(global_difficulty)
 
         if st.session_state.get("quiz_data"):
             show_score_summary()
 
-        reset_quiz()  # 리셋 버튼
+        reset_quiz()
+
