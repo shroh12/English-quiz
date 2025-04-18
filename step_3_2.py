@@ -70,9 +70,10 @@ def set_quiz(img: ImageFile.ImageFile, group: str, difficulty: str):
         st.session_state["audio"] = [path.as_posix()]
         st.session_state["choices"] = [choices]  # 여기는 리스트로 감싸줘야 함 (이전 구조 유지)
         st.session_state["quiz_data"] = [{
-            "question": quiz_sentence,
+            "question": quiz_display,
             "topic": "지문화",
-            "difficulty": difficulty
+            "difficulty": global_difficulty,
+            "correct": is_correct
         }]
 
 def show_quiz(difficulty="medium"):
