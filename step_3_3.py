@@ -97,14 +97,17 @@ def show_score_summary():
         return
 
     total = len(st.session_state["quiz_data"])
-    correct = sum(1 for q in st.session_state["quiz_data"] if q.get("correct") == True)  # 🔁 수정됨
-    accuracy = round((correct / total) * 100, 1)
+    correct = sum(1 for q in st.session_state["quiz_data"] if q.get("correct") is True)
+
+    score = correct * 10  # ✅ 문제당 10점 기준
+    accuracy = round((correct / total) * 100, 1) if total else 0.0
 
     st.markdown("---")
     st.markdown("### 🏁 총 점수")
     st.success(f"총 {total}문제 중 **{correct}문제**를 맞췄어요! (**정답률: {accuracy}%**)")
     st.progress(accuracy / 100)
-    st.markdown(f"<h3 style='text-align:center;'>{st.session_state['total_score']}점</h3>", unsafe_allow_html=True)
+    st.markdown(f"<h3 style='text-align:center;'>{score}점</h3>", unsafe_allow_html=True)
+
     
 if __name__ == "__main__":
     init_page()
@@ -128,8 +131,8 @@ if __name__ == "__main__":
     }
     global_difficulty = difficulty_mapping.get(difficulty_display, "normal")
 
-    # 3. 이미지 업로드 또는 기존 이미지 재사용
-    if st.session_state.get("new_problem"):
+    # 3. 이미지 업로드 or 복원
+    if st.session_state.get("new_problem") and "img_bytes" in st.session_state:
         img = Image.open(BytesIO(st.session_state["img_bytes"]))
         st.session_state["new_problem"] = False
     else:
@@ -138,7 +141,7 @@ if __name__ == "__main__":
     if img:
         st.session_state["img"] = img
 
-        if "total_score" not in st.session_state:
+        if "total_score" not in st.session_state or "quiz_data" not in st.session_state:
             init_score()
 
         set_quiz(img, group_code, global_difficulty)
@@ -148,4 +151,5 @@ if __name__ == "__main__":
             show_score_summary()
 
         reset_quiz()
+
 
