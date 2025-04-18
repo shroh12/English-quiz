@@ -4,6 +4,7 @@ import google.generativeai as genai
 import streamlit as st 
 from PIL import Image, ImageFile
 from step_1_1 import OUT_DIR
+from io import BytesIO
 
 def img_to_base64(img: Image.Image) -> str:
     import io
@@ -21,13 +22,13 @@ def get_model(sys_prompt: str = None) -> genai.GenerativeModel:
 
 def uploaded_image(on_change=None, args=None) -> Image.Image | None:
     with st.sidebar:
-        # 중앙 정렬 + 굵은 텍스트
+        # 타이틀
         st.markdown(
             "<div style='text-align: center; font-weight: bold; font-size: 25px;'>이미지 업로드</div>",
             unsafe_allow_html=True
         )
 
-        # angmose.jpg 이미지 삽입
+        # 안내 이미지
         img = Image.open('img/angmose.jpg').resize((300, 300))
         st.markdown(
             f"""
@@ -39,7 +40,8 @@ def uploaded_image(on_change=None, args=None) -> Image.Image | None:
             """,
             unsafe_allow_html=True
         )
-        # 설명 텍스트 추가
+
+        # 설명
         st.markdown(
             """
              <div style='text-align: left; font-size: 15px; color: #444; line-height: 1.6; padding-left: 5px;'>
@@ -51,8 +53,9 @@ def uploaded_image(on_change=None, args=None) -> Image.Image | None:
             unsafe_allow_html=True
         )
 
+        # 파일 업로더
         uploaded = st.file_uploader(
-            label="",  # 빈 라벨
+            label="",
             label_visibility="collapsed",
             on_change=on_change,
             args=args
@@ -60,11 +63,26 @@ def uploaded_image(on_change=None, args=None) -> Image.Image | None:
 
         if uploaded is not None:
             with st.container(border=True):
-                tmp_path = OUT_DIR / f"{Path(__file__).stem}.tmp"
-                tmp_path.write_bytes(uploaded.getvalue())
-                img = Image.open(tmp_path)
+                # 이미지 열기 및 세션에 저장
+                img = Image.open(uploaded).convert("RGB")
                 st.image(img, use_container_width=True)
+
+                # 세션에 이미지 객체와 바이트 저장
+                st.session_state["img"] = img
+
+                buf = BytesIO()
+                img.save(buf, format="PNG")
+                st.session_state["img_bytes"] = buf.getvalue()
+
                 return img
+
+        # 업로드한 적은 있고 img_bytes가 있으면 복원
+        elif "img_bytes" in st.session_state:
+            img = Image.open(BytesIO(st.session_state["img_bytes"]))
+            st.image(img, use_container_width=True)
+            return img
+
+        return None
 
 if __name__ == "__main__":
     st.set_page_config(page_title="앵무 받아쓰기", layout="wide", page_icon="🦜")
