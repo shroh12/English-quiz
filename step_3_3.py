@@ -66,35 +66,32 @@ def show_quiz(global_difficulty="medium"):
                 st.session_state[submitted_flag_key] = True  # 중복 제출 방지
                 
                 with st.spinner("채점 중입니다..."):
-                    user_choices = [user_choice]
                     is_correct = user_choice == answ[0]
-
                     update_score(is_correct)  # ✅ 점수 누적
                     
                     if is_correct:
                         feedback = "✅ 정답입니다! 🎉"
                     else:
+                        try:
                         # 오답일 경우 해설 생성
-                        student_word = user_choices[0]  # 첫 번째 빈칸 기준
-                        correct_word = answ[0]
-                        feedback_detail = generate_feedback(student_word, correct_word)
-                        feedback = f"❌ 오답입니다.\n\n{feedback_detail}"
- 
+                            feedback_detail = generate_feedback(user_choice, answ[0])
+                            feedback = f"❌ 오답입니다.\n\n{feedback_detail}"
+                        except Exception as e:
+                            feedback = f"⚠️ 피드백 생성 중 오류 발생: {e}"
+                    
                     if "quiz_data" not in st.session_state:
                         st.session_state["quiz_data"] = []
- 
-                    st.session_state["quiz_data"].append({
-                        "question": quiz_display,
-                        "correct": is_correct,
-                        "difficulty": global_difficulty
-                    })
+
+                    if not any(q["question"] == quiz_display for q in st.session_state["quiz_data"]):
+                        st.session_state["quiz_data"].append({
+                            "question": quiz_display,
+                            "correct": is_correct,
+                            "difficulty": global_difficulty
+                        })
                     with st.expander("📚 해설 보기", expanded=True):
-                        if len(answ) == 1:
-                            st.markdown(f"**정답:** {answ[0]}")
-                        else:
-                            st.markdown(f"**정답:** {', '.join(answ)}") 
-                            
+                        st.markdown(f"**정답:** {answ[0]}")    
                         st.markdown(feedback, unsafe_allow_html=True)
+                        
 def show_score_summary():
     if "quiz_data" not in st.session_state or not st.session_state["quiz_data"]:
         return
@@ -110,9 +107,9 @@ def show_score_summary():
     st.markdown(f"<h3 style='text-align:center;'>{st.session_state['total_score']}점</h3>", unsafe_allow_html=True)
     
 if __name__ == "__main__":
-    init_page()  # 페이지 초기화
+    init_page()
 
-    # 1. 학습자 그룹 선택
+    # 1. 그룹 선택
     group_display = st.selectbox("연령대를 선택하세요.", ["초등학생", "중학생", "고등학생", "성인"])
     group_mapping = {
         "초등학생": "elementary",
@@ -131,9 +128,17 @@ if __name__ == "__main__":
     }
     global_difficulty = difficulty_mapping.get(difficulty_display, "normal")
 
-    # 3. 이미지 업로드 → 퀴즈 생성
-    if img := uploaded_image():
-        if "total_score" not in st.session_state:  # ✅ 딱 한 번만 초기화
+    # 3. 이미지 업로드 또는 기존 이미지 재사용
+    if st.session_state.get("new_problem"):
+        img = Image.open(BytesIO(st.session_state["img_bytes"]))
+        st.session_state["new_problem"] = False
+    else:
+        img = uploaded_image()
+
+    if img:
+        st.session_state["img"] = img
+
+        if "total_score" not in st.session_state:
             init_score()
 
         set_quiz(img, group_code, global_difficulty)
