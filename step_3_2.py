@@ -51,7 +51,7 @@ def set_quiz(img: ImageFile.ImageFile, group: str, difficulty: str):
             if isinstance(choices[0], list):
                 choices = choices[0]
 
-            answer_words = [answer_word]
+            answer_words = answer_word if isinstance(answer_word, list) else [answer_word]
 
             wav_file = synth_speech(full_desc, st.session_state["voice"], "wav")
             path = OUT_DIR / f"{Path(__file__).stem}.wav"
@@ -72,8 +72,7 @@ def set_quiz(img: ImageFile.ImageFile, group: str, difficulty: str):
         st.session_state["quiz_data"] = [{
             "question": quiz_display,
             "topic": "지문화",
-            "difficulty": global_difficulty,
-            "correct": is_correct
+            "difficulty": difficulty
         }]
 
 def show_quiz(difficulty="medium"):
