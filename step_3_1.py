@@ -6,6 +6,7 @@ import streamlit as st
 from step_1_1 import IMG_DIR, IN_DIR
 from step_1_2 import get_model
 from step_2_3 import tokenize_sent
+from io import BytesIO
 
 def get_prompt_by_group(group: str) -> Path:
     path = IN_DIR / f"quiz_{group}.txt"
@@ -80,7 +81,7 @@ def generate_feedback(user_input: str, answ: str) -> str:
 if __name__ == "__main__":
 
     IMG_DIR = Path("images")  # 이미지 경로 설정 (수정 필요)
-    img = Image.open(IMG_DIR / "billboard.jpg")
+    img = Image.open(BytesIO(st.session_state["img_bytes"]))
 
     quiz_sentence, answer_word, choices, full_desc = generate_quiz(img)
 
