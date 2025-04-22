@@ -34,8 +34,16 @@ def generate_quiz(img: ImageFile.ImageFile, group: str, difficulty: str):
 
     if quiz_match and answer_match and choices_match:
         quiz_sentence = quiz_match.group(1).strip()
-        answer_word = [answer_match.group(1).strip().strip('"')]
-        choices = ast.literal_eval(f"[{choices_match.group(1)}]")
+        answer_text = answer_match.group(1).strip().strip('"').strip("'").strip()
+        if "," in answer_text:
+            answer_word = [a.strip() for a in answer_text.split(",")]
+        else:
+            answer_word = [answer_text]
+
+        try:
+            choices = ast.literal_eval(f"[{choices_match.group(1)}]")
+        except Exception as e:
+            raise ValueError(f"Choices 파싱 실패: {e}\n원본 응답:\n{resp_quiz.text}")
 
         # Original 문장이 없다면 quiz 문장으로 대신함
         original_sentence = quiz_sentence.replace("_____", answer_word[0])
