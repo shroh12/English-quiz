@@ -1,3 +1,5 @@
+from PIL import Image
+from io import BytesIO
 import streamlit as st
 from step_1_2 import uploaded_image
 from step_1_3 import clear_session, init_session
