@@ -18,32 +18,32 @@ def generate_quiz(img: ImageFile.ImageFile, group: str, difficulty: str):
     prompt_desc = IN_DIR / "p1_desc.txt"
     model_desc = get_model(sys_prompt=prompt_desc.read_text(encoding="utf8"))
     resp_desc = model_desc.generate_content([img, "Describe this image"])
-
     description = resp_desc.text.strip()
 
     quiz_prompt_filename = get_prompt_by_group_and_difficulty(group, difficulty)
     quiz_prompt_path = IN_DIR / quiz_prompt_filename
-    
     model_quiz = get_model(sys_prompt=quiz_prompt_path.read_text(encoding="utf8"))
     resp_quiz = model_quiz.generate_content(description)
 
-    # Quiz, Answer, Choices만이라도 파싱하도록 유연화
     quiz_match = re.search(r'Quiz:\s*["“”]?(.*?)["“”]?\s*$', resp_quiz.text, re.MULTILINE)
     answer_match = re.search(r'Answer:\s*["“”]?(.*?)["“”]?\s*$', resp_quiz.text, re.MULTILINE)
     choices_match = re.search(r'Choices:\s*(\[[^\]]+\](?:,\s*\[[^\]]+\])*)', resp_quiz.text, re.MULTILINE | re.DOTALL)
 
-    if quiz_match and answer_match and choices_match:
-        quiz_sentence = quiz_match.group(1).strip()
-        answer_word = [answer_match.group(1).strip().strip('"')]
+    if not (quiz_match and answer_match and choices_match):
+        raise ValueError(f"AI 응답 파싱 실패! 필드 누락\n응답 원문:\n{resp_quiz.text}")
+
+    quiz_sentence = quiz_match.group(1).strip()
+    answer_raw = answer_match.group(1).strip().strip('"')
+    answer_word = [answer_raw] if isinstance(answer_raw, str) else answer_raw
+
+    try:
         choices = ast.literal_eval(f"[{choices_match.group(1)}]")
+    except Exception as e:
+        raise ValueError(f"Choices 파싱 실패: {e}\nAI 응답:\n{resp_quiz.text}")
 
-        # Original 문장이 없다면 quiz 문장으로 대신함
-        original_sentence = quiz_sentence.replace("_____", answer_word[0])
+    original_sentence = quiz_sentence.replace("_____", answer_word[0])
+    return quiz_sentence, answer_word, choices, original_sentence
 
-        return quiz_sentence, answer_word, choices, original_sentence
-
-    # 에러 발생 시 실제 AI 응답 추가 제공 (디버깅용)
-    raise ValueError(f"AI 응답 파싱 실패! AI 응답 내용:\n{resp_quiz.text}")
 
 
 
