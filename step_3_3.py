@@ -49,7 +49,7 @@ def synth_speech(text: str, voice: str, audio_encoding: str = None) -> bytes:
     resp = client.synthesize_speech(
         input=texttospeech.SynthesisInput(text=text),
         voice=texttospeech.VoiceSelectionParams(language_code=lang_code, name=voice),
-        audio_config=texttospeech.AudioConfig(audio_encoding=audio_type),
+        audio_config=texttospeech.AudioConfig(audio_encoding=audio_type)
     )
     return resp.audio_content
 
