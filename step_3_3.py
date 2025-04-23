@@ -161,27 +161,18 @@ def generate_quiz(img: ImageFile.ImageFile, group: str, difficulty: str):
     model_quiz = get_model(sys_prompt=quiz_prompt_path.read_text(encoding="utf8"))
     resp_quiz = model_quiz.generate_content(description)
 
-    quiz_match = re.search(r'Quiz:\s*["“”]?(.*?)["“”]?\s*$', resp_quiz.text, re.MULTILINE)
-    answer_match = re.search(r'Answer:\s*["“”]?(.*?)["“”]?\s*$', resp_quiz.text, re.MULTILINE)
+    quiz_match = re.search(r'Quiz:\s*[""](.*?)[""]\s*$', resp_quiz.text, re.MULTILINE)
+    answer_match = re.search(r'Answer:\s*[""](.*?)[""]\s*$', resp_quiz.text, re.MULTILINE)
     choices_match = re.search(r'Choices:\s*(\[[^\]]+\](?:,\s*\[[^\]]+\])*)', resp_quiz.text, re.MULTILINE | re.DOTALL)
 
     if quiz_match and answer_match and choices_match:
         quiz_sentence = quiz_match.group(1).strip()
-        answer_raw = answer_match.group(1).strip().strip('"').lower()
+        answer_word = [answer_match.group(1).strip().strip('"')]
         choices = ast.literal_eval(f"[{choices_match.group(1)}]")
-
-        # 인덱스 방식 정답 대응 (a, b, c, d → 보기 매핑)
-        index_map = {"a": 0, "b": 1, "c": 2, "d": 3}
-        if answer_raw in index_map and index_map[answer_raw] < len(choices):
-            answer_word = [choices[index_map[answer_raw]]]
-        else:
-            answer_word = [answer_raw]
-
         original_sentence = quiz_sentence.replace("_____", answer_word[0])
         return quiz_sentence, answer_word, choices, original_sentence
 
-    raise ValueError(f"AI 응답 파싱 실패! 응답 내용:\n{resp_quiz.text}")
-
+    raise ValueError(f"AI 응답 파싱 실패! AI 응답 내용:\n{resp_quiz.text}")
 
 def generate_feedback(user_input: str, answ: str) -> str:
     try:
@@ -218,6 +209,8 @@ def update_score(question: str, is_correct: bool):
         if is_correct:
             st.session_state["correct_answers"] += 1
             st.session_state["total_score"] += 10
+        else:
+            st.session_state["total_score"] -= 10
             
         st.session_state["quiz_data"].append({
             "question": question,
