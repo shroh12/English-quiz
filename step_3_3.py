@@ -154,23 +154,23 @@ def generate_quiz(img: ImageFile.ImageFile, group: str, difficulty: str):
     prompt_desc = IN_DIR / "p1_desc.txt"
     model_desc = get_model(sys_prompt=prompt_desc.read_text(encoding="utf8"))
     resp_desc = model_desc.generate_content([img, "Describe this image"])
-    description = resp_desc.text.strip()
+    description = resp_desc.strip() if isinstance(resp_desc, str) else str(resp_desc).strip()
 
     quiz_prompt_filename = get_prompt_by_group_and_difficulty(group, difficulty)
     quiz_prompt_path = IN_DIR / quiz_prompt_filename
     model_quiz = get_model(sys_prompt=quiz_prompt_path.read_text(encoding="utf8"))
     resp_quiz = model_quiz.generate_content(description)
+    quiz_text = resp_quiz.strip() if isinstance(resp_quiz, str) else str(resp_quiz).strip()
 
-    quiz_match = re.search(r'Quiz:\s*["“”]?(.*?)["“”]?\s*$', resp_quiz.text, re.MULTILINE)
-    answer_match = re.search(r'Answer:\s*["“”]?(.*?)["“”]?\s*$', resp_quiz.text, re.MULTILINE)
-    choices_match = re.search(r'Choices:\s*(\[[^\]]+\](?:,\s*\[[^\]]+\])*)', resp_quiz.text, re.MULTILINE | re.DOTALL)
+    quiz_match = re.search(r'Quiz:\s*["“”]?(.*?)["“”]?\s*$', quiz_text, re.MULTILINE)
+    answer_match = re.search(r'Answer:\s*["“”]?(.*?)["“”]?\s*$', quiz_text, re.MULTILINE)
+    choices_match = re.search(r'Choices:\s*(\[[^\]]+\](?:,\s*\[[^\]]+\])*)', quiz_text, re.MULTILINE | re.DOTALL)
 
     if quiz_match and answer_match and choices_match:
         quiz_sentence = quiz_match.group(1).strip()
         answer_raw = answer_match.group(1).strip().strip('"').lower()
         choices = ast.literal_eval(f"[{choices_match.group(1)}]")
 
-        # 인덱스 방식 정답 대응 (a, b, c, d → 보기 매핑)
         index_map = {"a": 0, "b": 1, "c": 2, "d": 3}
         if answer_raw in index_map and index_map[answer_raw] < len(choices):
             answer_word = [choices[index_map[answer_raw]]]
@@ -180,7 +180,8 @@ def generate_quiz(img: ImageFile.ImageFile, group: str, difficulty: str):
         original_sentence = quiz_sentence.replace("_____", answer_word[0])
         return quiz_sentence, answer_word, choices, original_sentence
 
-    raise ValueError(f"AI 응답 파싱 실패! 응답 내용:\n{resp_quiz.text}")
+    raise ValueError(f"AI 응답 파싱 실패! 응답 내용:\n{quiz_text}")
+
 
 
 def generate_feedback(user_input: str, answ: str) -> str:
