@@ -125,30 +125,37 @@ def uploaded_image(on_change=None, args=None) -> Image.Image | None:
 
         return None
 
-# Quiz generation and management
-def get_prompt_by_group(group: str) -> Path:
+def get_prompt(group: str, difficulty: str = None) -> Path:
+    # First try to get the specific group and difficulty prompt
+    if difficulty:
+        prompts = {
+            ("elementary", "easy"): "prompt_elementary_easy.txt",
+            ("elementary", "medium"): "prompt_elementary_medium.txt",
+            ("elementary", "hard"): "prompt_elementary_hard.txt",
+            ("middle", "easy"): "prompt_middle_easy.txt",
+            ("middle", "medium"): "prompt_middle_medium.txt",
+            ("middle", "hard"): "prompt_middle_hard.txt",
+            ("high", "easy"): "prompt_high_easy.txt",
+            ("high", "medium"): "prompt_high_medium.txt",
+            ("high", "hard"): "prompt_high_hard.txt",
+            ("adult", "easy"): "prompt_adult_easy.txt",
+            ("adult", "medium"): "prompt_adult_medium.txt",
+            ("adult", "hard"): "prompt_adult_hard.txt",
+        }
+        prompt_file = prompts.get((group, difficulty), None)
+        if prompt_file:
+            path = IN_DIR / prompt_file
+            if path.exists():
+                return path
+    
+    # If no specific prompt found or difficulty not provided, try group-specific prompt
     path = IN_DIR / f"quiz_{group}.txt"
-    if not path.exists():
-        st.warning(f"⚠️ '{group}' 그룹의 프롬프트가 존재하지 않아 기본값을 사용합니다.")
-        path = IN_DIR / "prompt_default.txt"
-    return path
-
-def get_prompt_by_group_and_difficulty(group: str, difficulty: str) -> str:
-    prompts = {
-        ("elementary", "easy"): "prompt_elementary_easy.txt",
-        ("elementary", "medium"): "prompt_elementary_medium.txt",
-        ("elementary", "hard"): "prompt_elementary_hard.txt",
-        ("middle", "easy"): "prompt_middle_easy.txt",
-        ("middle", "medium"): "prompt_middle_medium.txt",
-        ("middle", "hard"): "prompt_middle_hard.txt",
-        ("high", "easy"): "prompt_high_easy.txt",
-        ("high", "medium"): "prompt_high_medium.txt",
-        ("high", "hard"): "prompt_high_hard.txt",
-        ("adult", "easy"): "prompt_adult_easy.txt",
-        ("adult", "medium"): "prompt_adult_medium.txt",
-        ("adult", "hard"): "prompt_adult_hard.txt",
-    }
-    return prompts.get((group, difficulty), "prompt_default.txt")
+    if path.exists():
+        return path
+    
+    # If no group-specific prompt found, use default
+    st.warning(f"⚠️ '{group}' 그룹의 프롬프트가 존재하지 않아 기본값을 사용합니다.")
+    return IN_DIR / "prompt_default.txt"
 
 def generate_quiz(img: ImageFile.ImageFile, group: str, difficulty: str):
     prompt_desc = IN_DIR / "p1_desc.txt"
