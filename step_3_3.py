@@ -210,7 +210,8 @@ def update_score(question: str, is_correct: bool):
             st.session_state["correct_answers"] += 1
             st.session_state["total_score"] += 10
         else:
-             st.session_state["total_score"] = max(0, st.session_state["total_score"] - 10)
+            # Ensure score doesn't go below 0
+            st.session_state["total_score"] = max(0, st.session_state["total_score"] - 10)
             
         st.session_state["quiz_data"].append({
             "question": question,
@@ -340,10 +341,9 @@ def set_quiz(img: ImageFile.ImageFile, group: str, difficulty: str):
             path = OUT_DIR / f"{Path(__file__).stem}.wav"
             with open(path, "wb") as fp:
                 fp.write(wav_file)
-            quiz_display = f"""
-            이미지를 보고 설명을 잘 들은 후, 빈칸에 들어갈 알맞은 단어를 선택하세요.  
-            **{quiz_sentence}**
-            """
+            quiz_display = f"""이미지를 보고 설명을 잘 들은 후, 빈칸에 들어갈 알맞은 단어를 선택하세요.
+
+**{quiz_sentence}**"""
             st.session_state["img"] = img
             st.session_state["quiz"] = [quiz_display]
             st.session_state["answ"] = answer_words
