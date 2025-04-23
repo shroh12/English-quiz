@@ -210,8 +210,7 @@ def update_score(question: str, is_correct: bool):
             st.session_state["correct_answers"] += 1
             st.session_state["total_score"] += 10
         else:
-            # Ensure score doesn't go below 0
-            st.session_state["total_score"] = max(0, st.session_state["total_score"] - 10)
+             st.session_state["total_score"] = max(0, st.session_state["total_score"] - 10)
             
         st.session_state["quiz_data"].append({
             "question": question,
