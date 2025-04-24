@@ -404,11 +404,11 @@ def show_score_summary():
 def reset_quiz():
     if st.session_state.get("quiz"):
         if st.button("🔄 새로운 문제", type="primary"):
-            # Keep all score-related data
+            # Keep all score-related data and image data
             st.session_state["keep_score"] = True
             st.session_state["new_problem"] = True
             
-            # Only clear the current quiz data, not the score data
+            # Only clear the current quiz data, not the score data or image data
             keys_to_clear = ["quiz", "answ", "audio", "choices"]
             for key in keys_to_clear:
                 if key in st.session_state:
@@ -465,7 +465,13 @@ if __name__ == "__main__":
         img = uploaded_image()
 
     if img:
+        # Always store the image in session state
         st.session_state["img"] = img
+        if "img_bytes" not in st.session_state:
+            buf = BytesIO()
+            img.save(buf, format="PNG")
+            st.session_state["img_bytes"] = buf.getvalue()
+            
         set_quiz(img, group_code, global_difficulty)
         show_quiz(global_difficulty)
 
