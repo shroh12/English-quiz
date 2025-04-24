@@ -426,6 +426,12 @@ def reset_quiz():
                 if key.startswith(("submitted_", "feedback_", "choice_", "form_question_")):
                     del st.session_state[key]
             
+            # Ensure image data is preserved
+            if "img" in st.session_state and "img_bytes" not in st.session_state:
+                buf = BytesIO()
+                st.session_state["img"].save(buf, format="PNG")
+                st.session_state["img_bytes"] = buf.getvalue()
+            
             st.rerun()
 
 def clear_all_scores():
@@ -479,7 +485,10 @@ if __name__ == "__main__":
             img.save(buf, format="PNG")
             st.session_state["img_bytes"] = buf.getvalue()
             
-        set_quiz(img, group_code, global_difficulty)
+        # Check if we need to generate a new quiz
+        if not st.session_state.get("quiz"):
+            set_quiz(img, group_code, global_difficulty)
+        
         show_quiz(global_difficulty)
 
         if st.session_state.get("quiz_data"):
