@@ -349,6 +349,11 @@ def show_score_summary():
     accuracy = round((correct / total) * 100, 1) if total else 0.0
     score = st.session_state["total_score"]
 
+    # Only show score summary when all 10 questions are answered
+    if total < 10:
+        st.info(f"아직 {10 - total}문제가 남았어요! 계속 풀어보세요! 💪")
+        return
+
     # Create a more visually appealing and accessible score display
     st.markdown("---")
     
@@ -366,7 +371,7 @@ def show_score_summary():
         # Score card with large, clear numbers
         st.markdown(f"""
         <div style='background-color: #f0f8ff; padding: 20px; border-radius: 10px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1);'>
-            <h3 style='color: #4B89DC; margin-bottom: 10px;'>현재 점수</h3>
+            <h3 style='color: #4B89DC; margin-bottom: 10px;'>최종 점수</h3>
             <h1 style='font-size: 48px; color: #2E7D32; margin: 0;'>{score}점</h1>
         </div>
         """, unsafe_allow_html=True)
@@ -391,7 +396,9 @@ def show_score_summary():
     """, unsafe_allow_html=True)
 
     # Add encouraging message based on performance
-    if accuracy >= 80:
+    if total == 10 and correct == 10:
+        st.success("🎉 축하합니다! 100점입니다! 완벽한 성적이에요!")
+    elif accuracy >= 80:
         st.success("🎉 훌륭해요! 계속 이렇게 잘 해봐요!")
     elif accuracy >= 60:
         st.info("👍 잘하고 있어요! 조금만 더 노력해봐요!")
