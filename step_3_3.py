@@ -57,6 +57,8 @@ def init_score():
         st.session_state["correct_answers"] = 0
     if "total_questions" not in st.session_state:
         st.session_state["total_questions"] = 0
+    if "learning_history" not in st.session_state:
+        st.session_state["learning_history"] = []
 
 def init_question_count():
     if "question_count" not in st.session_state:
@@ -322,10 +324,19 @@ def update_score(question: str, is_correct: bool):
             # Ensure score doesn't go below 0
             st.session_state["total_score"] = max(0, st.session_state["total_score"] - 10)
             
+        # Add to current quiz data
         st.session_state["quiz_data"].append({
             "question": question,
             "correct": is_correct,
             "timestamp": pd.Timestamp.now()
+        })
+        
+        # Add to learning history
+        st.session_state["learning_history"].append({
+            "question": question,
+            "correct": is_correct,
+            "timestamp": pd.Timestamp.now(),
+            "score": st.session_state["total_score"]
         })
 
 def generate_feedback(user_input: str, answ: str) -> str:
@@ -434,15 +445,41 @@ def reset_quiz():
             
             st.rerun()
 
+def show_learning_history():
+    if not st.session_state.get("learning_history"):
+        return
+        
+    st.markdown("---")
+    st.markdown("""
+    <div style='text-align: center; margin-bottom: 20px;'>
+        <h2 style='color: #4B89DC;'>📚 학습 기록</h2>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Convert history to DataFrame for better display
+    history_df = pd.DataFrame(st.session_state["learning_history"])
+    history_df["timestamp"] = pd.to_datetime(history_df["timestamp"])
+    history_df["날짜"] = history_df["timestamp"].dt.strftime("%Y-%m-%d %H:%M")
+    history_df["결과"] = history_df["correct"].map({True: "✅ 정답", False: "❌ 오답"})
+    history_df["점수"] = history_df["score"]
+    
+    # Display the history
+    st.dataframe(
+        history_df[["날짜", "문제", "결과", "점수"]],
+        use_container_width=True,
+        hide_index=True
+    )
+
 def clear_all_scores():
-    if st.button("🗑️ 모든 점수 초기화", type="secondary"):
+    if st.button("🗑️ 현재 점수 초기화", type="secondary"):
+        # Only clear current score-related data, not learning history
         st.session_state["total_score"] = 0
         st.session_state["quiz_data"] = []
         st.session_state["answered_questions"] = set()
         st.session_state["correct_answers"] = 0
         st.session_state["total_questions"] = 0
         st.session_state["question_count"] = 0  # Reset question count
-        st.success("모든 점수가 초기화되었습니다.")
+        st.success("현재 점수가 초기화되었습니다.")
         st.rerun()
 
 # Main application
@@ -493,5 +530,6 @@ if __name__ == "__main__":
 
         if st.session_state.get("quiz_data"):
             show_score_summary()
+            show_learning_history()  # Show learning history after score summary
 
         reset_quiz() 
