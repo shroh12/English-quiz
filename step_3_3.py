@@ -269,7 +269,7 @@ def show_quiz(difficulty="medium"):
 
             st.audio(audio)
             quiz_display = quiz.replace("**", "").replace(
-                "_____", "<span style='color:red; font-weight:bold;'>_____</span>"
+                "_____", "<span style='color:black; font-weight:bold;'>_____</span>"
             )
             st.markdown(f"<p style='font-size:17px;'>{quiz_display}</p>", unsafe_allow_html=True)
 
