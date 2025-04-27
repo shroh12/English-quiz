@@ -103,23 +103,42 @@ def uploaded_image(on_change=None, args=None) -> Image.Image | None:
             label="",
             label_visibility="collapsed",
             on_change=on_change,
-            args=args
+            args=args,
+            type=["jpg", "jpeg", "png", "gif", "bmp", "webp"]  # 지원하는 이미지 형식 명시
         )
 
         if uploaded is not None:
-            with st.container(border=True):
-                img = Image.open(uploaded).convert("RGB")
-                st.image(img, use_container_width=True)
-                st.session_state["img"] = img
-                buf = BytesIO()
-                img.save(buf, format="PNG")
-                st.session_state["img_bytes"] = buf.getvalue()
-                return img
+            try:
+                with st.container(border=True):
+                    # 이미지 열기 및 세션에 저장
+                    img = Image.open(uploaded).convert("RGB")
+                    st.image(img, use_container_width=True)
+
+                    # 세션에 이미지 객체와 바이트 저장
+                    st.session_state["img"] = img
+
+                    buf = BytesIO()
+                    img.save(buf, format="PNG")
+                    st.session_state["img_bytes"] = buf.getvalue()
+
+                    return img
+            except Exception as e:
+                st.error(f"이미지를 불러올 수 없습니다. 지원되는 형식: JPG, JPEG, PNG, GIF, BMP, WEBP")
+                return None
 
         elif "img_bytes" in st.session_state:
-            img = Image.open(BytesIO(st.session_state["img_bytes"]))
-            st.image(img, use_container_width=True)
-            return img
+            try:
+                img = Image.open(BytesIO(st.session_state["img_bytes"]))
+                st.image(img, use_container_width=True)
+                return img
+            except Exception as e:
+                st.error("저장된 이미지를 불러올 수 없습니다. 새로운 이미지를 업로드해주세요.")
+                # 손상된 이미지 데이터 제거
+                if "img_bytes" in st.session_state:
+                    del st.session_state["img_bytes"]
+                if "img" in st.session_state:
+                    del st.session_state["img"]
+                return None
 
         return None
 
