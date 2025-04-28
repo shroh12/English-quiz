@@ -455,13 +455,7 @@ def reset_quiz():
             for key in list(st.session_state.keys()):
                 if key.startswith(("submitted_", "feedback_", "choice_", "form_question_")):
                     del st.session_state[key]
-            
-            # Ensure image data is preserved
-            if "img" in st.session_state and "img_bytes" not in st.session_state:
-                buf = BytesIO()
-                st.session_state["img"].save(buf, format="PNG")
-                st.session_state["img_bytes"] = buf.getvalue()
-            
+            # Do NOT touch 'img' or 'img_bytes' here!
             st.rerun()
 
 def show_learning_history():
@@ -532,6 +526,9 @@ if __name__ == "__main__":
     if st.session_state.get("new_problem") and "img_bytes" in st.session_state:
         img = Image.open(BytesIO(st.session_state["img_bytes"]))
         st.session_state["new_problem"] = False
+    elif "img_bytes" in st.session_state:
+        # Always restore image if img_bytes exists
+        img = Image.open(BytesIO(st.session_state["img_bytes"]))
     else:
         img = uploaded_image()
 
