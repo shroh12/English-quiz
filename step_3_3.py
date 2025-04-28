@@ -479,13 +479,13 @@ def show_learning_history():
     history_df = pd.DataFrame(st.session_state["learning_history"])
     history_df["timestamp"] = pd.to_datetime(history_df["timestamp"])
     history_df["날짜"] = history_df["timestamp"].dt.strftime("%Y-%m-%d %H:%M")
-    history_df["결과"] = history_df["correct"].map({True: "✅ 정답", False: "❌ 오답"})
     history_df["점수"] = history_df["score"]
-    history_df["문제"] = history_df["question"]
+    # 누적 정답률 계산 (맞춘 문제 수 / 전체 문제 수)
+    history_df["정답률"] = ((history_df["점수"] / ((history_df.index + 1) * 10)) * 100).round(1).astype(str) + "%"
     
-    # Display the history with correct column names
+    # Display only 날짜, 점수, 정답률
     st.dataframe(
-        history_df[["날짜", "문제", "결과", "점수"]],
+        history_df[["날짜", "점수", "정답률"]],
         use_container_width=True,
         hide_index=True
     )
