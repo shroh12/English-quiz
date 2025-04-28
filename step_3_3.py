@@ -481,8 +481,9 @@ def show_learning_history():
     history_df["날짜"] = history_df["timestamp"].dt.strftime("%Y-%m-%d %H:%M")
     history_df["결과"] = history_df["correct"].map({True: "✅ 정답", False: "❌ 오답"})
     history_df["점수"] = history_df["score"]
+    history_df["문제"] = history_df["question"]
     
-    # Display the history
+    # Display the history with correct column names
     st.dataframe(
         history_df[["날짜", "문제", "결과", "점수"]],
         use_container_width=True,
