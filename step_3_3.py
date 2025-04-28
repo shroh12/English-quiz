@@ -528,12 +528,14 @@ if __name__ == "__main__":
     global_difficulty = difficulty_mapping.get(difficulty_display, "normal")
 
     # 3. 이미지 업로드 or 복원
+    img = None
     if st.session_state.get("new_problem") and "img_bytes" in st.session_state:
         img = Image.open(BytesIO(st.session_state["img_bytes"]))
         st.session_state["new_problem"] = False
     else:
         img = uploaded_image()
 
+    # img가 없으면 업로드 UI만 보이도록
     if img:
         # Always store the image in session state
         st.session_state["img"] = img
@@ -552,4 +554,6 @@ if __name__ == "__main__":
             show_score_summary()
             show_learning_history()  # Show learning history after score summary
 
-        reset_quiz() 
+        reset_quiz()
+    else:
+        st.info("이미지를 업로드하면 퀴즈가 시작됩니다!") 
