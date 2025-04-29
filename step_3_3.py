@@ -440,6 +440,8 @@ def show_score_summary():
 
 def reset_quiz():
     if st.session_state.get("quiz"):
+        # Add some vertical space before the button
+        st.markdown("<br>", unsafe_allow_html=True)
         if st.button("🔄 새로운 문제", type="primary"):
             # Keep all score-related data and image data
             st.session_state["keep_score"] = True
@@ -457,6 +459,8 @@ def reset_quiz():
                     del st.session_state[key]
             # Do NOT touch 'img' or 'img_bytes' here!
             st.rerun()
+        # Add some vertical space after the button
+        st.markdown("<br>", unsafe_allow_html=True)
 
 def show_learning_history():
     if not st.session_state.get("learning_history"):
