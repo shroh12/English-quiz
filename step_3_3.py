@@ -469,20 +469,30 @@ def show_learning_history():
     </div>
     """, unsafe_allow_html=True)
     
-    # Convert history to DataFrame for better display
+    # Convert history to DataFrame for calculations
     history_df = pd.DataFrame(st.session_state["learning_history"])
-    history_df["timestamp"] = pd.to_datetime(history_df["timestamp"])
-    history_df["날짜"] = history_df["timestamp"].dt.strftime("%Y-%m-%d %H:%M")
-    history_df["점수"] = history_df["score"]
-    # 누적 정답률 계산 (맞춘 문제 수 / 전체 문제 수)
-    history_df["정답률"] = ((history_df["점수"] / ((history_df.index + 1) * 10)) * 100).round(1).astype(str) + "%"
-    
-    # Display only 날짜, 점수, 정답률
-    st.dataframe(
-        history_df[["날짜", "점수", "정답률"]],
-        use_container_width=True,
-        hide_index=True
-    )
+    if len(history_df) > 0:
+        latest_score = history_df["score"].iloc[-1]
+        accuracy = ((latest_score / ((len(history_df)) * 10)) * 100).round(1)
+        
+        # Create two columns for score and accuracy
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.markdown(f"""
+            <div style='background-color: #f0f8ff; padding: 20px; border-radius: 10px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1);'>
+                <h3 style='color: #4B89DC; margin-bottom: 15px; font-size: 24px;'>현재 점수</h3>
+                <h1 style='font-size: 36px; color: #2E7D32; margin: 0;'>{latest_score}점</h1>
+            </div>
+            """, unsafe_allow_html=True)
+            
+        with col2:
+            st.markdown(f"""
+            <div style='background-color: #f0f8ff; padding: 20px; border-radius: 10px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1);'>
+                <h3 style='color: #4B89DC; margin-bottom: 15px; font-size: 24px;'>정답률</h3>
+                <h1 style='font-size: 36px; color: #2E7D32; margin: 0;'>{accuracy}%</h1>
+            </div>
+            """, unsafe_allow_html=True)
 
 def clear_all_scores():
     if st.button("🗑️ 현재 점수 초기화", type="secondary"):
