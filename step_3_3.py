@@ -11,6 +11,7 @@ from streamlit_extras.stylable_container import stylable_container
 import google.generativeai as genai
 from google.cloud import texttospeech
 from google.oauth2 import service_account
+from database import register_user, verify_user, save_learning_history, get_learning_history
 
 # Constants and directory setup
 wORK_DIR = Path(__file__).parent
@@ -27,6 +28,8 @@ def init_page():
         layout="wide",
         page_icon="🦜"
     )
+
+def show_auth_page():
     st.markdown(
         """
         <h1 style='text-align: center; font-size:48px; color: #4B89DC;'>🔊앵무새 스쿨</h1>
@@ -37,9 +40,48 @@ def init_page():
         <b>다 함께 퀴즈를 풀어봅시다!</b>
         </p>
         """, unsafe_allow_html=True)
-    init_session(dict(quiz=[], answ=[], audio=[], choices=[], voice="en-US-Journey-F"))
 
-# Session management
+    # 탭 생성
+    tab1, tab2 = st.tabs(["로그인", "회원가입"])
+    
+    with tab1:
+        with st.form("login_form"):
+            username = st.text_input("아이디")
+            password = st.text_input("비밀번호", type="password")
+            submitted = st.form_submit_button("로그인")
+            
+            if submitted:
+                success, user_id = verify_user(username, password)
+                if success:
+                    st.session_state["authenticated"] = True
+                    st.session_state["username"] = username
+                    st.session_state["user_id"] = user_id
+                    st.success("로그인 성공!")
+                    st.rerun()
+                else:
+                    st.error("아이디 또는 비밀번호가 올바르지 않습니다.")
+    
+    with tab2:
+        with st.form("register_form"):
+            new_username = st.text_input("사용할 아이디")
+            new_password = st.text_input("사용할 비밀번호", type="password")
+            confirm_password = st.text_input("비밀번호 확인", type="password")
+            email = st.text_input("이메일")
+            submitted = st.form_submit_button("회원가입")
+            
+            if submitted:
+                if new_password != confirm_password:
+                    st.error("비밀번호가 일치하지 않습니다.")
+                elif len(new_password) < 6:
+                    st.error("비밀번호는 최소 6자 이상이어야 합니다.")
+                elif not re.match(r"[^@]+@[^@]+\.[^@]+", email):
+                    st.error("올바른 이메일 형식이 아닙니다.")
+                else:
+                    if register_user(new_username, new_password, email):
+                        st.success("회원가입이 완료되었습니다! 이제 로그인해주세요.")
+                    else:
+                        st.error("이미 존재하는 아이디 또는 이메일입니다.")
+
 def init_session(initial_state: dict = None):
     if initial_state:
         for key, value in initial_state.items():
@@ -516,56 +558,67 @@ def clear_all_scores():
 # Main application
 if __name__ == "__main__":
     init_page()
-    init_score()
-    init_question_count()
-
-    # 1. 그룹 선택
-    group_display = st.selectbox("연령대를 선택하세요.", ["초등학생", "중학생", "고등학생", "성인"])
-    group_mapping = {
-        "초등학생": "elementary",
-        "중학생": "middle",
-        "고등학생": "high",
-        "성인": "adult"
-    }
-    group_code = group_mapping.get(group_display, "default")
-
-    # 2. 난이도 선택
-    difficulty_display = st.selectbox("문제 난이도를 선택하세요.", ["쉬움", "중간", "어려움"])
-    difficulty_mapping = {
-        "쉬움": "easy",
-        "중간": "normal",
-        "어려움": "hard"
-    }
-    global_difficulty = difficulty_mapping.get(difficulty_display, "normal")
-
-    # 3. 이미지 업로드 or 복원
-    img = None
     
-    # 이미지 상태 관리
-    if not st.session_state.get("has_image", False):
-        img = uploaded_image()
+    # 로그인 상태 확인
+    if not st.session_state.get("authenticated", False):
+        show_auth_page()
     else:
-        if "img_bytes" in st.session_state:
-            try:
-                img = Image.open(BytesIO(st.session_state["img_bytes"]))
-            except:
+        init_score()
+        init_question_count()
+        
+        # 로그아웃 버튼
+        if st.sidebar.button("로그아웃"):
+            for key in list(st.session_state.keys()):
+                del st.session_state[key]
+            st.rerun()
+            
+        # 1. 그룹 선택
+        group_display = st.selectbox("연령대를 선택하세요.", ["초등학생", "중학생", "고등학생", "성인"])
+        group_mapping = {
+            "초등학생": "elementary",
+            "중학생": "middle",
+            "고등학생": "high",
+            "성인": "adult"
+        }
+        group_code = group_mapping.get(group_display, "default")
+
+        # 2. 난이도 선택
+        difficulty_display = st.selectbox("문제 난이도를 선택하세요.", ["쉬움", "중간", "어려움"])
+        difficulty_mapping = {
+            "쉬움": "easy",
+            "중간": "normal",
+            "어려움": "hard"
+        }
+        global_difficulty = difficulty_mapping.get(difficulty_display, "normal")
+
+        # 3. 이미지 업로드 or 복원
+        img = None
+        
+        # 이미지 상태 관리
+        if not st.session_state.get("has_image", False):
+            img = uploaded_image()
+        else:
+            if "img_bytes" in st.session_state:
+                try:
+                    img = Image.open(BytesIO(st.session_state["img_bytes"]))
+                except:
+                    st.session_state["has_image"] = False
+                    img = uploaded_image()
+            else:
                 st.session_state["has_image"] = False
                 img = uploaded_image()
+
+        if img:
+            # 새로운 퀴즈 생성이 필요한 경우
+            if not st.session_state.get("quiz"):
+                set_quiz(img, group_code, global_difficulty)
+            
+            show_quiz(global_difficulty)
+
+            if st.session_state.get("quiz_data"):
+                show_score_summary()
+                show_learning_history()
+
+            reset_quiz()
         else:
-            st.session_state["has_image"] = False
-            img = uploaded_image()
-
-    if img:
-        # 새로운 퀴즈 생성이 필요한 경우
-        if not st.session_state.get("quiz"):
-            set_quiz(img, group_code, global_difficulty)
-        
-        show_quiz(global_difficulty)
-
-        if st.session_state.get("quiz_data"):
-            show_score_summary()
-            show_learning_history()
-
-        reset_quiz()
-    else:
-        st.info("이미지를 업로드하면 퀴즈가 시작됩니다!") 
+            st.info("이미지를 업로드하면 퀴즈가 시작됩니다!") 
