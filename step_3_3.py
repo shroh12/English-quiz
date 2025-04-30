@@ -76,13 +76,14 @@ def uploaded_image(on_change=None, args=None) -> Image.Image | None:
             unsafe_allow_html=True
         )
 
-        img = Image.open('img/angmose.jpg').resize((300, 300))
+        # 안내 이미지 표시
+        guide_img = Image.open('img/angmose.jpg').resize((300, 300))
         st.markdown(
             f"""
             <div style="text-align: center; padding-bottom: 10px;">
-                <img src="data:image/png;base64,{img_to_base64(img)}"
+                <img src="data:image/png;base64,{img_to_base64(guide_img)}"
                     width="200"
-                    style="border-radius: 16px; box-shadow: 0 2px 6px rgba(0,0,0,0.1);" />
+                    style="border-radius: 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);" />
             </div>
             """,
             unsafe_allow_html=True
@@ -99,45 +100,43 @@ def uploaded_image(on_change=None, args=None) -> Image.Image | None:
             unsafe_allow_html=True
         )
 
+        # 파일 업로더
         uploaded = st.file_uploader(
             label="",
             label_visibility="collapsed",
             on_change=on_change,
             args=args,
-            type=["jpg", "jpeg", "png", "gif", "bmp", "webp"]  # 지원하는 이미지 형식 명시
+            type=["jpg", "jpeg", "png", "gif", "bmp", "webp"]
         )
 
+        # 새로 업로드된 이미지가 있는 경우
         if uploaded is not None:
             try:
+                img = Image.open(uploaded).convert("RGB")
+                # 이미지를 세션 상태에 저장
+                buf = BytesIO()
+                img.save(buf, format="PNG")
+                st.session_state["img_bytes"] = buf.getvalue()
+                st.session_state["has_image"] = True
                 with st.container(border=True):
-                    # 이미지 열기 및 세션에 저장
-                    img = Image.open(uploaded).convert("RGB")
                     st.image(img, use_container_width=True)
-
-                    # 세션에 이미지 객체와 바이트 저장
-                    st.session_state["img"] = img
-
-                    buf = BytesIO()
-                    img.save(buf, format="PNG")
-                    st.session_state["img_bytes"] = buf.getvalue()
-
-                    return img
+                return img
             except Exception as e:
-                st.error(f"이미지를 불러올 수 없습니다. 지원되는 형식: JPG, JPEG, PNG, GIF, BMP, WEBP")
+                st.error("이미지를 불러올 수 없습니다. 지원되는 형식: JPG, JPEG, PNG, GIF, BMP, WEBP")
                 return None
 
-        elif "img_bytes" in st.session_state:
+        # 이전에 업로드된 이미지가 있는 경우
+        elif st.session_state.get("has_image", False) and "img_bytes" in st.session_state:
             try:
                 img = Image.open(BytesIO(st.session_state["img_bytes"]))
-                st.image(img, use_container_width=True)
+                with st.container(border=True):
+                    st.image(img, use_container_width=True)
                 return img
             except Exception as e:
                 st.error("저장된 이미지를 불러올 수 없습니다. 새로운 이미지를 업로드해주세요.")
-                # 손상된 이미지 데이터 제거
+                st.session_state["has_image"] = False
                 if "img_bytes" in st.session_state:
                     del st.session_state["img_bytes"]
-                if "img" in st.session_state:
-                    del st.session_state["img"]
                 return None
 
         return None
@@ -443,11 +442,11 @@ def reset_quiz():
         # Add some vertical space before the button
         st.markdown("<br>", unsafe_allow_html=True)
         if st.button("🔄 새로운 문제", type="primary"):
-            # Keep all score-related data and image data
+            # Keep score and image data
             st.session_state["keep_score"] = True
             st.session_state["new_problem"] = True
             
-            # Only clear the current quiz data, not the score data or image data
+            # Clear only quiz-related data
             keys_to_clear = ["quiz", "answ", "audio", "choices"]
             for key in keys_to_clear:
                 if key in st.session_state:
@@ -457,7 +456,11 @@ def reset_quiz():
             for key in list(st.session_state.keys()):
                 if key.startswith(("submitted_", "feedback_", "choice_", "form_question_")):
                     del st.session_state[key]
-            # Do NOT touch 'img' or 'img_bytes' here!
+            
+            # Ensure image state is preserved
+            if "img_bytes" in st.session_state:
+                st.session_state["has_image"] = True
+            
             st.rerun()
         # Add some vertical space after the button
         st.markdown("<br>", unsafe_allow_html=True)
@@ -513,8 +516,8 @@ def clear_all_scores():
 # Main application
 if __name__ == "__main__":
     init_page()
-    init_score()  # Initialize score at the start of the app
-    init_question_count()  # Initialize question count
+    init_score()
+    init_question_count()
 
     # 1. 그룹 선택
     group_display = st.selectbox("연령대를 선택하세요.", ["초등학생", "중학생", "고등학생", "성인"])
@@ -537,25 +540,23 @@ if __name__ == "__main__":
 
     # 3. 이미지 업로드 or 복원
     img = None
-    if st.session_state.get("new_problem") and "img_bytes" in st.session_state:
-        img = Image.open(BytesIO(st.session_state["img_bytes"]))
-        st.session_state["new_problem"] = False
-    elif "img_bytes" in st.session_state:
-        # Always restore image if img_bytes exists
-        img = Image.open(BytesIO(st.session_state["img_bytes"]))
-    else:
+    
+    # 이미지 상태 관리
+    if not st.session_state.get("has_image", False):
         img = uploaded_image()
+    else:
+        if "img_bytes" in st.session_state:
+            try:
+                img = Image.open(BytesIO(st.session_state["img_bytes"]))
+            except:
+                st.session_state["has_image"] = False
+                img = uploaded_image()
+        else:
+            st.session_state["has_image"] = False
+            img = uploaded_image()
 
-    # img가 없으면 업로드 UI만 보이도록
     if img:
-        # Always store the image in session state
-        st.session_state["img"] = img
-        if "img_bytes" not in st.session_state:
-            buf = BytesIO()
-            img.save(buf, format="PNG")
-            st.session_state["img_bytes"] = buf.getvalue()
-            
-        # Check if we need to generate a new quiz
+        # 새로운 퀴즈 생성이 필요한 경우
         if not st.session_state.get("quiz"):
             set_quiz(img, group_code, global_difficulty)
         
@@ -563,7 +564,7 @@ if __name__ == "__main__":
 
         if st.session_state.get("quiz_data"):
             show_score_summary()
-            show_learning_history()  # Show learning history after score summary
+            show_learning_history()
 
         reset_quiz()
     else:
