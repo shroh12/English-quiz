@@ -391,13 +391,14 @@ def update_score(question: str, is_correct: bool):
             "timestamp": pd.Timestamp.now()
         })
         
-        # Add to learning history
-        st.session_state["learning_history"].append({
-            "question": question,
-            "correct": is_correct,
-            "timestamp": pd.Timestamp.now(),
-            "score": st.session_state["total_score"]
-        })
+        # Save to database if user is authenticated
+        if st.session_state.get("authenticated") and st.session_state.get("user_id"):
+            save_learning_history(
+                user_id=st.session_state["user_id"],
+                group_code=st.session_state.get("current_group", "default"),
+                score=st.session_state["total_score"],
+                total_questions=st.session_state["total_questions"]
+            )
 
 def generate_feedback(user_input: str, answ: str) -> str:
     try:
@@ -508,7 +509,7 @@ def reset_quiz():
         st.markdown("<br>", unsafe_allow_html=True)
 
 def show_learning_history():
-    if not st.session_state.get("learning_history"):
+    if not st.session_state.get("authenticated") or not st.session_state.get("user_id"):
         return
         
     st.markdown("---")
@@ -518,8 +519,14 @@ def show_learning_history():
     </div>
     """, unsafe_allow_html=True)
     
+    # Get learning history from database
+    history = get_learning_history(st.session_state["user_id"])
+    if not history:
+        st.info("아직 학습 기록이 없습니다. 퀴즈를 풀어보세요!")
+        return
+        
     # Convert history to DataFrame for calculations
-    history_df = pd.DataFrame(st.session_state["learning_history"])
+    history_df = pd.DataFrame(history, columns=['group_code', 'score', 'total_questions', 'timestamp'])
     if len(history_df) > 0:
         latest_score = history_df["score"].iloc[-1]
         accuracy = ((latest_score / ((len(history_df)) * 10)) * 100).round(1)
@@ -542,6 +549,14 @@ def show_learning_history():
                 <h1 style='font-size: 36px; color: #2E7D32; margin: 0;'>{accuracy}%</h1>
             </div>
             """, unsafe_allow_html=True)
+            
+        # Show learning history table
+        st.markdown("### 📊 상세 학습 기록")
+        history_df['timestamp'] = pd.to_datetime(history_df['timestamp'])
+        history_df['date'] = history_df['timestamp'].dt.strftime('%Y-%m-%d %H:%M')
+        history_df = history_df[['date', 'group_code', 'score', 'total_questions']]
+        history_df.columns = ['날짜', '그룹', '점수', '문제 수']
+        st.dataframe(history_df, use_container_width=True)
 
 def clear_all_scores():
     if st.button("🗑️ 현재 점수 초기화", type="secondary"):
@@ -581,6 +596,7 @@ if __name__ == "__main__":
             "성인": "adult"
         }
         group_code = group_mapping.get(group_display, "default")
+        st.session_state["current_group"] = group_code  # Store current group in session state
 
         # 2. 난이도 선택
         difficulty_display = st.selectbox("문제 난이도를 선택하세요.", ["쉬움", "중간", "어려움"])
