@@ -118,6 +118,8 @@ def init_score():
         st.session_state["img_bytes"] = None
     if "current_group" not in st.session_state:
         st.session_state["current_group"] = "default"
+    if "voice" not in st.session_state:
+        st.session_state["voice"] = "ko-KR-Standard-A"  # 기본 음성 설정
 
 def init_question_count():
     if "question_count" not in st.session_state:
@@ -654,4 +656,4 @@ if __name__ == "__main__":
 
             reset_quiz()
         else:
-            st.info("이미지를 업로드하면 퀴즈가 시작됩니다!")
+            st.info("이미지를 업로드하면 퀴즈가 시작됩니다!") 
