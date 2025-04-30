@@ -101,6 +101,23 @@ def init_score():
         st.session_state["total_questions"] = 0
     if "learning_history" not in st.session_state:
         st.session_state["learning_history"] = []
+    # Initialize quiz-related session state variables
+    if "quiz" not in st.session_state:
+        st.session_state["quiz"] = []
+    if "answ" not in st.session_state:
+        st.session_state["answ"] = []
+    if "audio" not in st.session_state:
+        st.session_state["audio"] = []
+    if "choices" not in st.session_state:
+        st.session_state["choices"] = []
+    if "img" not in st.session_state:
+        st.session_state["img"] = None
+    if "has_image" not in st.session_state:
+        st.session_state["has_image"] = False
+    if "img_bytes" not in st.session_state:
+        st.session_state["img_bytes"] = None
+    if "current_group" not in st.session_state:
+        st.session_state["current_group"] = "default"
 
 def init_question_count():
     if "question_count" not in st.session_state:
@@ -637,4 +654,4 @@ if __name__ == "__main__":
 
             reset_quiz()
         else:
-            st.info("이미지를 업로드하면 퀴즈가 시작됩니다!") 
+            st.info("이미지를 업로드하면 퀴즈가 시작됩니다!")
