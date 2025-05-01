@@ -32,45 +32,61 @@ def init_page():
 def show_auth_page():
     st.markdown(
         """
-        <h1 style='text-align: center; font-size:48px; color: #4B89DC;'>🔊앵무새 스쿨</h1>
-        """, unsafe_allow_html=True)
-    st.markdown(
-        """
-        <p style='text-align: center; font-size: 20px; color: #555;'>
-        <b>다 함께 퀴즈를 풀어봅시다!</b>
-        </p>
+        <div style='text-align: center; margin-bottom: 30px;'>
+            <h1 style='font-size:48px; color: #4B89DC;'>🔊앵무새 스쿨</h1>
+            <p style='font-size: 20px; color: #555;'>
+                <b>이미지로 배우는 즐거운 영어 학습!</b>
+            </p>
+        </div>
         """, unsafe_allow_html=True)
 
     # 탭 생성
     tab1, tab2 = st.tabs(["로그인", "회원가입"])
     
     with tab1:
-        with st.form("login_form"):
-            username = st.text_input("아이디")
-            password = st.text_input("비밀번호", type="password")
-            submitted = st.form_submit_button("로그인")
+        with st.form("login_form", border=True):
+            st.markdown("""
+            <div style='text-align: center; margin-bottom: 20px;'>
+                <h3 style='color: #4B89DC;'>로그인</h3>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            username = st.text_input("아이디", placeholder="아이디를 입력하세요")
+            password = st.text_input("비밀번호", type="password", placeholder="비밀번호를 입력하세요")
+            submitted = st.form_submit_button("로그인", use_container_width=True)
             
             if submitted:
-                success, user_id = verify_user(username, password)
-                if success:
-                    st.session_state["authenticated"] = True
-                    st.session_state["username"] = username
-                    st.session_state["user_id"] = user_id
-                    st.success("로그인 성공!")
-                    st.rerun()
+                if not username or not password:
+                    st.error("아이디와 비밀번호를 모두 입력해주세요.")
                 else:
-                    st.error("아이디 또는 비밀번호가 올바르지 않습니다.")
+                    success, user_id = verify_user(username, password)
+                    if success:
+                        st.session_state["authenticated"] = True
+                        st.session_state["username"] = username
+                        st.session_state["user_id"] = user_id
+                        st.success("로그인 성공!")
+                        st.rerun()
+                    else:
+                        st.error("아이디 또는 비밀번호가 올바르지 않습니다.")
     
     with tab2:
-        with st.form("register_form"):
-            new_username = st.text_input("사용할 아이디")
-            new_password = st.text_input("사용할 비밀번호", type="password")
-            confirm_password = st.text_input("비밀번호 확인", type="password")
-            email = st.text_input("이메일")
-            submitted = st.form_submit_button("회원가입")
+        with st.form("register_form", border=True):
+            st.markdown("""
+            <div style='text-align: center; margin-bottom: 20px;'>
+                <h3 style='color: #4B89DC;'>회원가입</h3>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            new_username = st.text_input("사용할 아이디", placeholder="아이디를 입력하세요")
+            new_password = st.text_input("사용할 비밀번호", type="password", placeholder="비밀번호를 입력하세요")
+            confirm_password = st.text_input("비밀번호 확인", type="password", placeholder="비밀번호를 다시 입력하세요")
+            email = st.text_input("이메일", placeholder="이메일을 입력하세요")
+            submitted = st.form_submit_button("회원가입", use_container_width=True)
             
             if submitted:
-                if new_password != confirm_password:
+                if not all([new_username, new_password, confirm_password, email]):
+                    st.error("모든 항목을 입력해주세요.")
+                elif new_password != confirm_password:
                     st.error("비밀번호가 일치하지 않습니다.")
                 elif len(new_password) < 6:
                     st.error("비밀번호는 최소 6자 이상이어야 합니다.")
@@ -161,6 +177,14 @@ def uploaded_image(on_change=None, args=None) -> Image.Image | None:
             unsafe_allow_html=True
         )
 
+        # 이미지 상태 초기화
+        if "img_state" not in st.session_state:
+            st.session_state["img_state"] = {
+                "has_image": False,
+                "img_bytes": None,
+                "img": None
+            }
+
         # 파일 업로더
         uploaded = st.file_uploader(
             label="",
@@ -177,8 +201,15 @@ def uploaded_image(on_change=None, args=None) -> Image.Image | None:
                 # 이미지를 세션 상태에 저장
                 buf = BytesIO()
                 img.save(buf, format="PNG")
-                st.session_state["img_bytes"] = buf.getvalue()
-                st.session_state["has_image"] = True
+                img_bytes = buf.getvalue()
+                
+                # 이미지 상태 업데이트
+                st.session_state["img_state"] = {
+                    "has_image": True,
+                    "img_bytes": img_bytes,
+                    "img": img
+                }
+                
                 with st.container(border=True):
                     st.image(img, use_container_width=True)
                 return img
@@ -187,17 +218,20 @@ def uploaded_image(on_change=None, args=None) -> Image.Image | None:
                 return None
 
         # 이전에 업로드된 이미지가 있는 경우
-        elif st.session_state.get("has_image", False) and "img_bytes" in st.session_state:
+        elif st.session_state["img_state"]["has_image"]:
             try:
-                img = Image.open(BytesIO(st.session_state["img_bytes"]))
-                with st.container(border=True):
-                    st.image(img, use_container_width=True)
-                return img
+                img = st.session_state["img_state"]["img"]
+                if img:
+                    with st.container(border=True):
+                        st.image(img, use_container_width=True)
+                    return img
             except Exception as e:
                 st.error("저장된 이미지를 불러올 수 없습니다. 새로운 이미지를 업로드해주세요.")
-                st.session_state["has_image"] = False
-                if "img_bytes" in st.session_state:
-                    del st.session_state["img_bytes"]
+                st.session_state["img_state"] = {
+                    "has_image": False,
+                    "img_bytes": None,
+                    "img": None
+                }
                 return None
 
         return None
@@ -504,24 +538,23 @@ def reset_quiz():
         # Add some vertical space before the button
         st.markdown("<br>", unsafe_allow_html=True)
         if st.button("🔄 새로운 문제", type="primary"):
-            # Keep score and image data
-            st.session_state["keep_score"] = True
-            st.session_state["new_problem"] = True
+            # Keep image state
+            img_state = st.session_state.get("img_state", {
+                "has_image": False,
+                "img_bytes": None,
+                "img": None
+            })
             
-            # Clear only quiz-related data
-            keys_to_clear = ["quiz", "answ", "audio", "choices"]
-            for key in keys_to_clear:
-                if key in st.session_state:
-                    del st.session_state[key]
-            
-            # Clear form-related states
+            # Clear all session state
             for key in list(st.session_state.keys()):
-                if key.startswith(("submitted_", "feedback_", "choice_", "form_question_")):
-                    del st.session_state[key]
+                del st.session_state[key]
             
-            # Ensure image state is preserved
-            if "img_bytes" in st.session_state:
-                st.session_state["has_image"] = True
+            # Restore image state
+            st.session_state["img_state"] = img_state
+            
+            # Initialize other necessary states
+            init_score()
+            init_question_count()
             
             st.rerun()
         # Add some vertical space after the button
@@ -591,69 +624,80 @@ def clear_all_scores():
 
 # Main application
 if __name__ == "__main__":
-    init_page()
-    
-    # 로그인 상태 확인
-    if not st.session_state.get("authenticated", False):
-        show_auth_page()
-    else:
-        init_score()
-        init_question_count()
+    try:
+        init_page()
         
-        # 로그아웃 버튼
-        if st.sidebar.button("로그아웃"):
-            for key in list(st.session_state.keys()):
-                del st.session_state[key]
-            st.rerun()
+        # 로그인 상태 확인
+        if not st.session_state.get("authenticated", False):
+            show_auth_page()
+        else:
+            # 사이드바에 사용자 정보 표시
+            with st.sidebar:
+                st.markdown(f"""
+                <div style='text-align: center; padding: 10px; background-color: #f0f8ff; border-radius: 10px; margin-bottom: 20px;'>
+                    <h3 style='color: #4B89DC;'>👤 {st.session_state.get('username', '')}</h3>
+                </div>
+                """, unsafe_allow_html=True)
+                
+                if st.button("로그아웃", use_container_width=True):
+                    # Clear all session state including image state
+                    for key in list(st.session_state.keys()):
+                        del st.session_state[key]
+                    st.rerun()
             
-        # 1. 그룹 선택
-        group_display = st.selectbox("연령대를 선택하세요.", ["초등학생", "중학생", "고등학생", "성인"])
-        group_mapping = {
-            "초등학생": "elementary",
-            "중학생": "middle",
-            "고등학생": "high",
-            "성인": "adult"
-        }
-        group_code = group_mapping.get(group_display, "default")
-        st.session_state["current_group"] = group_code  # Store current group in session state
+            # 메인 컨텐츠
+            init_score()
+            init_question_count()
+            
+            # 1. 그룹 선택
+            st.markdown("### 📚 학습 그룹 선택")
+            group_display = st.selectbox(
+                "연령대를 선택하세요.",
+                ["초등학생", "중학생", "고등학생", "성인"],
+                help="선택한 연령대에 맞는 난이도의 퀴즈가 출제됩니다."
+            )
+            group_mapping = {
+                "초등학생": "elementary",
+                "중학생": "middle",
+                "고등학생": "high",
+                "성인": "adult"
+            }
+            group_code = group_mapping.get(group_display, "default")
+            st.session_state["current_group"] = group_code
 
-        # 2. 난이도 선택
-        difficulty_display = st.selectbox("문제 난이도를 선택하세요.", ["쉬움", "중간", "어려움"])
-        difficulty_mapping = {
-            "쉬움": "easy",
-            "중간": "normal",
-            "어려움": "hard"
-        }
-        global_difficulty = difficulty_mapping.get(difficulty_display, "normal")
+            # 2. 난이도 선택
+            st.markdown("### 🎯 난이도 선택")
+            difficulty_display = st.selectbox(
+                "문제 난이도를 선택하세요.",
+                ["쉬움", "중간", "어려움"],
+                help="선택한 난이도에 따라 문제의 복잡도가 달라집니다."
+            )
+            difficulty_mapping = {
+                "쉬움": "easy",
+                "중간": "normal",
+                "어려움": "hard"
+            }
+            global_difficulty = difficulty_mapping.get(difficulty_display, "normal")
 
-        # 3. 이미지 업로드 or 복원
-        img = None
-        
-        # 이미지 상태 관리
-        if not st.session_state.get("has_image", False):
+            # 3. 이미지 업로드 or 복원
+            st.markdown("### 🖼️ 이미지 업로드")
             img = uploaded_image()
-        else:
-            if "img_bytes" in st.session_state:
-                try:
-                    img = Image.open(BytesIO(st.session_state["img_bytes"]))
-                except:
-                    st.session_state["has_image"] = False
-                    img = uploaded_image()
+
+            if img:
+                # 새로운 퀴즈 생성이 필요한 경우
+                if not st.session_state.get("quiz"):
+                    set_quiz(img, group_code, global_difficulty)
+                
+                show_quiz(global_difficulty)
+
+                if st.session_state.get("quiz_data"):
+                    show_score_summary()
+                    show_learning_history()
+
+                reset_quiz()
             else:
-                st.session_state["has_image"] = False
-                img = uploaded_image()
-
-        if img:
-            # 새로운 퀴즈 생성이 필요한 경우
-            if not st.session_state.get("quiz"):
-                set_quiz(img, group_code, global_difficulty)
-            
-            show_quiz(global_difficulty)
-
-            if st.session_state.get("quiz_data"):
-                show_score_summary()
-                show_learning_history()
-
-            reset_quiz()
-        else:
-            st.info("이미지를 업로드하면 퀴즈가 시작됩니다!") 
+                st.info("이미지를 업로드하면 퀴즈가 시작됩니다!")
+                
+    except Exception as e:
+        st.error(f"오류가 발생했습니다: {str(e)}")
+        st.info("페이지를 새로고침하거나 다시 시도해주세요.") 
