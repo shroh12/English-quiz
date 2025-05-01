@@ -5,3 +5,7 @@ google-cloud-texttospeech
 google-auth
 Pillow
 nltk
+bcrypt
+sqlite3
+python-dotenv
+pandas
