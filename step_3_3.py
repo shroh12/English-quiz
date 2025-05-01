@@ -12,6 +12,10 @@ import google.generativeai as genai
 from google.cloud import texttospeech
 from google.oauth2 import service_account
 from database import register_user, verify_user, save_learning_history, get_learning_history, update_username
+from step_1_2 import uploaded_image
+from step_1_3 import clear_session, init_session
+from step_3_1 import generate_quiz, generate_feedback
+from step_3_2 import img_to_base64, init_page, set_quiz, reset_quiz, show_quiz, init_score, update_score
 
 # Constants and directory setup
 wORK_DIR = Path(__file__).parent
@@ -468,70 +472,16 @@ def show_score_summary():
     if "quiz_data" not in st.session_state or not st.session_state["quiz_data"]:
         return
 
-    # Get the latest counts from session state
-    total = st.session_state["total_questions"]
-    correct = st.session_state["correct_answers"]
+    total = len(st.session_state["quiz_data"])
+    correct = sum(1 for q in st.session_state["quiz_data"] if q.get("correct") is True)
     accuracy = round((correct / total) * 100, 1) if total else 0.0
-    score = st.session_state["total_score"]
+    score = correct * 10
 
-    # Only show score summary when all 10 questions are answered
-    if total < 10:
-        st.info(f"아직 {10 - total}문제가 남았어요! 계속 풀어보세요! 💪")
-        return
-
-    # Create a more visually appealing and accessible score display
     st.markdown("---")
-    
-    # Score header with emoji
-    st.markdown("""
-    <div style='text-align: center; margin-bottom: 20px;'>
-        <h2 style='color: #4B89DC;'>🏆 점수 현황</h2>
-    </div>
-    """, unsafe_allow_html=True)
-
-    # Create two columns for better layout
-    col1, col2 = st.columns(2)
-
-    with col1:
-        # Score card with large, clear numbers
-        st.markdown(f"""
-        <div style='background-color: #f0f8ff; padding: 20px; border-radius: 10px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1);'>
-            <h3 style='color: #4B89DC; margin-bottom: 10px;'>최종 점수</h3>
-            <h1 style='font-size: 48px; color: #2E7D32; margin: 0;'>{score}점</h1>
-        </div>
-        """, unsafe_allow_html=True)
-
-    with col2:
-        # Progress card with clear statistics
-        st.markdown(f"""
-        <div style='background-color: #f0f8ff; padding: 20px; border-radius: 10px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1);'>
-            <h3 style='color: #4B89DC; margin-bottom: 10px;'>정답률</h3>
-            <h2 style='color: #2E7D32; margin: 0;'>{accuracy}%</h2>
-            <p style='color: #666; margin-top: 10px;'>맞춘 문제: {correct} / {total}</p>
-        </div>
-        """, unsafe_allow_html=True)
-
-    # Progress bar with better visibility
-    st.markdown(f"""
-    <div style='margin-top: 20px;'>
-        <div style='background-color: #e0e0e0; height: 20px; border-radius: 10px; margin-bottom: 10px;'>
-            <div style='background-color: #4B89DC; width: {accuracy}%; height: 20px; border-radius: 10px;'></div>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-
-    # Add encouraging message based on performance
-    if total == 10 and correct == 10:
-        st.success("🎉 축하합니다! 100점입니다! 완벽한 성적이에요!")
-    elif accuracy >= 80:
-        st.success("🎉 훌륭해요! 계속 이렇게 잘 해봐요!")
-    elif accuracy >= 60:
-        st.info("👍 잘하고 있어요! 조금만 더 노력해봐요!")
-    else:
-        st.warning("💪 조금 더 연습하면 더 잘할 수 있을 거예요!")
-    
-    # Add clear all scores button at the bottom
-    clear_all_scores()
+    st.markdown("### 🏁 총 점수")
+    st.success(f"총 {total}문제 중 **{correct}문제**를 맞췄어요! (**정답률: {accuracy}%**)" )
+    st.progress(accuracy / 100)
+    st.markdown(f"<h3 style='text-align:center;'>{score}점</h3>", unsafe_allow_html=True)
 
 def reset_quiz():
     if st.session_state.get("quiz"):
