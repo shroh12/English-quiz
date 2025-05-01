@@ -11,7 +11,7 @@ from streamlit_extras.stylable_container import stylable_container
 import google.generativeai as genai
 from google.cloud import texttospeech
 from google.oauth2 import service_account
-from database import register_user, verify_user, save_learning_history, get_learning_history
+from database import register_user, verify_user, save_learning_history, get_learning_history, update_username
 
 # Constants and directory setup
 wORK_DIR = Path(__file__).parent
@@ -638,6 +638,29 @@ if __name__ == "__main__":
                     <h3 style='color: #4B89DC;'>👤 {st.session_state.get('username', '')}</h3>
                 </div>
                 """, unsafe_allow_html=True)
+                
+                # 닉네임 변경 폼
+                with st.expander("✏️ 닉네임 변경", expanded=False):
+                    with st.form("change_username_form"):
+                        new_username = st.text_input(
+                            "새로운 닉네임",
+                            placeholder="변경할 닉네임을 입력하세요",
+                            value=st.session_state.get('username', '')
+                        )
+                        submitted = st.form_submit_button("변경하기", use_container_width=True)
+                        
+                        if submitted:
+                            if not new_username:
+                                st.error("닉네임을 입력해주세요.")
+                            elif new_username == st.session_state.get('username'):
+                                st.info("현재 사용 중인 닉네임과 동일합니다.")
+                            else:
+                                if update_username(st.session_state.get('user_id'), new_username):
+                                    st.session_state["username"] = new_username
+                                    st.success("닉네임이 변경되었습니다!")
+                                    st.rerun()
+                                else:
+                                    st.error("이미 사용 중인 닉네임입니다.")
                 
                 if st.button("로그아웃", use_container_width=True):
                     # Clear all session state including image state
