@@ -88,6 +88,27 @@ def verify_user(username, password):
     finally:
         conn.close()
 
+def update_username(user_id, new_username):
+    """사용자의 닉네임을 변경하는 함수"""
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        c = conn.cursor()
+        
+        # Check if new username already exists
+        c.execute('SELECT id FROM users WHERE username = ? AND id != ?', (new_username, user_id))
+        if c.fetchone() is not None:
+            return False
+        
+        # Update username
+        c.execute('UPDATE users SET username = ? WHERE id = ?', (new_username, user_id))
+        conn.commit()
+        return True
+        
+    except sqlite3.Error:
+        return False
+    finally:
+        conn.close()
+
 def save_learning_history(user_id, group_code, score, total_questions):
     """학습 기록을 저장하는 함수"""
     try:
