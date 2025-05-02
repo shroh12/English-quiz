@@ -41,7 +41,11 @@ def init_db():
 
 def hash_password(password):
     """비밀번호를 해시화하는 함수"""
-    return hashlib.sha256(password.encode()).hexdigest()
+    return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+
+def verify_password(password, hashed):
+    """비밀번호 검증 함수"""
+    return bcrypt.checkpw(password.encode('utf-8'), hashed)
 
 def register_user(username, password, email, name):
     """새로운 사용자를 등록하는 함수"""
@@ -74,14 +78,13 @@ def verify_user(username, password):
         conn = sqlite3.connect(DB_PATH)
         c = conn.cursor()
         
-        hashed_password = hash_password(password)
         c.execute(
-            'SELECT id FROM users WHERE username = ? AND password = ?',
-            (username, hashed_password)
+            'SELECT id, password FROM users WHERE username = ?',
+            (username,)
         )
         result = c.fetchone()
         
-        if result:
+        if result and verify_password(password, result[1]):
             return True, result[0]  # Return success and user_id
         return False, None
         
@@ -183,7 +186,7 @@ def reset_password(username: str, email: str, new_password: str) -> bool:
             return False
             
         # 비밀번호 해시 생성
-        hashed_password = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt())
+        hashed_password = hash_password(new_password)
         
         # 비밀번호 업데이트
         cursor.execute(
