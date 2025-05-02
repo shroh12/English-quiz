@@ -77,10 +77,10 @@ def show_auth_page():
             </div>
             """, unsafe_allow_html=True)
             
+            name = st.text_input("이름", placeholder="이름을 입력하세요")
             new_username = st.text_input("사용할 아이디", placeholder="아이디를 입력하세요")
             new_password = st.text_input("사용할 비밀번호", type="password", placeholder="비밀번호를 입력하세요")
             confirm_password = st.text_input("비밀번호 확인", type="password", placeholder="비밀번호를 다시 입력하세요")
-            name = st.text_input("이름", placeholder="이름을 입력하세요")
             email = st.text_input("이메일", placeholder="이메일을 입력하세요")
             submitted = st.form_submit_button("회원가입", use_container_width=True)
             
