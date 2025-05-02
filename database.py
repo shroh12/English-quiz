@@ -17,6 +17,7 @@ def init_db():
             username TEXT UNIQUE NOT NULL,
             password TEXT NOT NULL,
             email TEXT UNIQUE NOT NULL,
+            name TEXT NOT NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     ''')
@@ -41,7 +42,7 @@ def hash_password(password):
     """비밀번호를 해시화하는 함수"""
     return hashlib.sha256(password.encode()).hexdigest()
 
-def register_user(username, password, email):
+def register_user(username, password, email, name):
     """새로운 사용자를 등록하는 함수"""
     try:
         conn = sqlite3.connect(DB_PATH)
@@ -55,8 +56,8 @@ def register_user(username, password, email):
         # Insert new user
         hashed_password = hash_password(password)
         c.execute(
-            'INSERT INTO users (username, password, email) VALUES (?, ?, ?)',
-            (username, hashed_password, email)
+            'INSERT INTO users (username, password, email, name) VALUES (?, ?, ?, ?)',
+            (username, hashed_password, email, name)
         )
         conn.commit()
         return True
