@@ -17,7 +17,7 @@ def init_db():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             username TEXT UNIQUE NOT NULL,
             password TEXT NOT NULL,
-            email TEXT UNIQUE NOT NULL,
+            email TEXT NOT NULL,
             name TEXT NOT NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
@@ -53,9 +53,15 @@ def register_user(username, password, email, name):
         conn = sqlite3.connect(DB_PATH)
         c = conn.cursor()
         
-        # Check if username or email already exists
-        c.execute('SELECT id FROM users WHERE username = ? OR email = ?', (username, email))
+        # Check if username already exists
+        c.execute('SELECT id FROM users WHERE username = ?', (username,))
         if c.fetchone() is not None:
+            return False
+            
+        # Check if there are already 2 accounts with the same name and email
+        c.execute('SELECT COUNT(*) FROM users WHERE name = ? AND email = ?', (name, email))
+        count = c.fetchone()[0]
+        if count >= 2:
             return False
         
         # Insert new user
