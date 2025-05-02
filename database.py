@@ -2,7 +2,6 @@ import sqlite3
 import hashlib
 from datetime import datetime
 from pathlib import Path
-import bcrypt
 
 # Database initialization
 DB_PATH = Path(__file__).parent / "quiz_app.db"
@@ -41,11 +40,7 @@ def init_db():
 
 def hash_password(password):
     """비밀번호를 해시화하는 함수"""
-    return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
-
-def verify_password(password, hashed):
-    """비밀번호 검증 함수"""
-    return bcrypt.checkpw(password.encode('utf-8'), hashed)
+    return hashlib.sha256(password.encode()).hexdigest()
 
 def register_user(username, password, email, name):
     """새로운 사용자를 등록하는 함수"""
@@ -84,13 +79,14 @@ def verify_user(username, password):
         conn = sqlite3.connect(DB_PATH)
         c = conn.cursor()
         
+        hashed_password = hash_password(password)
         c.execute(
-            'SELECT id, password FROM users WHERE username = ?',
-            (username,)
+            'SELECT id FROM users WHERE username = ? AND password = ?',
+            (username, hashed_password)
         )
         result = c.fetchone()
         
-        if result and verify_password(password, result[1]):
+        if result:
             return True, result[0]  # Return success and user_id
         return False, None
         
