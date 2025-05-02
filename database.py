@@ -2,6 +2,7 @@ import sqlite3
 import hashlib
 from datetime import datetime
 from pathlib import Path
+import bcrypt
 
 # Database initialization
 DB_PATH = Path(__file__).parent / "quiz_app.db"
@@ -147,6 +148,54 @@ def get_learning_history(user_id):
         return []
     finally:
         conn.close()
+
+def find_username(name: str, email: str) -> str | None:
+    """이름과 이메일로 아이디를 찾습니다."""
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+        cursor.execute(
+            "SELECT username FROM users WHERE name = ? AND email = ?",
+            (name, email)
+        )
+        result = cursor.fetchone()
+        conn.close()
+        return result[0] if result else None
+    except Exception as e:
+        print(f"Error finding username: {e}")
+        return None
+
+def reset_password(username: str, email: str, new_password: str) -> bool:
+    """비밀번호를 재설정합니다."""
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+        
+        # 사용자 확인
+        cursor.execute(
+            "SELECT id FROM users WHERE username = ? AND email = ?",
+            (username, email)
+        )
+        result = cursor.fetchone()
+        
+        if not result:
+            conn.close()
+            return False
+            
+        # 비밀번호 해시 생성
+        hashed_password = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt())
+        
+        # 비밀번호 업데이트
+        cursor.execute(
+            "UPDATE users SET password = ? WHERE username = ? AND email = ?",
+            (hashed_password, username, email)
+        )
+        conn.commit()
+        conn.close()
+        return True
+    except Exception as e:
+        print(f"Error resetting password: {e}")
+        return False
 
 # Initialize database when module is imported
 init_db() 
