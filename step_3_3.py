@@ -11,7 +11,7 @@ from streamlit_extras.stylable_container import stylable_container
 import google.generativeai as genai
 from google.cloud import texttospeech
 from google.oauth2 import service_account
-from database import register_user, verify_user, save_learning_history, get_learning_history, update_username
+from database import register_user, verify_user, save_learning_history, get_learning_history, update_username, find_username, reset_password
 
 # Constants and directory setup
 wORK_DIR = Path(__file__).parent
