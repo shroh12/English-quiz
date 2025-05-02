@@ -80,11 +80,12 @@ def show_auth_page():
             new_username = st.text_input("사용할 아이디", placeholder="아이디를 입력하세요")
             new_password = st.text_input("사용할 비밀번호", type="password", placeholder="비밀번호를 입력하세요")
             confirm_password = st.text_input("비밀번호 확인", type="password", placeholder="비밀번호를 다시 입력하세요")
+            name = st.text_input("이름", placeholder="이름을 입력하세요")
             email = st.text_input("이메일", placeholder="이메일을 입력하세요")
             submitted = st.form_submit_button("회원가입", use_container_width=True)
             
             if submitted:
-                if not all([new_username, new_password, confirm_password, email]):
+                if not all([new_username, new_password, confirm_password, name, email]):
                     st.error("모든 항목을 입력해주세요.")
                 elif new_password != confirm_password:
                     st.error("비밀번호가 일치하지 않습니다.")
@@ -93,7 +94,7 @@ def show_auth_page():
                 elif not re.match(r"[^@]+@[^@]+\.[^@]+", email):
                     st.error("올바른 이메일 형식이 아닙니다.")
                 else:
-                    if register_user(new_username, new_password, email):
+                    if register_user(new_username, new_password, email, name):
                         st.success("회원가입이 완료되었습니다! 이제 로그인해주세요.")
                     else:
                         st.error("이미 존재하는 아이디 또는 이메일입니다.")
