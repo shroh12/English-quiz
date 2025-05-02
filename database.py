@@ -20,7 +20,7 @@ def init_db():
             name TEXT NOT NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
-    ''')
+    ''') 
     
     # Create learning history table
     c.execute('''
@@ -79,15 +79,28 @@ def verify_user(username, password):
         conn = sqlite3.connect(DB_PATH)
         c = conn.cursor()
         
-        hashed_password = hash_password(password)
-        c.execute(
-            'SELECT id FROM users WHERE username = ? AND password = ?',
-            (username, hashed_password)
-        )
+        # 먼저 사용자 정보를 가져옵니다
+        c.execute('SELECT id, password FROM users WHERE username = ?', (username,))
         result = c.fetchone()
         
-        if result:
-            return True, result[0]  # Return success and user_id
+        if not result:
+            return False, None
+            
+        user_id, stored_password = result
+        
+        # 새로운 해시 방식으로 시도
+        hashed_password = hash_password(password)
+        if stored_password == hashed_password:
+            return True, user_id
+            
+        # 이전 해시 방식으로 시도 (bcrypt)
+        try:
+            import bcrypt
+            if bcrypt.checkpw(password.encode('utf-8'), stored_password):
+                return True, user_id
+        except:
+            pass
+            
         return False, None
         
     except sqlite3.Error:
