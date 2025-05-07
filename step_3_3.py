@@ -543,7 +543,7 @@ def show_score_summary():
 
     # Only show score summary when all 10 questions are answered
     if total < 10:
-        st.info(f"아직 {10 - total}문제가 남았어요! 계속 풀어보세요! 💪")
+        st.info(f"현재 {total}문제를 풀었어요! (정답률: {accuracy}%, 현재 점수: {score}점)")
         return
 
     # Create a more visually appealing and accessible score display
@@ -597,7 +597,6 @@ def show_score_summary():
     else:
         st.warning("💪 조금 더 연습하면 더 잘할 수 있을 거예요!")
     
-    # Add clear all scores button at the bottom
     clear_all_scores()
 
 def reset_quiz():
@@ -617,12 +616,18 @@ def reset_quiz():
                 "img": None
             })
             
-            # Clear only quiz-related states
-            keys_to_clear = [
-                "quiz", "answ", "audio", "choices",
-                "question_count", "total_score", "quiz_data",
-                "answered_questions", "correct_answers", "total_questions"
-            ]
+            # Keep score-related states
+            score_state = {
+                "total_score": st.session_state.get("total_score", 0),
+                "quiz_data": st.session_state.get("quiz_data", []),
+                "answered_questions": st.session_state.get("answered_questions", set()),
+                "correct_answers": st.session_state.get("correct_answers", 0),
+                "total_questions": st.session_state.get("total_questions", 0),
+                "question_count": st.session_state.get("question_count", 0)
+            }
+            
+            # Clear only current quiz states
+            keys_to_clear = ["quiz", "answ", "audio", "choices"]
             for key in keys_to_clear:
                 if key in st.session_state:
                     del st.session_state[key]
@@ -635,10 +640,7 @@ def reset_quiz():
             # Restore important states
             st.session_state.update(auth_state)
             st.session_state["img_state"] = img_state
-            
-            # Initialize quiz states
-            init_score()
-            init_question_count()
+            st.session_state.update(score_state)
             
             st.rerun()
         # Add some vertical space after the button
