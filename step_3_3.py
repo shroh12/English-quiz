@@ -541,9 +541,11 @@ def show_score_summary():
     accuracy = round((correct / total) * 100, 1) if total else 0.0
     score = st.session_state["total_score"]
 
-    # Only show score summary when all 10 questions are answered
+    # Show current progress
+    st.info(f"현재 {total}문제를 풀었어요! (정답률: {accuracy}%, 현재 점수: {score}점)")
+    
+    # Only show detailed summary when all 10 questions are answered
     if total < 10:
-        st.info(f"현재 {total}문제를 풀었어요! (정답률: {accuracy}%, 현재 점수: {score}점)")
         return
 
     # Create a more visually appealing and accessible score display
@@ -552,7 +554,7 @@ def show_score_summary():
     # Score header with emoji
     st.markdown("""
     <div style='text-align: center; margin-bottom: 20px;'>
-        <h2 style='color: #4B89DC;'>🏆 점수 현황</h2>
+        <h2 style='color: #4B89DC;'>🏆 최종 점수</h2>
     </div>
     """, unsafe_allow_html=True)
 
