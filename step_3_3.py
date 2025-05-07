@@ -339,8 +339,7 @@ def generate_quiz(img: ImageFile.ImageFile, group: str, difficulty: str):
     sys_prompt_desc = prompt_desc.read_text(encoding="utf8")
     model_desc = get_model()
     resp_desc = model_desc.generate_content(
-        [img, "Describe this image"],
-        generation_config={"system_instruction": sys_prompt_desc}
+        [img, f"{sys_prompt_desc}\nDescribe this image"]
     )
     description = resp_desc.text.strip()
 
@@ -348,8 +347,7 @@ def generate_quiz(img: ImageFile.ImageFile, group: str, difficulty: str):
     sys_prompt_quiz = quiz_prompt_path.read_text(encoding="utf8")
     model_quiz = get_model()
     resp_quiz = model_quiz.generate_content(
-        description,
-        generation_config={"system_instruction": sys_prompt_quiz}
+        f"{sys_prompt_quiz}\n{description}"
     )
 
     quiz_match = re.search(r'Quiz:\s*["\'](.*?)["\']\s*$', resp_quiz.text, re.MULTILINE)
