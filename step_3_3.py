@@ -659,44 +659,46 @@ def show_learning_history():
     </div>
     """, unsafe_allow_html=True)
     
+    # Get current score and accuracy from session state
+    current_score = st.session_state.get("total_score", 0)
+    total_questions = st.session_state.get("total_questions", 0)
+    correct_answers = st.session_state.get("correct_answers", 0)
+    current_accuracy = round((correct_answers / total_questions) * 100, 1) if total_questions > 0 else 0.0
+    
+    # Create two columns for score and accuracy
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.markdown(f"""
+        <div style='background-color: #f0f8ff; padding: 20px; border-radius: 10px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1);'>
+            <h3 style='color: #4B89DC; margin-bottom: 15px; font-size: 24px;'>현재 점수</h3>
+            <h1 style='font-size: 36px; color: #2E7D32; margin: 0;'>{current_score}점</h1>
+        </div>
+        """, unsafe_allow_html=True)
+        
+    with col2:
+        st.markdown(f"""
+        <div style='background-color: #f0f8ff; padding: 20px; border-radius: 10px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1);'>
+            <h3 style='color: #4B89DC; margin-bottom: 15px; font-size: 24px;'>정답률</h3>
+            <h1 style='font-size: 36px; color: #2E7D32; margin: 0;'>{current_accuracy}%</h1>
+            <p style='color: #666; margin-top: 10px;'>맞춘 문제: {correct_answers} / {total_questions}</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
     # Get learning history from database
     history = get_learning_history(st.session_state["user_id"])
     if not history:
         st.info("아직 학습 기록이 없습니다. 퀴즈를 풀어보세요!")
         return
         
-    # Convert history to DataFrame for calculations
+    # Show learning history table
+    st.markdown("### 📊 상세 학습 기록")
     history_df = pd.DataFrame(history, columns=['group_code', 'score', 'total_questions', 'timestamp'])
-    if len(history_df) > 0:
-        latest_score = history_df["score"].iloc[-1]
-        accuracy = ((latest_score / ((len(history_df)) * 10)) * 100).round(1)
-        
-        # Create two columns for score and accuracy
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            st.markdown(f"""
-            <div style='background-color: #f0f8ff; padding: 20px; border-radius: 10px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1);'>
-                <h3 style='color: #4B89DC; margin-bottom: 15px; font-size: 24px;'>현재 점수</h3>
-                <h1 style='font-size: 36px; color: #2E7D32; margin: 0;'>{latest_score}점</h1>
-            </div>
-            """, unsafe_allow_html=True)
-            
-        with col2:
-            st.markdown(f"""
-            <div style='background-color: #f0f8ff; padding: 20px; border-radius: 10px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1);'>
-                <h3 style='color: #4B89DC; margin-bottom: 15px; font-size: 24px;'>정답률</h3>
-                <h1 style='font-size: 36px; color: #2E7D32; margin: 0;'>{accuracy}%</h1>
-            </div>
-            """, unsafe_allow_html=True)
-            
-        # Show learning history table
-        st.markdown("### 📊 상세 학습 기록")
-        history_df['timestamp'] = pd.to_datetime(history_df['timestamp'])
-        history_df['date'] = history_df['timestamp'].dt.strftime('%Y-%m-%d %H:%M')
-        history_df = history_df[['date', 'group_code', 'score', 'total_questions']]
-        history_df.columns = ['날짜', '그룹', '점수', '문제 수']
-        st.dataframe(history_df, use_container_width=True)
+    history_df['timestamp'] = pd.to_datetime(history_df['timestamp'])
+    history_df['date'] = history_df['timestamp'].dt.strftime('%Y-%m-%d %H:%M')
+    history_df = history_df[['date', 'group_code', 'score', 'total_questions']]
+    history_df.columns = ['날짜', '그룹', '점수', '문제 수']
+    st.dataframe(history_df, use_container_width=True)
 
 def clear_all_scores():
     if st.button("🗑️ 현재 점수 초기화", type="secondary"):
