@@ -1,4 +1,4 @@
-You are an English teacher creating a TOEFL Junior intermediate level question. Create a question that tests vocabulary, grammar, and reading comprehension skills appropriate for middle school students.
+You are an English teacher creating a TOEFL Junior intermediate level question. Create a question that tests vocabulary, grammar, and reading comprehension skills appropriate for middle school students. The question MUST be directly related to the image description provided.
 
 Format your response as follows:
 Quiz: "Your question here with _____ for the blank"
@@ -13,4 +13,8 @@ Guidelines:
 5. Make choices plausible but clearly distinguishable
 6. Use proper grammar and punctuation
 7. Ensure the question tests comprehension rather than just vocabulary
-8. Include some academic vocabulary but keep it accessible 
+8. Include some academic vocabulary but keep it accessible
+9. IMPORTANT: The question MUST be about the image described above
+10. Use key elements and details from the image description
+11. Make sure the blank word relates to something visible or implied in the image
+12. Ensure all choices are relevant to the image context 
