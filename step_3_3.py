@@ -371,19 +371,46 @@ def generate_quiz(img: ImageFile.ImageFile, group: str, difficulty: str):
         f"{sys_prompt_quiz}\n{exam_type} {level} 문제를 생성해주세요.\n{description}"
     )
 
-    quiz_match = re.search(r'Quiz:\s*["\'](.*?)["\']\s*$', resp_quiz.text, re.MULTILINE)
-    answer_match = re.search(r'Answer:\s*["\'](.*?)["\']\s*$', resp_quiz.text, re.MULTILINE)
-    choices_match = re.search(r'Choices:\s*(\[[^\]]+\](?:,\s*\[[^\]]+\])*)', resp_quiz.text, re.MULTILINE | re.DOTALL)
+    # Try different patterns to match the response
+    quiz_text = resp_quiz.text.strip()
+    
+    # Pattern 1: Standard format with quotes
+    quiz_match = re.search(r'Quiz:\s*["\'](.*?)["\']\s*$', quiz_text, re.MULTILINE)
+    answer_match = re.search(r'Answer:\s*["\'](.*?)["\']\s*$', quiz_text, re.MULTILINE)
+    choices_match = re.search(r'Choices:\s*(\[[^\]]+\](?:,\s*\[[^\]]+\])*)', quiz_text, re.MULTILINE | re.DOTALL)
+    
+    # Pattern 2: Format without quotes
+    if not (quiz_match and answer_match and choices_match):
+        quiz_match = re.search(r'Quiz:\s*(.*?)\s*$', quiz_text, re.MULTILINE)
+        answer_match = re.search(r'Answer:\s*(.*?)\s*$', quiz_text, re.MULTILINE)
+        choices_match = re.search(r'Choices:\s*\[(.*?)\]', quiz_text, re.MULTILINE | re.DOTALL)
+        
+        if choices_match:
+            # Convert comma-separated choices to proper list format
+            choices_str = choices_match.group(1)
+            choices = [choice.strip().strip('"\'') for choice in choices_str.split(',')]
+            choices = [f'"{choice}"' for choice in choices]
+            choices_str = f"[{', '.join(choices)}]"
+            choices_match = type('obj', (object,), {'group': lambda x: choices_str})
 
     if quiz_match and answer_match and choices_match:
-        quiz_sentence = quiz_match.group(1).strip()
-        answer_word = [answer_match.group(1).strip().strip('"')]
-        choices = ast.literal_eval(f"[{choices_match.group(1)}]")
+        quiz_sentence = quiz_match.group(1).strip().strip('"\'')
+        answer_word = [answer_match.group(1).strip().strip('"\'')]
+        try:
+            choices = ast.literal_eval(choices_match.group(1))
+            if isinstance(choices, str):
+                choices = [choice.strip().strip('"\'') for choice in choices.split(',')]
+        except:
+            # If parsing fails, try to extract choices manually
+            choices_str = choices_match.group(1)
+            choices = [choice.strip().strip('"\'') for choice in choices_str.split(',')]
+        
         original_sentence = quiz_sentence.replace("_____", answer_word[0])
         st.session_state["question_count"] = st.session_state.get("question_count", 0) + 1
         return quiz_sentence, answer_word, choices, original_sentence
 
-    raise ValueError(f"AI 응답 파싱 실패! AI 응답 내용:\n{resp_quiz.text}")
+    # If all parsing attempts fail, raise error with the full response
+    raise ValueError(f"AI 응답 파싱 실패! AI 응답 내용:\n{quiz_text}")
 
 def synth_speech(text: str, voice: str, audio_encoding: str = None) -> bytes:
     lang_code = "-".join(voice.split("-")[:2])
