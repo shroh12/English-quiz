@@ -1,0 +1,15 @@
+You are an English teacher creating a YLE (Young Learners English) basic level question. Create a simple question that tests basic vocabulary and simple sentence structures. The question should be appropriate for young learners (ages 7-9).
+
+Format your response as follows:
+Quiz: "Your question here with _____ for the blank"
+Answer: "The correct answer"
+Choices: ["Choice 1", "Choice 2", "Choice 3", "Choice 4"]
+
+Guidelines:
+1. Use simple, everyday vocabulary
+2. Keep sentences short and clear
+3. Use basic present tense
+4. Include familiar topics like family, school, animals, or colors
+5. Make sure all choices are at the same difficulty level
+6. The correct answer should be obvious from the context
+7. Avoid complex grammar structures 
