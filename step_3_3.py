@@ -294,35 +294,38 @@ def img_to_base64(img: Image.Image) -> str:
     return base64.b64encode(buf.getvalue()).decode()
 
 def get_prompt(group: str, difficulty: str = None) -> Path:
-    # First try to get the specific group and difficulty prompt
-    if difficulty:
-        prompts = {
-            ("elementary", "easy"): "prompt_elementary_easy.txt",
-            ("elementary", "medium"): "prompt_elementary_medium.txt",
-            ("elementary", "hard"): "prompt_elementary_hard.txt",
-            ("middle", "easy"): "prompt_middle_easy.txt",
-            ("middle", "medium"): "prompt_middle_medium.txt",
-            ("middle", "hard"): "prompt_middle_hard.txt",
-            ("high", "easy"): "prompt_high_easy.txt",
-            ("high", "medium"): "prompt_high_medium.txt",
-            ("high", "hard"): "prompt_high_hard.txt",
-            ("adult", "easy"): "prompt_adult_easy.txt",
-            ("adult", "medium"): "prompt_adult_medium.txt",
-            ("adult", "hard"): "prompt_adult_hard.txt",
-        }
-        prompt_file = prompts.get((group, difficulty), None)
-        if prompt_file:
-            path = IN_DIR / prompt_file
-            if path.exists():
-                return path
+    # Map group to exam type
+    exam_mapping = {
+        "elementary": "YLE",
+        "middle": "TOEFL_JUNIOR",
+        "high": "TOEIC",
+        "adult": "TOEFL"
+    }
     
-    # If no specific prompt found or difficulty not provided, try group-specific prompt
-    path = IN_DIR / f"quiz_{group}.txt"
+    # Map difficulty to exam level
+    difficulty_mapping = {
+        "easy": "basic",
+        "normal": "intermediate",
+        "hard": "advanced"
+    }
+    
+    exam_type = exam_mapping.get(group, "default")
+    exam_level = difficulty_mapping.get(difficulty, "intermediate")
+    
+    # First try to get the specific exam type and difficulty prompt
+    if difficulty:
+        prompt_file = f"prompt_{exam_type.lower()}_{exam_level}.txt"
+        path = IN_DIR / prompt_file
+        if path.exists():
+            return path
+    
+    # If no specific prompt found or difficulty not provided, try exam-specific prompt
+    path = IN_DIR / f"prompt_{exam_type.lower()}.txt"
     if path.exists():
         return path
     
-    # If no group-specific prompt found, use default
-    st.warning(f"⚠️ '{group}' 그룹의 프롬프트가 존재하지 않아 기본값을 사용합니다.")
+    # If no exam-specific prompt found, use default
+    st.warning(f"⚠️ '{exam_type}' 시험 유형의 프롬프트가 존재하지 않아 기본값을 사용합니다.")
     return IN_DIR / "prompt_default.txt"
 
 def get_model() -> genai.GenerativeModel:
@@ -346,8 +349,26 @@ def generate_quiz(img: ImageFile.ImageFile, group: str, difficulty: str):
     quiz_prompt_path = get_prompt(group, difficulty)
     sys_prompt_quiz = quiz_prompt_path.read_text(encoding="utf8")
     model_quiz = get_model()
+    
+    # Add exam-specific context to the prompt
+    exam_context = {
+        "elementary": "YLE 시험 형식에 맞춰",
+        "middle": "TOEFL Junior 시험 형식에 맞춰",
+        "high": "TOEIC 시험 형식에 맞춰",
+        "adult": "TOEFL 시험 형식에 맞춰"
+    }
+    
+    exam_type = exam_context.get(group, "")
+    difficulty_context = {
+        "easy": "기초 수준의",
+        "normal": "중급 수준의",
+        "hard": "고급 수준의"
+    }
+    
+    level = difficulty_context.get(difficulty, "중급 수준의")
+    
     resp_quiz = model_quiz.generate_content(
-        f"{sys_prompt_quiz}\n{description}"
+        f"{sys_prompt_quiz}\n{exam_type} {level} 문제를 생성해주세요.\n{description}"
     )
 
     quiz_match = re.search(r'Quiz:\s*["\'](.*?)["\']\s*$', resp_quiz.text, re.MULTILINE)
@@ -399,10 +420,14 @@ def set_quiz(img: ImageFile.ImageFile, group: str, difficulty: str):
             if isinstance(choices[0], list):
                 choices = choices[0]
             answer_words = [answer_word]
-            wav_file = synth_speech(full_desc, st.session_state["voice"], "wav")
+            
+            # Generate question-style audio
+            question_audio = f"Look at the image and listen carefully. What is the correct answer for the following question? {full_desc}"
+            wav_file = synth_speech(question_audio, st.session_state["voice"], "wav")
             path = OUT_DIR / f"{Path(__file__).stem}.wav"
             with open(path, "wb") as fp:
                 fp.write(wav_file)
+                
             quiz_display = f"""이미지를 보고 설명을 잘 들은 후, 빈칸에 들어갈 알맞은 단어를 선택하세요.
 
 **{quiz_sentence}**"""
