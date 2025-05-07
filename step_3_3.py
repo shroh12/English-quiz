@@ -325,27 +325,29 @@ def get_prompt(group: str, difficulty: str = None) -> Path:
     st.warning(f"⚠️ '{group}' 그룹의 프롬프트가 존재하지 않아 기본값을 사용합니다.")
     return IN_DIR / "prompt_default.txt"
 
-def get_model(sys_prompt: str = None) -> genai.GenerativeModel:
+def get_model() -> genai.GenerativeModel:
     GEMINI_KEY = st.secrets['GEMINI_KEY']
     GEMINI_MODEL = "gemini-2.0-flash"
     genai.configure(api_key=GEMINI_KEY, transport="rest")
-    return genai.GenerativeModel(GEMINI_MODEL, system_instruction=sys_prompt)
+    return genai.GenerativeModel(GEMINI_MODEL)
 
 def generate_quiz(img: ImageFile.ImageFile, group: str, difficulty: str):
     if not can_generate_more_questions():
         return None, None, None, None
 
     prompt_desc = IN_DIR / "p1_desc.txt"
-    model_desc = get_model(sys_prompt=prompt_desc.read_text(encoding="utf8"))
-    resp_desc = model_desc.generate_content([img, "Describe this image"])
+    sys_prompt_desc = prompt_desc.read_text(encoding="utf8")
+    model_desc = get_model()
+    resp_desc = model_desc.generate_content([img, "Describe this image"], system_instruction=sys_prompt_desc)
     description = resp_desc.text.strip()
 
     quiz_prompt_path = get_prompt(group, difficulty)
-    model_quiz = get_model(sys_prompt=quiz_prompt_path.read_text(encoding="utf8"))
-    resp_quiz = model_quiz.generate_content(description)
+    sys_prompt_quiz = quiz_prompt_path.read_text(encoding="utf8")
+    model_quiz = get_model()
+    resp_quiz = model_quiz.generate_content(description, system_instruction=sys_prompt_quiz)
 
-    quiz_match = re.search(r'Quiz:\s*[""](.*?)[""]\s*$', resp_quiz.text, re.MULTILINE)
-    answer_match = re.search(r'Answer:\s*[""](.*?)[""]\s*$', resp_quiz.text, re.MULTILINE)
+    quiz_match = re.search(r'Quiz:\s*["\'](.*?)["\']\s*$', resp_quiz.text, re.MULTILINE)
+    answer_match = re.search(r'Answer:\s*["\'](.*?)["\']\s*$', resp_quiz.text, re.MULTILINE)
     choices_match = re.search(r'Choices:\s*(\[[^\]]+\](?:,\s*\[[^\]]+\])*)', resp_quiz.text, re.MULTILINE | re.DOTALL)
 
     if quiz_match and answer_match and choices_match:
@@ -510,7 +512,7 @@ def generate_feedback(user_input: str, answ: str) -> str:
         template = prompt_path.read_text(encoding="utf8")
         prompt = template.format(user=user_input, correct=answ)
         model = get_model()
-        response = model.generate_content(prompt)
+        response = model.generate_content(prompt, system_instruction=None)
         return response.text.strip() if response and response.text else "(⚠️ 응답 없음)"
     except Exception as e:
         return f"(⚠️ 피드백 생성 중 오류: {e})"
