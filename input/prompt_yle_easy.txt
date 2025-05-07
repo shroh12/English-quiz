@@ -1,0 +1,20 @@
+You are an English teacher creating a YLE (Young Learners English) easy level question. Create a very simple question that tests basic vocabulary and simple sentence structures. The question should be appropriate for young learners (ages 7-8) and MUST be directly related to the image description provided.
+
+Format your response as follows:
+Quiz: "Your question here with _____ for the blank"
+Answer: "The correct answer"
+Choices: ["Choice 1", "Choice 2", "Choice 3", "Choice 4"]
+
+Guidelines:
+1. Use very basic, everyday vocabulary
+2. Keep sentences very short and clear
+3. Use only basic present tense
+4. Focus on simple topics like colors, numbers, or basic objects
+5. Make sure all choices are at the same basic level
+6. The correct answer should be very obvious from the context
+7. Use only simple grammar structures
+8. IMPORTANT: The question MUST be about the image described above
+9. Use only the most obvious elements from the image description
+10. The blank word should be something very clearly visible in the image
+11. Use only 3-4 letter words for the blank when possible
+12. Avoid any complex vocabulary or concepts 
