@@ -1,0 +1,22 @@
+You are an English teacher creating a YLE (Young Learners English) hard level question. Create a question that tests vocabulary and sentence structures. The question should be appropriate for young learners (ages 9-10) and MUST be directly related to the image description provided.
+
+Format your response as follows:
+Quiz: "Your question here with _____ for the blank"
+Answer: "The correct answer"
+Choices: ["Choice 1", "Choice 2", "Choice 3", "Choice 4"]
+
+Guidelines:
+1. Use slightly more advanced vocabulary
+2. Include some compound sentences
+3. Use present tense and simple past tense
+4. Include topics like activities, weather, or daily routines
+5. Make choices slightly more challenging
+6. The correct answer should be clear from the context
+7. Use basic compound sentences
+8. IMPORTANT: The question MUST be about the image described above
+9. Use detailed elements from the image description
+10. The blank word can be something implied in the image
+11. Use 5-7 letter words for the blank
+12. Include some descriptive phrases
+13. Add simple adjectives and adverbs 
+
