@@ -338,13 +338,19 @@ def generate_quiz(img: ImageFile.ImageFile, group: str, difficulty: str):
     prompt_desc = IN_DIR / "p1_desc.txt"
     sys_prompt_desc = prompt_desc.read_text(encoding="utf8")
     model_desc = get_model()
-    resp_desc = model_desc.generate_content([img, "Describe this image"], system_instruction=sys_prompt_desc)
+    resp_desc = model_desc.generate_content(
+        [img, "Describe this image"],
+        generation_config={"system_instruction": sys_prompt_desc}
+    )
     description = resp_desc.text.strip()
 
     quiz_prompt_path = get_prompt(group, difficulty)
     sys_prompt_quiz = quiz_prompt_path.read_text(encoding="utf8")
     model_quiz = get_model()
-    resp_quiz = model_quiz.generate_content(description, system_instruction=sys_prompt_quiz)
+    resp_quiz = model_quiz.generate_content(
+        description,
+        generation_config={"system_instruction": sys_prompt_quiz}
+    )
 
     quiz_match = re.search(r'Quiz:\s*["\'](.*?)["\']\s*$', resp_quiz.text, re.MULTILINE)
     answer_match = re.search(r'Answer:\s*["\'](.*?)["\']\s*$', resp_quiz.text, re.MULTILINE)
@@ -512,7 +518,7 @@ def generate_feedback(user_input: str, answ: str) -> str:
         template = prompt_path.read_text(encoding="utf8")
         prompt = template.format(user=user_input, correct=answ)
         model = get_model()
-        response = model.generate_content(prompt, system_instruction=None)
+        response = model.generate_content(prompt)
         return response.text.strip() if response and response.text else "(⚠️ 응답 없음)"
     except Exception as e:
         return f"(⚠️ 피드백 생성 중 오류: {e})"
