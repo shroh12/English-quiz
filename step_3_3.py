@@ -516,7 +516,17 @@ def generate_feedback(user_input: str, answ: str) -> str:
         template = prompt_path.read_text(encoding="utf8")
         prompt = template.format(user=user_input, correct=answ)
         model = get_model()
-        response = model.generate_content(prompt)
+        response = model.generate_content(
+            f"""다음과 같은 형식으로 피드백을 제공해주세요:
+1. 정답과 오답의 관계 설명
+2. 간단한 학습 조언
+3. 다음에 도움이 될 팁
+
+정답: {answ}
+학생 답변: {user_input}
+
+위 형식에 맞춰 한국어로만 답변해주세요. 번역은 하지 마세요."""
+        )
         return response.text.strip() if response and response.text else "(⚠️ 응답 없음)"
     except Exception as e:
         return f"(⚠️ 피드백 생성 중 오류: {e})"
