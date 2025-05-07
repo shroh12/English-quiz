@@ -605,21 +605,38 @@ def reset_quiz():
         # Add some vertical space before the button
         st.markdown("<br>", unsafe_allow_html=True)
         if st.button("🔄 새로운 문제", type="primary"):
-            # Keep image state
+            # Keep important states
+            auth_state = {
+                "authenticated": st.session_state.get("authenticated", False),
+                "username": st.session_state.get("username", ""),
+                "user_id": st.session_state.get("user_id", None)
+            }
             img_state = st.session_state.get("img_state", {
                 "has_image": False,
                 "img_bytes": None,
                 "img": None
             })
             
-            # Clear all session state
-            for key in list(st.session_state.keys()):
-                del st.session_state[key]
+            # Clear only quiz-related states
+            keys_to_clear = [
+                "quiz", "answ", "audio", "choices",
+                "question_count", "total_score", "quiz_data",
+                "answered_questions", "correct_answers", "total_questions"
+            ]
+            for key in keys_to_clear:
+                if key in st.session_state:
+                    del st.session_state[key]
             
-            # Restore image state
+            # Clear form-related states
+            for key in list(st.session_state.keys()):
+                if key.startswith(("submitted_", "feedback_", "choice_", "form_question_")):
+                    del st.session_state[key]
+            
+            # Restore important states
+            st.session_state.update(auth_state)
             st.session_state["img_state"] = img_state
             
-            # Initialize other necessary states
+            # Initialize quiz states
             init_score()
             init_question_count()
             
