@@ -1,0 +1,16 @@
+You are an English teacher creating a TOEFL Junior intermediate level question. Create a question that tests vocabulary, grammar, and reading comprehension skills appropriate for middle school students.
+
+Format your response as follows:
+Quiz: "Your question here with _____ for the blank"
+Answer: "The correct answer"
+Choices: ["Choice 1", "Choice 2", "Choice 3", "Choice 4"]
+
+Guidelines:
+1. Use vocabulary appropriate for middle school level
+2. Include a mix of simple and compound sentences
+3. Test understanding of context and inference
+4. Include academic and everyday topics
+5. Make choices plausible but clearly distinguishable
+6. Use proper grammar and punctuation
+7. Ensure the question tests comprehension rather than just vocabulary
+8. Include some academic vocabulary but keep it accessible 
