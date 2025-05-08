@@ -304,13 +304,13 @@ def get_prompt(group: str, difficulty: str = None) -> Path:
     
     # Map difficulty to exam level
     difficulty_mapping = {
-        "easy": "basic",
-        "normal": "intermediate",
-        "hard": "advanced"
+        "easy": "easy",
+        "normal": "medium",
+        "hard": "hard"
     }
     
     exam_type = exam_mapping.get(group, "default")
-    exam_level = difficulty_mapping.get(difficulty, "intermediate")
+    exam_level = difficulty_mapping.get(difficulty, "medium")
     
     # First try to get the specific exam type and difficulty prompt
     if difficulty:
