@@ -655,12 +655,14 @@ def reset_quiz():
         # Add some vertical space before the button
         st.markdown("<br>", unsafe_allow_html=True)
         if st.button("🔄 새로운 문제", type="primary"):
-            # Keep important states
+            # Keep authentication state
             auth_state = {
                 "authenticated": st.session_state.get("authenticated", False),
                 "username": st.session_state.get("username", ""),
                 "user_id": st.session_state.get("user_id", None)
             }
+            
+            # Keep image state
             img_state = st.session_state.get("img_state", {
                 "has_image": False,
                 "img_bytes": None,
@@ -694,8 +696,6 @@ def reset_quiz():
             st.session_state.update(score_state)
             
             st.rerun()
-        # Add some vertical space after the button
-        st.markdown("<br>", unsafe_allow_html=True)
 
 def show_learning_history():
     if not st.session_state.get("authenticated") or not st.session_state.get("user_id"):
@@ -770,6 +770,10 @@ if __name__ == "__main__":
         # Initialize session state
         init_score()
         init_question_count()
+        
+        # Check if user was previously authenticated
+        if "authenticated" not in st.session_state:
+            st.session_state["authenticated"] = False
         
         # 로그인 상태 확인
         if not st.session_state.get("authenticated", False):
