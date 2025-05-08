@@ -852,18 +852,18 @@ if __name__ == "__main__":
             init_score()
             init_question_count()
             
-            # 1. 그룹 선택
-            st.markdown("### 📚 학습 그룹 선택")
+            # 1. 시험 종류 선택
+            st.markdown("### 📚 시험 종류 선택")
             group_display = st.selectbox(
-                "연령대를 선택하세요.",
-                ["초등학생", "중학생", "고등학생", "성인"],
-                help="선택한 연령대에 맞는 난이도의 퀴즈가 출제됩니다."
+                "시험 종류를 선택하세요.",
+                ["YLE", "TOEFL JUNIOR", "TOEIC", "TOEFL"],
+                help="선택한 시험 유형에 맞는 퀴즈가 출제됩니다."
             )
             group_mapping = {
-                "초등학생": "elementary",
-                "중학생": "middle",
-                "고등학생": "high",
-                "성인": "adult"
+                "YLE": "elementary",
+                "TOEFL JUNIOR": "middle",
+                "TOEIC": "high",
+                "TOEFL": "adult"
             }
             group_code = group_mapping.get(group_display, "default")
             st.session_state["current_group"] = group_code
