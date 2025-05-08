@@ -23,15 +23,15 @@ IMG_DIR.mkdir(exist_ok=True)
 IN_DIR.mkdir(exist_ok=True)
 OUT_DIR.mkdir(exist_ok=True)
 
-# Initialize cookie manager
-cookie_manager = stx.CookieManager(key="auth_cookie_manager")
-
 def init_page():
     st.set_page_config(
         page_title="앵무새 스쿨",
         layout="wide",
         page_icon="🦜"
     )
+    # Initialize cookie manager after page config
+    global cookie_manager
+    cookie_manager = stx.CookieManager(key="auth_cookie_manager")
 
 def get_auth_cookie():
     return cookie_manager.get("auth")
