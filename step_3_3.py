@@ -775,6 +775,18 @@ if __name__ == "__main__":
         if not st.session_state.get("authenticated", False):
             show_auth_page()
         else:
+            # 메인 페이지 타이틀
+            st.markdown(
+                """
+                <div style='text-align: center; margin-bottom: 30px;'>
+                    <h1 style='font-size:48px; color: #4B89DC;'>🔊앵무새 스쿨</h1>
+                    <p style='font-size: 20px; color: #555;'>
+                        <b>이미지로 배우는 즐거운 영어 학습!</b>
+                    </p>
+                </div>
+                """, unsafe_allow_html=True
+            )
+            
             # 사이드바에 사용자 정보 표시
             with st.sidebar:
                 st.markdown(f"""
