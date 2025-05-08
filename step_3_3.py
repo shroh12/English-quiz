@@ -31,14 +31,15 @@ def init_page():
     )
 
 def get_auth_cookie():
-    return stx.CookieManager().get("auth")
+    cookie_manager = stx.CookieManager(key="auth_cookie_manager")
+    return cookie_manager.get("auth")
 
 def set_auth_cookie(username, user_id):
-    cookie_manager = stx.CookieManager()
+    cookie_manager = stx.CookieManager(key="auth_cookie_manager")
     cookie_manager.set("auth", f"{username}:{user_id}", expires_at=pd.Timestamp.now() + pd.Timedelta(days=7))
 
 def clear_auth_cookie():
-    cookie_manager = stx.CookieManager()
+    cookie_manager = stx.CookieManager(key="auth_cookie_manager")
     cookie_manager.delete("auth")
 
 def show_auth_page():
