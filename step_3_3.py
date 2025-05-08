@@ -764,7 +764,12 @@ def clear_all_scores():
 # Main application
 if __name__ == "__main__":
     try:
+        # Initialize page configuration first
         init_page()
+        
+        # Initialize session state
+        init_score()
+        init_question_count()
         
         # 로그인 상태 확인
         if not st.session_state.get("authenticated", False):
