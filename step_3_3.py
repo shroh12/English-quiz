@@ -310,10 +310,10 @@ def img_to_base64(img: Image.Image) -> str:
 def get_prompt(group: str, difficulty: str = None) -> Path:
     # Map group to exam type
     exam_mapping = {
-        "elementary": "YLE",
-        "middle": "TOEFL_JUNIOR",
-        "high": "TOEIC",
-        "adult": "TOEFL"
+        "yle": "YLE",
+        "toefl_junior": "TOEFL_JUNIOR",
+        "toeic": "TOEIC",
+        "toefl": "TOEFL"
     }
     
     # Map difficulty to exam level
@@ -860,10 +860,10 @@ if __name__ == "__main__":
                 help="선택한 시험 유형에 맞는 퀴즈가 출제됩니다."
             )
             group_mapping = {
-                "YLE": "elementary",
-                "TOEFL JUNIOR": "middle",
-                "TOEIC": "high",
-                "TOEFL": "adult"
+                "YLE": "yle",
+                "TOEFL JUNIOR": "toefl_junior",
+                "TOEIC": "toeic",
+                "TOEFL": "toefl"
             }
             group_code = group_mapping.get(group_display, "default")
             st.session_state["current_group"] = group_code
