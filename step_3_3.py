@@ -12,6 +12,7 @@ import google.generativeai as genai
 from google.cloud import texttospeech
 from google.oauth2 import service_account
 from database import register_user, verify_user, save_learning_history, get_learning_history, update_username, find_username, reset_password
+import extra_streamlit_components as stx
 
 # Constants and directory setup
 wORK_DIR = Path(__file__).parent
@@ -28,6 +29,17 @@ def init_page():
         layout="wide",
         page_icon="🦜"
     )
+
+def get_auth_cookie():
+    return stx.CookieManager().get("auth")
+
+def set_auth_cookie(username, user_id):
+    cookie_manager = stx.CookieManager()
+    cookie_manager.set("auth", f"{username}:{user_id}", expires_at=pd.Timestamp.now() + pd.Timedelta(days=7))
+
+def clear_auth_cookie():
+    cookie_manager = stx.CookieManager()
+    cookie_manager.delete("auth")
 
 def show_auth_page():
     st.markdown(
@@ -64,11 +76,12 @@ def show_auth_page():
                         st.session_state["authenticated"] = True
                         st.session_state["username"] = username
                         st.session_state["user_id"] = user_id
+                        set_auth_cookie(username, user_id)  # Set auth cookie
                         st.success("로그인 성공!")
                         st.rerun()
                     else:
                         st.error("아이디 또는 비밀번호가 올바르지 않습니다.")
-    
+
     with tab2:
         with st.form("register_form", border=True):
             st.markdown("""
@@ -771,9 +784,13 @@ if __name__ == "__main__":
         init_score()
         init_question_count()
         
-        # Check if user was previously authenticated
-        if "authenticated" not in st.session_state:
-            st.session_state["authenticated"] = False
+        # Check authentication from cookie
+        auth_cookie = get_auth_cookie()
+        if auth_cookie and not st.session_state.get("authenticated"):
+            username, user_id = auth_cookie.split(":")
+            st.session_state["authenticated"] = True
+            st.session_state["username"] = username
+            st.session_state["user_id"] = user_id
         
         # 로그인 상태 확인
         if not st.session_state.get("authenticated", False):
@@ -817,6 +834,7 @@ if __name__ == "__main__":
                             else:
                                 if update_username(st.session_state.get('user_id'), new_username):
                                     st.session_state["username"] = new_username
+                                    set_auth_cookie(new_username, st.session_state.get('user_id'))  # Update cookie
                                     st.success("닉네임이 변경되었습니다!")
                                     st.rerun()
                                 else:
@@ -826,6 +844,7 @@ if __name__ == "__main__":
                     # Clear all session state including image state
                     for key in list(st.session_state.keys()):
                         del st.session_state[key]
+                    clear_auth_cookie()  # Clear auth cookie
                     st.rerun()
             
             # 메인 컨텐츠
