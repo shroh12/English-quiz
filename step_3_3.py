@@ -565,11 +565,15 @@ def update_score(question: str, is_correct: bool):
         if is_correct:
             st.session_state["correct_answers"] += 1
             st.session_state["total_score"] += 10
+        else:
+            # 오답인 경우 점수 차감 (0점 이하로는 내려가지 않음)
+            st.session_state["total_score"] = max(0, st.session_state["total_score"] - 5)
             
         # Add to current quiz data
         st.session_state["quiz_data"].append({
             "question": question,
             "correct": is_correct,
+            "score": 10 if is_correct else -5,  # 정답은 10점, 오답은 -5점
             "timestamp": pd.Timestamp.now()
         })
         
@@ -578,8 +582,8 @@ def update_score(question: str, is_correct: bool):
             save_learning_history(
                 user_id=st.session_state["user_id"],
                 group_code=st.session_state.get("current_group", "default"),
-                score=st.session_state["total_score"],
-                total_questions=st.session_state["total_questions"]
+                score=10 if is_correct else -5,  # 정답은 10점, 오답은 -5점
+                total_questions=1  # 한 번에 한 문제씩 저장
             )
 
 def generate_feedback(user_input: str, answ: str) -> str:
