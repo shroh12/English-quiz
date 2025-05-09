@@ -16,7 +16,7 @@ def init_db():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             username TEXT UNIQUE NOT NULL,
             password TEXT NOT NULL,
-            email TEXT NOT NULL,
+            email TEXT UNIQUE NOT NULL,
             name TEXT NOT NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
@@ -26,10 +26,14 @@ def init_db():
     c.execute('''
         CREATE TABLE IF NOT EXISTS learning_history (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER,
+            user_id INTEGER NOT NULL,
             group_code TEXT NOT NULL,
             score INTEGER NOT NULL,
             total_questions INTEGER NOT NULL,
+            question_content TEXT,
+            feedback TEXT,
+            user_choice TEXT,
+            correct_answer TEXT,
             timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (user_id) REFERENCES users (id)
         )
@@ -129,43 +133,60 @@ def update_username(user_id, new_username):
     finally:
         conn.close()
 
-def save_learning_history(user_id, group_code, score, total_questions):
-    """학습 기록을 저장하는 함수"""
+def save_learning_history(user_id: int, group_code: str, score: int, total_questions: int, question_content: str = "", feedback: str = "", user_choice: str = "", correct_answer: str = ""):
     try:
         conn = sqlite3.connect(DB_PATH)
-        c = conn.cursor()
-        
-        c.execute(
-            'INSERT INTO learning_history (user_id, group_code, score, total_questions) VALUES (?, ?, ?, ?)',
-            (user_id, group_code, score, total_questions)
-        )
+        cursor = conn.cursor()
+        cursor.execute("""
+            INSERT INTO learning_history 
+            (user_id, group_code, score, total_questions, question_content, feedback, user_choice, correct_answer, timestamp) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
+        """, (user_id, group_code, score, total_questions, question_content, feedback, user_choice, correct_answer))
         conn.commit()
         return True
-        
-    except sqlite3.Error:
+    except Exception as e:
+        print(f"Error saving learning history: {e}")
         return False
     finally:
-        conn.close()
+        if conn:
+            conn.close()
 
-def get_learning_history(user_id):
-    """사용자의 학습 기록을 조회하는 함수"""
+def get_learning_history(user_id: int) -> list:
     try:
         conn = sqlite3.connect(DB_PATH)
-        c = conn.cursor()
+        cursor = conn.cursor()
         
-        c.execute('''
-            SELECT group_code, score, total_questions, timestamp 
-            FROM learning_history 
-            WHERE user_id = ? 
-            ORDER BY timestamp DESC
-        ''', (user_id,))
+        # 먼저 테이블 구조 확인
+        cursor.execute("PRAGMA table_info(learning_history)")
+        columns = [col[1] for col in cursor.fetchall()]
         
-        return c.fetchall()
+        # 새로운 스키마 컬럼이 있는지 확인
+        has_new_columns = all(col in columns for col in ['question_content', 'feedback', 'user_choice', 'correct_answer'])
         
-    except sqlite3.Error:
+        if has_new_columns:
+            # 새로운 스키마 사용
+            cursor.execute("""
+                SELECT group_code, score, total_questions, timestamp, question_content, feedback, user_choice, correct_answer
+                FROM learning_history 
+                WHERE user_id = ? 
+                ORDER BY timestamp DESC
+            """, (user_id,))
+        else:
+            # 기존 스키마 사용
+            cursor.execute("""
+                SELECT group_code, score, total_questions, timestamp, NULL as question_content, NULL as feedback, NULL as user_choice, NULL as correct_answer
+                FROM learning_history 
+                WHERE user_id = ? 
+                ORDER BY timestamp DESC
+            """, (user_id,))
+            
+        return cursor.fetchall()
+    except Exception as e:
+        print(f"Error getting learning history: {e}")
         return []
     finally:
-        conn.close()
+        if conn:
+            conn.close()
 
 def find_username(name: str, email: str) -> str | None:
     """이름과 이메일로 아이디를 찾습니다."""
@@ -215,5 +236,53 @@ def reset_password(username: str, email: str, new_password: str) -> bool:
         print(f"Error resetting password: {e}")
         return False
 
+def migrate_database():
+    """기존 데이터베이스를 새로운 스키마로 마이그레이션합니다."""
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+        
+        # 기존 테이블 백업
+        cursor.execute("ALTER TABLE learning_history RENAME TO learning_history_old")
+        
+        # 새로운 스키마로 테이블 생성
+        cursor.execute('''
+        CREATE TABLE IF NOT EXISTS learning_history (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            group_code TEXT NOT NULL,
+            score INTEGER NOT NULL,
+            total_questions INTEGER NOT NULL,
+            question_content TEXT,
+            feedback TEXT,
+            user_choice TEXT,
+            correct_answer TEXT,
+            timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users (id)
+        )
+        ''')
+        
+        # 기존 데이터 마이그레이션
+        cursor.execute("""
+        INSERT INTO learning_history 
+        (user_id, group_code, score, total_questions, timestamp)
+        SELECT user_id, group_code, score, total_questions, timestamp
+        FROM learning_history_old
+        """)
+        
+        # 기존 테이블 삭제
+        cursor.execute("DROP TABLE learning_history_old")
+        
+        conn.commit()
+        return True
+    except Exception as e:
+        print(f"Error migrating database: {e}")
+        return False
+    finally:
+        if conn:
+            conn.close()
+
 # Initialize database when module is imported
-init_db() 
+init_db()
+# Migrate database to new schema
+migrate_database() 
