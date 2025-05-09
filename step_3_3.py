@@ -804,6 +804,13 @@ def show_learning_history():
     
     # 컬럼 이름 변경 및 표시
     history_df['result'] = history_df.apply(get_result_icon, axis=1)
+    
+    # 문제 내용이 없는 경우 기본값 설정
+    history_df['question_content'] = history_df['question_content'].fillna("이전 버전의 문제입니다.")
+    history_df['feedback'] = history_df['feedback'].fillna("이전 버전의 피드백입니다.")
+    history_df['user_choice'] = history_df['user_choice'].fillna("기록 없음")
+    history_df['correct_answer'] = history_df['correct_answer'].fillna("기록 없음")
+    
     history_df = history_df[['date', 'group_code', 'result', 'score', 'total_questions', 'question_content']]
     history_df.columns = ['날짜', '시험 유형', '결과', '점수', '문제 수', '문제']
     
@@ -828,8 +835,8 @@ def show_learning_history():
                 </div>
                 """, unsafe_allow_html=True)
                 
-                # 문제 음성 재생
-                if row['문제']:
+                # 문제 음성 재생 (새로운 문제인 경우에만)
+                if row['문제'] and row['문제'] != "이전 버전의 문제입니다.":
                     question_audio = "Look at the image carefully."
                     wav_file = synth_speech(question_audio, st.session_state["voice"], "wav")
                     st.audio(wav_file, format="audio/wav")
