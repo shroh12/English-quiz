@@ -462,8 +462,8 @@ def set_quiz(img: ImageFile.ImageFile, group: str, difficulty: str):
                 choices = choices[0]
             answer_words = [answer_word]
             
-            # Generate question-style audio
-            question_audio = f"Look at the image and listen carefully. What is the correct answer for the following question? {full_desc}"
+            # Generate question-style audio without reading the full sentence
+            question_audio = "Look at the image and listen carefully. What is the correct answer for the following question?"
             wav_file = synth_speech(question_audio, st.session_state["voice"], "wav")
             path = OUT_DIR / f"{Path(__file__).stem}.wav"
             with open(path, "wb") as fp:
