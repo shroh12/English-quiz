@@ -758,7 +758,7 @@ def show_learning_history():
     }
     
     # 데이터프레임 생성
-    history_df = pd.DataFrame(history, columns=['group_code', 'score', 'total_questions', 'timestamp', 'feedback'])
+    history_df = pd.DataFrame(history, columns=['group_code', 'score', 'total_questions', 'timestamp'])
     history_df['timestamp'] = pd.to_datetime(history_df['timestamp'])
     history_df['date'] = history_df['timestamp'].dt.strftime('%Y-%m-%d %H:%M')
     
@@ -782,8 +782,8 @@ def show_learning_history():
     
     # 컬럼 이름 변경 및 표시
     history_df['result'] = history_df.apply(get_result_icon, axis=1)
-    history_df = history_df[['date', 'group_code', 'result', 'score', 'total_questions', 'feedback']]
-    history_df.columns = ['날짜', '시험 유형', '결과', '점수', '문제 수', '피드백']
+    history_df = history_df[['date', 'group_code', 'result', 'score', 'total_questions']]
+    history_df.columns = ['날짜', '시험 유형', '결과', '점수', '문제 수']
     
     # 필터링된 데이터가 있는 경우에만 표시
     if not history_df.empty:
@@ -793,17 +793,6 @@ def show_learning_history():
             use_container_width=True,
             hide_index=True
         )
-        
-        # 선택된 행의 피드백 표시
-        if 'selected_row' in st.session_state:
-            row = st.session_state['selected_row']
-            with st.expander("📝 상세 피드백", expanded=True):
-                st.markdown(f"""
-                <div style='background-color: #f0f8ff; padding: 15px; border-radius: 10px;'>
-                    <h4 style='color: #4B89DC; margin-bottom: 10px;'>학습 피드백</h4>
-                    <p>{row['피드백']}</p>
-                </div>
-                """, unsafe_allow_html=True)
         
         # 선택된 시험 유형의 통계 표시
         if selected_exam != "전체":
@@ -960,10 +949,6 @@ if __name__ == "__main__":
                 reset_quiz()
             else:
                 st.info("이미지를 업로드하면 퀴즈가 시작됩니다!")
-                
-    except Exception as e:
-        st.error(f"오류가 발생했습니다: {str(e)}")
-        st.info("페이지를 새로고침하거나 다시 시도해주세요.") 
                 
     except Exception as e:
         st.error(f"오류가 발생했습니다: {str(e)}")
