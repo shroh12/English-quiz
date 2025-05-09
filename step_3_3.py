@@ -964,3 +964,7 @@ if __name__ == "__main__":
     except Exception as e:
         st.error(f"오류가 발생했습니다: {str(e)}")
         st.info("페이지를 새로고침하거나 다시 시도해주세요.") 
+                
+    except Exception as e:
+        st.error(f"오류가 발생했습니다: {str(e)}")
+        st.info("페이지를 새로고침하거나 다시 시도해주세요.") 
