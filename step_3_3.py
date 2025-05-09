@@ -732,32 +732,6 @@ def show_learning_history():
     </div>
     """, unsafe_allow_html=True)
     
-    # Get current score and accuracy from session state
-    current_score = st.session_state.get("total_score", 0)
-    total_questions = st.session_state.get("total_questions", 0)
-    correct_answers = st.session_state.get("correct_answers", 0)
-    current_accuracy = round((correct_answers / total_questions) * 100, 1) if total_questions > 0 else 0.0
-    
-    # Create two columns for score and accuracy
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        st.markdown(f"""
-        <div style='background-color: #f0f8ff; padding: 20px; border-radius: 10px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1);'>
-            <h3 style='color: #4B89DC; margin-bottom: 15px; font-size: 24px;'>현재 점수</h3>
-            <h1 style='font-size: 36px; color: #2E7D32; margin: 0;'>{current_score}점</h1>
-        </div>
-        """, unsafe_allow_html=True)
-        
-    with col2:
-        st.markdown(f"""
-        <div style='background-color: #f0f8ff; padding: 20px; border-radius: 10px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1);'>
-            <h3 style='color: #4B89DC; margin-bottom: 15px; font-size: 24px;'>정답률</h3>
-            <h1 style='font-size: 36px; color: #2E7D32; margin: 0;'>{current_accuracy}%</h1>
-            <p style='color: #666; margin-top: 10px;'>맞춘 문제: {correct_answers} / {total_questions}</p>
-        </div>
-        """, unsafe_allow_html=True)
-    
     # Get learning history from database
     history = get_learning_history(st.session_state["user_id"])
     if not history:
@@ -765,7 +739,7 @@ def show_learning_history():
         return
 
     # 시험 유형별 필터링 추가
-    st.markdown("### 📊 상세 학습 기록")
+    st.markdown("### 📊 학습 기록")
     
     # 시험 유형 선택
     exam_types = ["전체", "YLE", "TOEFL JUNIOR", "TOEIC", "TOEFL"]
@@ -784,7 +758,7 @@ def show_learning_history():
     }
     
     # 데이터프레임 생성
-    history_df = pd.DataFrame(history, columns=['group_code', 'score', 'total_questions', 'timestamp'])
+    history_df = pd.DataFrame(history, columns=['group_code', 'score', 'total_questions', 'timestamp', 'feedback'])
     history_df['timestamp'] = pd.to_datetime(history_df['timestamp'])
     history_df['date'] = history_df['timestamp'].dt.strftime('%Y-%m-%d %H:%M')
     
@@ -802,23 +776,48 @@ def show_learning_history():
     }
     history_df['group_code'] = history_df['group_code'].map(group_name_mapping)
     
+    # 정답 여부 표시를 위한 함수
+    def get_result_icon(row):
+        return "✅" if row['score'] > 0 else "❌"
+    
     # 컬럼 이름 변경 및 표시
-    history_df = history_df[['date', 'group_code', 'score', 'total_questions']]
-    history_df.columns = ['날짜', '시험 유형', '점수', '문제 수']
+    history_df['result'] = history_df.apply(get_result_icon, axis=1)
+    history_df = history_df[['date', 'group_code', 'result', 'score', 'total_questions', 'feedback']]
+    history_df.columns = ['날짜', '시험 유형', '결과', '점수', '문제 수', '피드백']
     
     # 필터링된 데이터가 있는 경우에만 표시
     if not history_df.empty:
-        st.dataframe(history_df, use_container_width=True)
+        # 데이터프레임을 표시하고 클릭 가능하게 만듦
+        selected_row = st.dataframe(
+            history_df,
+            use_container_width=True,
+            hide_index=True
+        )
+        
+        # 선택된 행의 피드백 표시
+        if 'selected_row' in st.session_state:
+            row = st.session_state['selected_row']
+            with st.expander("📝 상세 피드백", expanded=True):
+                st.markdown(f"""
+                <div style='background-color: #f0f8ff; padding: 15px; border-radius: 10px;'>
+                    <h4 style='color: #4B89DC; margin-bottom: 10px;'>학습 피드백</h4>
+                    <p>{row['피드백']}</p>
+                </div>
+                """, unsafe_allow_html=True)
         
         # 선택된 시험 유형의 통계 표시
         if selected_exam != "전체":
             avg_score = history_df['점수'].mean()
             total_questions = history_df['문제 수'].sum()
+            correct_answers = len(history_df[history_df['결과'] == '✅'])
+            accuracy = (correct_answers / total_questions * 100) if total_questions > 0 else 0
+            
             st.markdown(f"""
             <div style='background-color: #f0f8ff; padding: 15px; border-radius: 10px; margin-top: 20px;'>
                 <h4 style='color: #4B89DC; margin-bottom: 10px;'>{selected_exam} 통계</h4>
                 <p>평균 점수: {avg_score:.1f}점</p>
                 <p>총 풀이한 문제 수: {total_questions}문제</p>
+                <p>정답률: {accuracy:.1f}%</p>
             </div>
             """, unsafe_allow_html=True)
     else:
@@ -961,10 +960,6 @@ if __name__ == "__main__":
                 reset_quiz()
             else:
                 st.info("이미지를 업로드하면 퀴즈가 시작됩니다!")
-                
-    except Exception as e:
-        st.error(f"오류가 발생했습니다: {str(e)}")
-        st.info("페이지를 새로고침하거나 다시 시도해주세요.") 
                 
     except Exception as e:
         st.error(f"오류가 발생했습니다: {str(e)}")
