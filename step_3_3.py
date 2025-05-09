@@ -539,6 +539,10 @@ def show_quiz(difficulty="medium"):
                 
                 with st.spinner("채점 중입니다..."):
                     is_correct = user_choice == answ[0]
+                    # 마지막 문제 정보 저장
+                    st.session_state["last_question"] = quiz_display
+                    st.session_state["last_user_choice"] = user_choice
+                    st.session_state["last_correct_answer"] = answ[0]
                     update_score(quiz_display, is_correct)
 
                     if is_correct:
@@ -569,12 +573,22 @@ def update_score(question: str, is_correct: bool):
             # 오답인 경우 점수 차감 (0점 이하로는 내려가지 않음)
             st.session_state["total_score"] = max(0, st.session_state["total_score"] - 5)
             
+        # 현재 문제의 피드백 생성
+        feedback = generate_feedback(
+            st.session_state.get("last_user_choice", ""),
+            st.session_state.get("last_correct_answer", "")
+        ) if not is_correct else "정답입니다! 🎉"
+            
         # Add to current quiz data
         st.session_state["quiz_data"].append({
             "question": question,
             "correct": is_correct,
             "score": 10 if is_correct else -5,  # 정답은 10점, 오답은 -5점
-            "timestamp": pd.Timestamp.now()
+            "timestamp": pd.Timestamp.now(),
+            "feedback": feedback,
+            "question_content": st.session_state.get("last_question", ""),
+            "user_choice": st.session_state.get("last_user_choice", ""),
+            "correct_answer": st.session_state.get("last_correct_answer", "")
         })
         
         # Save to database if user is authenticated
@@ -583,7 +597,11 @@ def update_score(question: str, is_correct: bool):
                 user_id=st.session_state["user_id"],
                 group_code=st.session_state.get("current_group", "default"),
                 score=10 if is_correct else -5,  # 정답은 10점, 오답은 -5점
-                total_questions=1  # 한 번에 한 문제씩 저장
+                total_questions=1,  # 한 번에 한 문제씩 저장
+                question_content=st.session_state.get("last_question", ""),
+                feedback=feedback,
+                user_choice=st.session_state.get("last_user_choice", ""),
+                correct_answer=st.session_state.get("last_correct_answer", "")
             )
 
 def generate_feedback(user_input: str, answ: str) -> str:
@@ -762,7 +780,7 @@ def show_learning_history():
     }
     
     # 데이터프레임 생성
-    history_df = pd.DataFrame(history, columns=['group_code', 'score', 'total_questions', 'timestamp'])
+    history_df = pd.DataFrame(history, columns=['group_code', 'score', 'total_questions', 'timestamp', 'question_content', 'feedback', 'user_choice', 'correct_answer'])
     history_df['timestamp'] = pd.to_datetime(history_df['timestamp'])
     history_df['date'] = history_df['timestamp'].dt.strftime('%Y-%m-%d %H:%M')
     
@@ -786,8 +804,8 @@ def show_learning_history():
     
     # 컬럼 이름 변경 및 표시
     history_df['result'] = history_df.apply(get_result_icon, axis=1)
-    history_df = history_df[['date', 'group_code', 'result', 'score', 'total_questions']]
-    history_df.columns = ['날짜', '시험 유형', '결과', '점수', '문제 수']
+    history_df = history_df[['date', 'group_code', 'result', 'score', 'total_questions', 'question_content']]
+    history_df.columns = ['날짜', '시험 유형', '결과', '점수', '문제 수', '문제']
     
     # 필터링된 데이터가 있는 경우에만 표시
     if not history_df.empty:
@@ -797,6 +815,22 @@ def show_learning_history():
             use_container_width=True,
             hide_index=True
         )
+        
+        # 선택된 행의 상세 정보 표시
+        if 'selected_row' in st.session_state:
+            row = st.session_state['selected_row']
+            with st.expander("📝 문제 상세 정보", expanded=True):
+                st.markdown(f"""
+                <div style='background-color: #f0f8ff; padding: 15px; border-radius: 10px;'>
+                    <h4 style='color: #4B89DC; margin-bottom: 10px;'>문제</h4>
+                    <p>{row['문제']}</p>
+                    <h4 style='color: #4B89DC; margin-top: 15px; margin-bottom: 10px;'>학습 피드백</h4>
+                    <p>{row['feedback']}</p>
+                    <h4 style='color: #4B89DC; margin-top: 15px; margin-bottom: 10px;'>답변 정보</h4>
+                    <p>내 답변: {row['user_choice']}</p>
+                    <p>정답: {row['correct_answer']}</p>
+                </div>
+                """, unsafe_allow_html=True)
         
         # 선택된 시험 유형의 통계 표시
         if selected_exam != "전체":
