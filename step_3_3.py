@@ -813,7 +813,8 @@ def show_learning_history():
         selected_row = st.dataframe(
             history_df,
             use_container_width=True,
-            hide_index=True
+            hide_index=True,
+            on_click=lambda row: st.session_state.update({"selected_row": row})
         )
         
         # 선택된 행의 상세 정보 표시
@@ -824,7 +825,18 @@ def show_learning_history():
                 <div style='background-color: #f0f8ff; padding: 15px; border-radius: 10px;'>
                     <h4 style='color: #4B89DC; margin-bottom: 10px;'>문제</h4>
                     <p>{row['문제']}</p>
-                    <h4 style='color: #4B89DC; margin-top: 15px; margin-bottom: 10px;'>학습 피드백</h4>
+                </div>
+                """, unsafe_allow_html=True)
+                
+                # 문제 음성 재생
+                if row['문제']:
+                    question_audio = "Look at the image carefully."
+                    wav_file = synth_speech(question_audio, st.session_state["voice"], "wav")
+                    st.audio(wav_file, format="audio/wav")
+                
+                st.markdown(f"""
+                <div style='background-color: #f0f8ff; padding: 15px; border-radius: 10px; margin-top: 15px;'>
+                    <h4 style='color: #4B89DC; margin-bottom: 10px;'>학습 피드백</h4>
                     <p>{row['feedback']}</p>
                     <h4 style='color: #4B89DC; margin-top: 15px; margin-bottom: 10px;'>답변 정보</h4>
                     <p>내 답변: {row['user_choice']}</p>
