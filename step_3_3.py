@@ -753,15 +753,66 @@ def show_learning_history():
     if not history:
         st.info("아직 학습 기록이 없습니다. 퀴즈를 풀어보세요!")
         return
-        
-    # Show learning history table
+
+    # 시험 유형별 필터링 추가
     st.markdown("### 📊 상세 학습 기록")
+    
+    # 시험 유형 선택
+    exam_types = ["전체", "YLE", "TOEFL JUNIOR", "TOEIC", "TOEFL"]
+    selected_exam = st.selectbox(
+        "시험 유형 선택",
+        exam_types,
+        help="특정 시험 유형의 학습 기록만 볼 수 있습니다."
+    )
+    
+    # 시험 유형 매핑
+    exam_mapping = {
+        "YLE": "yle",
+        "TOEFL JUNIOR": "toefl_junior",
+        "TOEIC": "toeic",
+        "TOEFL": "toefl"
+    }
+    
+    # 데이터프레임 생성
     history_df = pd.DataFrame(history, columns=['group_code', 'score', 'total_questions', 'timestamp'])
     history_df['timestamp'] = pd.to_datetime(history_df['timestamp'])
     history_df['date'] = history_df['timestamp'].dt.strftime('%Y-%m-%d %H:%M')
+    
+    # 시험 유형별 필터링
+    if selected_exam != "전체":
+        selected_code = exam_mapping.get(selected_exam)
+        history_df = history_df[history_df['group_code'] == selected_code]
+    
+    # 시험 유형 이름 매핑
+    group_name_mapping = {
+        "yle": "YLE",
+        "toefl_junior": "TOEFL JUNIOR",
+        "toeic": "TOEIC",
+        "toefl": "TOEFL"
+    }
+    history_df['group_code'] = history_df['group_code'].map(group_name_mapping)
+    
+    # 컬럼 이름 변경 및 표시
     history_df = history_df[['date', 'group_code', 'score', 'total_questions']]
-    history_df.columns = ['날짜', '그룹', '점수', '문제 수']
-    st.dataframe(history_df, use_container_width=True)
+    history_df.columns = ['날짜', '시험 유형', '점수', '문제 수']
+    
+    # 필터링된 데이터가 있는 경우에만 표시
+    if not history_df.empty:
+        st.dataframe(history_df, use_container_width=True)
+        
+        # 선택된 시험 유형의 통계 표시
+        if selected_exam != "전체":
+            avg_score = history_df['점수'].mean()
+            total_questions = history_df['문제 수'].sum()
+            st.markdown(f"""
+            <div style='background-color: #f0f8ff; padding: 15px; border-radius: 10px; margin-top: 20px;'>
+                <h4 style='color: #4B89DC; margin-bottom: 10px;'>{selected_exam} 통계</h4>
+                <p>평균 점수: {avg_score:.1f}점</p>
+                <p>총 풀이한 문제 수: {total_questions}문제</p>
+            </div>
+            """, unsafe_allow_html=True)
+    else:
+        st.info(f"{selected_exam} 시험 유형의 학습 기록이 없습니다.")
 
 def clear_all_scores():
     if st.button("🗑️ 현재 점수 초기화", type="secondary"):
