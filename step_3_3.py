@@ -796,16 +796,20 @@ def show_learning_history():
         
         # 선택된 시험 유형의 통계 표시
         if selected_exam != "전체":
-            avg_score = history_df['점수'].mean()
+            # 정답 문제 수 계산 (점수가 10점인 문제 수)
+            correct_answers = len(history_df[history_df['점수'] == 10])
             total_questions = history_df['문제 수'].sum()
-            correct_answers = len(history_df[history_df['결과'] == '✅'])
+            total_score = history_df['점수'].sum()
+            
+            # 정답률 계산
             accuracy = (correct_answers / total_questions * 100) if total_questions > 0 else 0
             
             st.markdown(f"""
             <div style='background-color: #f0f8ff; padding: 15px; border-radius: 10px; margin-top: 20px;'>
                 <h4 style='color: #4B89DC; margin-bottom: 10px;'>{selected_exam} 통계</h4>
-                <p>평균 점수: {avg_score:.1f}점</p>
+                <p>총 점수: {total_score}점</p>
                 <p>총 풀이한 문제 수: {total_questions}문제</p>
+                <p>정답 문제 수: {correct_answers}문제</p>
                 <p>정답률: {accuracy:.1f}%</p>
             </div>
             """, unsafe_allow_html=True)
