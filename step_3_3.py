@@ -453,9 +453,18 @@ def tokenize_sent(text: str) -> list[str]:
 def set_quiz(img: ImageFile.ImageFile, group: str, difficulty: str):
     if img and not st.session_state["quiz"]:
         with st.spinner("이미지 퀴즈를 준비 중입니다...🦜"):
+            # 이미지가 변경되었을 때 question_count 초기화
+            if "last_image" not in st.session_state or st.session_state["last_image"] != img:
+                st.session_state["question_count"] = 0
+                st.session_state["last_image"] = img
+            
+            if not can_generate_more_questions():
+                st.warning(f"현재 {st.session_state['question_count']}문제를 풀었어요! 새로운 이미지를 업로드하면 새로운 문제를 풀 수 있습니다.")
+                return
+                
             quiz_sentence, answer_word, choices, full_desc = generate_quiz(img, group, difficulty)
             if not quiz_sentence:  # If we've reached the question limit
-                st.warning("이미지에 대한 10개의 문제를 모두 생성했습니다. 새로운 이미지를 업로드해주세요.")
+                st.warning(f"현재 {st.session_state['question_count']}문제를 풀었어요! 새로운 이미지를 업로드하면 새로운 문제를 풀 수 있습니다.")
                 return
                 
             if isinstance(choices[0], list):
@@ -690,7 +699,8 @@ def reset_quiz():
                 "answered_questions": st.session_state.get("answered_questions", set()),
                 "correct_answers": st.session_state.get("correct_answers", 0),
                 "total_questions": st.session_state.get("total_questions", 0),
-                "question_count": st.session_state.get("question_count", 0)
+                "question_count": st.session_state.get("question_count", 0),
+                "last_image": st.session_state.get("last_image", None)
             }
             
             # Clear only current quiz states
@@ -951,6 +961,10 @@ if __name__ == "__main__":
                 reset_quiz()
             else:
                 st.info("이미지를 업로드하면 퀴즈가 시작됩니다!")
+                
+    except Exception as e:
+        st.error(f"오류가 발생했습니다: {str(e)}")
+        st.info("페이지를 새로고침하거나 다시 시도해주세요.") 
                 
     except Exception as e:
         st.error(f"오류가 발생했습니다: {str(e)}")
