@@ -811,52 +811,59 @@ def show_learning_history():
     history_df['user_choice'] = history_df['user_choice'].fillna("기록 없음")
     history_df['correct_answer'] = history_df['correct_answer'].fillna("기록 없음")
     
-    history_df = history_df[['date', 'group_code', 'result', 'score', 'total_questions', 'question_content']]
-    history_df.columns = ['날짜', '시험 유형', '결과', '점수', '문제 수', '문제']
+    # 표시할 컬럼 선택
+    display_df = history_df[['date', 'group_code', 'result', 'score', 'total_questions', 'question_content']]
+    display_df.columns = ['날짜', '시험 유형', '결과', '점수', '문제 수', '문제']
     
     # 필터링된 데이터가 있는 경우에만 표시
-    if not history_df.empty:
+    if not display_df.empty:
         # 데이터프레임을 표시하고 클릭 가능하게 만듦
-        selected_row = st.dataframe(
-            history_df,
+        edited_df = st.data_editor(
+            display_df,
             use_container_width=True,
             hide_index=True,
-            on_click=lambda row: st.session_state.update({"selected_row": row})
+            disabled=True,
+            key="history_editor"
         )
         
         # 선택된 행의 상세 정보 표시
-        if 'selected_row' in st.session_state:
-            row = st.session_state['selected_row']
-            with st.expander("📝 문제 상세 정보", expanded=True):
-                st.markdown(f"""
-                <div style='background-color: #f0f8ff; padding: 15px; border-radius: 10px;'>
-                    <h4 style='color: #4B89DC; margin-bottom: 10px;'>문제</h4>
-                    <p>{row['문제']}</p>
-                </div>
-                """, unsafe_allow_html=True)
-                
-                # 문제 음성 재생 (새로운 문제인 경우에만)
-                if row['문제'] and row['문제'] != "이전 버전의 문제입니다.":
-                    question_audio = "Look at the image carefully."
-                    wav_file = synth_speech(question_audio, st.session_state["voice"], "wav")
-                    st.audio(wav_file, format="audio/wav")
-                
-                st.markdown(f"""
-                <div style='background-color: #f0f8ff; padding: 15px; border-radius: 10px; margin-top: 15px;'>
-                    <h4 style='color: #4B89DC; margin-bottom: 10px;'>학습 피드백</h4>
-                    <p>{row['feedback']}</p>
-                    <h4 style='color: #4B89DC; margin-top: 15px; margin-bottom: 10px;'>답변 정보</h4>
-                    <p>내 답변: {row['user_choice']}</p>
-                    <p>정답: {row['correct_answer']}</p>
-                </div>
-                """, unsafe_allow_html=True)
+        if 'history_editor' in st.session_state:
+            selected_rows = st.session_state['history_editor']['selected_rows']
+            if selected_rows:
+                row = selected_rows[0]
+                with st.expander("📝 문제 상세 정보", expanded=True):
+                    st.markdown(f"""
+                    <div style='background-color: #f0f8ff; padding: 15px; border-radius: 10px;'>
+                        <h4 style='color: #4B89DC; margin-bottom: 10px;'>문제</h4>
+                        <p>{row['문제']}</p>
+                    </div>
+                    """, unsafe_allow_html=True)
+                    
+                    # 문제 음성 재생 (새로운 문제인 경우에만)
+                    if row['문제'] and row['문제'] != "이전 버전의 문제입니다.":
+                        question_audio = "Look at the image carefully."
+                        wav_file = synth_speech(question_audio, st.session_state["voice"], "wav")
+                        st.audio(wav_file, format="audio/wav")
+                    
+                    # 해당 행의 원본 데이터 찾기
+                    original_row = history_df[history_df['date'] == row['날짜']].iloc[0]
+                    
+                    st.markdown(f"""
+                    <div style='background-color: #f0f8ff; padding: 15px; border-radius: 10px; margin-top: 15px;'>
+                        <h4 style='color: #4B89DC; margin-bottom: 10px;'>학습 피드백</h4>
+                        <p>{original_row['feedback']}</p>
+                        <h4 style='color: #4B89DC; margin-top: 15px; margin-bottom: 10px;'>답변 정보</h4>
+                        <p>내 답변: {original_row['user_choice']}</p>
+                        <p>정답: {original_row['correct_answer']}</p>
+                    </div>
+                    """, unsafe_allow_html=True)
         
         # 선택된 시험 유형의 통계 표시
         if selected_exam != "전체":
             # 정답 문제 수 계산 (점수가 10점인 문제 수)
-            correct_answers = len(history_df[history_df['점수'] == 10])
-            total_questions = history_df['문제 수'].sum()
-            total_score = history_df['점수'].sum()
+            correct_answers = len(history_df[history_df['score'] == 10])
+            total_questions = history_df['total_questions'].sum()
+            total_score = history_df['score'].sum()
             
             # 정답률 계산
             accuracy = (correct_answers / total_questions * 100) if total_questions > 0 else 0
