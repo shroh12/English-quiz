@@ -823,12 +823,13 @@ def show_learning_history():
             use_container_width=True,
             hide_index=True,
             disabled=True,
-            key="history_editor"
+            key="history_editor",
+            num_rows="fixed"
         )
         
         # 선택된 행의 상세 정보 표시
         if 'history_editor' in st.session_state:
-            selected_rows = st.session_state['history_editor']['selected_rows']
+            selected_rows = st.session_state['history_editor'].get('selected_rows', [])
             if selected_rows:
                 row = selected_rows[0]
                 with st.expander("📝 문제 상세 정보", expanded=True):
