@@ -781,9 +781,9 @@ def show_learning_history():
     # 컬럼 이름 변경 및 표시
     history_df['result'] = history_df.apply(get_result_icon, axis=1)
     
-    # 표시할 컬럼 선택
-    display_df = history_df[['date', 'group_code', 'result', 'score', 'total_questions', 'question_content']]
-    display_df.columns = ['날짜', '시험 유형', '결과', '점수', '문제 수', '문제']
+    # 표시할 컬럼 선택 (문제 컬럼 제외)
+    display_df = history_df[['date', 'group_code', 'result', 'score', 'total_questions']]
+    display_df.columns = ['날짜', '시험 유형', '결과', '점수', '문제 수']
     
     # 필터링된 데이터가 있는 경우에만 표시
     if not display_df.empty:
