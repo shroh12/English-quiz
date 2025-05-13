@@ -817,47 +817,48 @@ def show_learning_history():
     
     # 필터링된 데이터가 있는 경우에만 표시
     if not display_df.empty:
-        # 데이터프레임을 표시하고 클릭 가능하게 만듦
-        edited_df = st.data_editor(
+        # 데이터프레임을 표시
+        st.dataframe(
             display_df,
             use_container_width=True,
-            hide_index=True,
-            disabled=True,
-            key="history_editor",
-            num_rows="fixed"
+            hide_index=True
         )
         
-        # 선택된 행의 상세 정보 표시
-        if 'history_editor' in st.session_state:
-            selected_rows = st.session_state['history_editor'].get('selected_rows', [])
-            if selected_rows:
-                row = selected_rows[0]
-                with st.expander("📝 문제 상세 정보", expanded=True):
-                    st.markdown(f"""
-                    <div style='background-color: #f0f8ff; padding: 15px; border-radius: 10px;'>
-                        <h4 style='color: #4B89DC; margin-bottom: 10px;'>문제</h4>
-                        <p>{row['문제']}</p>
-                    </div>
-                    """, unsafe_allow_html=True)
-                    
-                    # 문제 음성 재생 (새로운 문제인 경우에만)
-                    if row['문제'] and row['문제'] != "이전 버전의 문제입니다.":
-                        question_audio = "Look at the image carefully."
-                        wav_file = synth_speech(question_audio, st.session_state["voice"], "wav")
-                        st.audio(wav_file, format="audio/wav")
-                    
-                    # 해당 행의 원본 데이터 찾기
-                    original_row = history_df[history_df['date'] == row['날짜']].iloc[0]
-                    
-                    st.markdown(f"""
-                    <div style='background-color: #f0f8ff; padding: 15px; border-radius: 10px; margin-top: 15px;'>
-                        <h4 style='color: #4B89DC; margin-bottom: 10px;'>학습 피드백</h4>
-                        <p>{original_row['feedback']}</p>
-                        <h4 style='color: #4B89DC; margin-top: 15px; margin-bottom: 10px;'>답변 정보</h4>
-                        <p>내 답변: {original_row['user_choice']}</p>
-                        <p>정답: {original_row['correct_answer']}</p>
-                    </div>
-                    """, unsafe_allow_html=True)
+        # 문제 선택을 위한 드롭다운
+        selected_date = st.selectbox(
+            "문제 선택",
+            options=display_df['날짜'].tolist(),
+            format_func=lambda x: f"{x} - {display_df[display_df['날짜'] == x]['문제'].iloc[0]}",
+            help="상세 정보를 보고 싶은 문제를 선택하세요."
+        )
+        
+        if selected_date:
+            # 선택된 행의 원본 데이터 찾기
+            original_row = history_df[history_df['date'] == selected_date].iloc[0]
+            
+            with st.expander("📝 문제 상세 정보", expanded=True):
+                st.markdown(f"""
+                <div style='background-color: #f0f8ff; padding: 15px; border-radius: 10px;'>
+                    <h4 style='color: #4B89DC; margin-bottom: 10px;'>문제</h4>
+                    <p>{original_row['question_content']}</p>
+                </div>
+                """, unsafe_allow_html=True)
+                
+                # 문제 음성 재생 (새로운 문제인 경우에만)
+                if original_row['question_content'] and original_row['question_content'] != "이전 버전의 문제입니다.":
+                    question_audio = "Look at the image carefully."
+                    wav_file = synth_speech(question_audio, st.session_state["voice"], "wav")
+                    st.audio(wav_file, format="audio/wav")
+                
+                st.markdown(f"""
+                <div style='background-color: #f0f8ff; padding: 15px; border-radius: 10px; margin-top: 15px;'>
+                    <h4 style='color: #4B89DC; margin-bottom: 10px;'>학습 피드백</h4>
+                    <p>{original_row['feedback']}</p>
+                    <h4 style='color: #4B89DC; margin-top: 15px; margin-bottom: 10px;'>답변 정보</h4>
+                    <p>내 답변: {original_row['user_choice']}</p>
+                    <p>정답: {original_row['correct_answer']}</p>
+                </div>
+                """, unsafe_allow_html=True)
         
         # 선택된 시험 유형의 통계 표시
         if selected_exam != "전체":
@@ -1021,4 +1022,5 @@ if __name__ == "__main__":
                 
     except Exception as e:
         st.error(f"오류가 발생했습니다: {str(e)}")
+        st.info("페이지를 새로고침하거나 다시 시도해주세요.") 
         st.info("페이지를 새로고침하거나 다시 시도해주세요.") 
