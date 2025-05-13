@@ -760,34 +760,10 @@ def show_learning_history():
         st.info("아직 학습 기록이 없습니다. 퀴즈를 풀어보세요!")
         return
 
-    # 시험 유형별 필터링 추가
-    st.markdown("### 📊 학습 기록")
-    
-    # 시험 유형 선택
-    exam_types = ["전체", "YLE", "TOEFL JUNIOR", "TOEIC", "TOEFL"]
-    selected_exam = st.selectbox(
-        "시험 유형 선택",
-        exam_types,
-        help="특정 시험 유형의 학습 기록만 볼 수 있습니다."
-    )
-    
-    # 시험 유형 매핑
-    exam_mapping = {
-        "YLE": "yle",
-        "TOEFL JUNIOR": "toefl_junior",
-        "TOEIC": "toeic",
-        "TOEFL": "toefl"
-    }
-    
     # 데이터프레임 생성
     history_df = pd.DataFrame(history, columns=['group_code', 'score', 'total_questions', 'timestamp', 'question_content', 'feedback', 'user_choice', 'correct_answer'])
     history_df['timestamp'] = pd.to_datetime(history_df['timestamp'])
     history_df['date'] = history_df['timestamp'].dt.strftime('%Y-%m-%d %H:%M')
-    
-    # 시험 유형별 필터링
-    if selected_exam != "전체":
-        selected_code = exam_mapping.get(selected_exam)
-        history_df = history_df[history_df['group_code'] == selected_code]
     
     # 시험 유형 이름 매핑
     group_name_mapping = {
@@ -859,28 +835,8 @@ def show_learning_history():
                     <p>정답: {original_row['correct_answer']}</p>
                 </div>
                 """, unsafe_allow_html=True)
-        
-        # 선택된 시험 유형의 통계 표시
-        if selected_exam != "전체":
-            # 정답 문제 수 계산 (점수가 10점인 문제 수)
-            correct_answers = len(history_df[history_df['score'] == 10])
-            total_questions = history_df['total_questions'].sum()
-            total_score = history_df['score'].sum()
-            
-            # 정답률 계산
-            accuracy = (correct_answers / total_questions * 100) if total_questions > 0 else 0
-            
-            st.markdown(f"""
-            <div style='background-color: #f0f8ff; padding: 15px; border-radius: 10px; margin-top: 20px;'>
-                <h4 style='color: #4B89DC; margin-bottom: 10px;'>{selected_exam} 통계</h4>
-                <p>총 점수: {total_score}점</p>
-                <p>총 풀이한 문제 수: {total_questions}문제</p>
-                <p>정답 문제 수: {correct_answers}문제</p>
-                <p>정답률: {accuracy:.1f}%</p>
-            </div>
-            """, unsafe_allow_html=True)
     else:
-        st.info(f"{selected_exam} 시험 유형의 학습 기록이 없습니다.")
+        st.info("학습 기록이 없습니다.")
 
 def clear_all_scores():
     if st.button("🗑️ 현재 점수 초기화", type="secondary"):
@@ -1022,5 +978,4 @@ if __name__ == "__main__":
                 
     except Exception as e:
         st.error(f"오류가 발생했습니다: {str(e)}")
-        st.info("페이지를 새로고침하거나 다시 시도해주세요.") 
         st.info("페이지를 새로고침하거나 다시 시도해주세요.") 
