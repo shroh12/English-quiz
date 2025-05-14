@@ -760,8 +760,8 @@ def show_learning_history():
         st.info("아직 학습 기록이 없습니다. 퀴즈를 풀어보세요!")
         return
 
-    # 데이터프레임 생성
-    history_df = pd.DataFrame(history, columns=['group_code', 'score', 'total_questions', 'timestamp'])
+    # 데이터프레임 생성 (모든 컬럼 포함)
+    history_df = pd.DataFrame(history, columns=['group_code', 'score', 'total_questions', 'timestamp', 'question_content', 'feedback', 'user_choice', 'correct_answer'])
     
     # 날짜/시간 포맷 변경
     history_df['timestamp'] = pd.to_datetime(history_df['timestamp'])
@@ -783,7 +783,7 @@ def show_learning_history():
     # 컬럼 이름 변경 및 표시
     history_df['result'] = history_df.apply(get_result_icon, axis=1)
     
-    # 표시할 컬럼 선택
+    # 표시할 컬럼만 선택
     display_df = history_df[['date', 'group_code', 'result', 'score', 'total_questions']]
     display_df.columns = ['날짜', '시험 유형', '결과', '점수', '문제 수']
     
