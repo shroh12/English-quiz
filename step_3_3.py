@@ -34,15 +34,6 @@ def init_page():
     global cookie_manager
     cookie_manager = stx.CookieManager(key="auth_cookie_manager")
 
-def get_auth_cookie():
-    return cookie_manager.get("auth")
-
-def set_auth_cookie(username, user_id):
-    cookie_manager.set("auth", f"{username}:{user_id}", expires_at=pd.Timestamp.now() + pd.Timedelta(days=7))
-
-def clear_auth_cookie():
-    cookie_manager.delete("auth")
-
 def show_auth_page():
     st.markdown(
         """
@@ -353,92 +344,98 @@ def generate_quiz(img: ImageFile.ImageFile, group: str, difficulty: str):
     if not can_generate_more_questions():
         return None, None, None, None
 
-    max_retries = 3
-    retry_delay = 2  # seconds
+    max_retries = 5  # 재시도 횟수 증가
+    retry_delay = 3  # 대기 시간 증가
 
     for attempt in range(max_retries):
         try:
-            prompt_desc = IN_DIR / "p1_desc.txt"
-            sys_prompt_desc = prompt_desc.read_text(encoding="utf8")
-            model_desc = get_model()
-            resp_desc = model_desc.generate_content(
-                [img, f"{sys_prompt_desc}\nDescribe this image"]
-            )
-            description = resp_desc.text.strip()
+            with st.spinner(f"문제를 생성하는 중입니다... (시도 {attempt + 1}/{max_retries})"):
+                prompt_desc = IN_DIR / "p1_desc.txt"
+                sys_prompt_desc = prompt_desc.read_text(encoding="utf8")
+                model_desc = get_model()
+                resp_desc = model_desc.generate_content(
+                    [img, f"{sys_prompt_desc}\nDescribe this image"]
+                )
+                description = resp_desc.text.strip()
 
-            quiz_prompt_path = get_prompt(group, difficulty)
-            sys_prompt_quiz = quiz_prompt_path.read_text(encoding="utf8")
-            model_quiz = get_model()
-            
-            # Add exam-specific context to the prompt
-            exam_context = {
-                "elementary": "YLE 시험 형식에 맞춰",
-                "middle": "TOEFL Junior 시험 형식에 맞춰",
-                "high": "TOEIC 시험 형식에 맞춰",
-                "adult": "TOEFL 시험 형식에 맞춰"
-            }
-            
-            exam_type = exam_context.get(group, "")
-            difficulty_context = {
-                "easy": "기초 수준의",
-                "normal": "중급 수준의",
-                "hard": "고급 수준의"
-            }
-            
-            level = difficulty_context.get(difficulty, "중급 수준의")
-            
-            resp_quiz = model_quiz.generate_content(
-                f"{sys_prompt_quiz}\n{exam_type} {level} 문제를 생성해주세요.\n{description}"
-            )
-
-            # Try different patterns to match the response
-            quiz_text = resp_quiz.text.strip()
-            
-            # Pattern 1: Standard format with quotes
-            quiz_match = re.search(r'Quiz:\s*["\'](.*?)["\']\s*$', quiz_text, re.MULTILINE)
-            answer_match = re.search(r'Answer:\s*["\'](.*?)["\']\s*$', quiz_text, re.MULTILINE)
-            choices_match = re.search(r'Choices:\s*(\[[^\]]+\](?:,\s*\[[^\]]+\])*)', quiz_text, re.MULTILINE | re.DOTALL)
-            
-            # Pattern 2: Format without quotes
-            if not (quiz_match and answer_match and choices_match):
-                quiz_match = re.search(r'Quiz:\s*(.*?)\s*$', quiz_text, re.MULTILINE)
-                answer_match = re.search(r'Answer:\s*(.*?)\s*$', quiz_text, re.MULTILINE)
-                choices_match = re.search(r'Choices:\s*\[(.*?)\]', quiz_text, re.MULTILINE | re.DOTALL)
+                quiz_prompt_path = get_prompt(group, difficulty)
+                sys_prompt_quiz = quiz_prompt_path.read_text(encoding="utf8")
+                model_quiz = get_model()
                 
-                if choices_match:
-                    # Convert comma-separated choices to proper list format
-                    choices_str = choices_match.group(1)
-                    choices = [choice.strip().strip('"\'') for choice in choices_str.split(',')]
-                    choices = [f'"{choice}"' for choice in choices]
-                    choices_str = f"[{', '.join(choices)}]"
-                    choices_match = type('obj', (object,), {'group': lambda x: choices_str})
-
-            if quiz_match and answer_match and choices_match:
-                quiz_sentence = quiz_match.group(1).strip().strip('"\'')
-                answer_word = [answer_match.group(1).strip().strip('"\'')]
-                try:
-                    choices = ast.literal_eval(choices_match.group(1))
-                    if isinstance(choices, str):
-                        choices = [choice.strip().strip('"\'') for choice in choices.split(',')]
-                except:
-                    # If parsing fails, try to extract choices manually
-                    choices_str = choices_match.group(1)
-                    choices = [choice.strip().strip('"\'') for choice in choices_str.split(',')]
+                # Add exam-specific context to the prompt
+                exam_context = {
+                    "elementary": "YLE 시험 형식에 맞춰",
+                    "middle": "TOEFL Junior 시험 형식에 맞춰",
+                    "high": "TOEIC 시험 형식에 맞춰",
+                    "adult": "TOEFL 시험 형식에 맞춰"
+                }
                 
-                original_sentence = quiz_sentence.replace("_____", answer_word[0])
-                st.session_state["question_count"] = st.session_state.get("question_count", 0) + 1
-                return quiz_sentence, answer_word, choices, original_sentence
+                exam_type = exam_context.get(group, "")
+                difficulty_context = {
+                    "easy": "기초 수준의",
+                    "normal": "중급 수준의",
+                    "hard": "고급 수준의"
+                }
+                
+                level = difficulty_context.get(difficulty, "중급 수준의")
+                
+                resp_quiz = model_quiz.generate_content(
+                    f"{sys_prompt_quiz}\n{exam_type} {level} 문제를 생성해주세요.\n{description}"
+                )
 
-            # If all parsing attempts fail, raise error with the full response
-            raise ValueError(f"AI 응답 파싱 실패! AI 응답 내용:\n{quiz_text}")
+                # Try different patterns to match the response
+                quiz_text = resp_quiz.text.strip()
+                
+                # Pattern 1: Standard format with quotes
+                quiz_match = re.search(r'Quiz:\s*["\'](.*?)["\']\s*$', quiz_text, re.MULTILINE)
+                answer_match = re.search(r'Answer:\s*["\'](.*?)["\']\s*$', quiz_text, re.MULTILINE)
+                choices_match = re.search(r'Choices:\s*(\[[^\]]+\](?:,\s*\[[^\]]+\])*)', quiz_text, re.MULTILINE | re.DOTALL)
+                
+                # Pattern 2: Format without quotes
+                if not (quiz_match and answer_match and choices_match):
+                    quiz_match = re.search(r'Quiz:\s*(.*?)\s*$', quiz_text, re.MULTILINE)
+                    answer_match = re.search(r'Answer:\s*(.*?)\s*$', quiz_text, re.MULTILINE)
+                    choices_match = re.search(r'Choices:\s*\[(.*?)\]', quiz_text, re.MULTILINE | re.DOTALL)
+                    
+                    if choices_match:
+                        # Convert comma-separated choices to proper list format
+                        choices_str = choices_match.group(1)
+                        choices = [choice.strip().strip('"\'') for choice in choices_str.split(',')]
+                        choices = [f'"{choice}"' for choice in choices]
+                        choices_str = f"[{', '.join(choices)}]"
+                        choices_match = type('obj', (object,), {'group': lambda x: choices_str})
+
+                if quiz_match and answer_match and choices_match:
+                    quiz_sentence = quiz_match.group(1).strip().strip('"\'')
+                    answer_word = [answer_match.group(1).strip().strip('"\'')]
+                    try:
+                        choices = ast.literal_eval(choices_match.group(1))
+                        if isinstance(choices, str):
+                            choices = [choice.strip().strip('"\'') for choice in choices.split(',')]
+                    except:
+                        # If parsing fails, try to extract choices manually
+                        choices_str = choices_match.group(1)
+                        choices = [choice.strip().strip('"\'') for choice in choices_str.split(',')]
+                    
+                    original_sentence = quiz_sentence.replace("_____", answer_word[0])
+                    st.session_state["question_count"] = st.session_state.get("question_count", 0) + 1
+                    return quiz_sentence, answer_word, choices, original_sentence
+
+                # If all parsing attempts fail, raise error with the full response
+                raise ValueError(f"AI 응답 파싱 실패! AI 응답 내용:\n{quiz_text}")
 
         except Exception as e:
             if attempt < max_retries - 1:
-                st.warning(f"문제 생성 중 오류가 발생했습니다. 다시 시도합니다... ({attempt + 1}/{max_retries})")
+                st.warning(f"문제 생성 중 오류가 발생했습니다. {retry_delay}초 후 다시 시도합니다... ({attempt + 1}/{max_retries})")
                 time.sleep(retry_delay)
             else:
-                st.error("문제 생성에 실패했습니다. 잠시 후 다시 시도해주세요.")
-                raise e
+                st.error("""
+                문제 생성에 실패했습니다. 다음 중 하나를 시도해보세요:
+                1. 잠시 후 다시 시도
+                2. 다른 이미지로 시도
+                3. 페이지 새로고침
+                """)
+                return None, None, None, None
 
 def synth_speech(text: str, voice: str, audio_encoding: str = None) -> bytes:
     lang_code = "-".join(voice.split("-")[:2])
@@ -952,6 +949,10 @@ if __name__ == "__main__":
                 reset_quiz()
             else:
                 st.info("이미지를 업로드하면 퀴즈가 시작됩니다!")
+                
+    except Exception as e:
+        st.error(f"오류가 발생했습니다: {str(e)}")
+        st.info("페이지를 새로고침하거나 다시 시도해주세요.") 
                 
     except Exception as e:
         st.error(f"오류가 발생했습니다: {str(e)}")
