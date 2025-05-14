@@ -30,9 +30,6 @@ def init_page():
         layout="wide",
         page_icon="🦜"
     )
-    # Initialize cookie manager after page config
-    global cookie_manager
-    cookie_manager = stx.CookieManager(key="auth_cookie_manager")
 
 def show_auth_page():
     st.markdown(
@@ -69,7 +66,6 @@ def show_auth_page():
                         st.session_state["authenticated"] = True
                         st.session_state["username"] = username
                         st.session_state["user_id"] = user_id
-                        set_auth_cookie(username, user_id)  # Set auth cookie
                         st.success("로그인 성공!")
                         st.rerun()
                     else:
@@ -876,14 +872,13 @@ if __name__ == "__main__":
                             else:
                                 if update_username(st.session_state.get('user_id'), new_username):
                                     st.session_state["username"] = new_username
-                                    
                                     st.success("닉네임이 변경되었습니다!")
                                     st.rerun()
                                 else:
                                     st.error("이미 사용 중인 닉네임입니다.")
                 
                 if st.button("로그아웃", use_container_width=True):
-                    # Clear all session state including image state
+                    # Clear all session state
                     for key in list(st.session_state.keys()):
                         del st.session_state[key]
                     st.rerun()
