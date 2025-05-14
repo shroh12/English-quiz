@@ -834,14 +834,6 @@ if __name__ == "__main__":
         init_score()
         init_question_count()
         
-        # Check authentication from cookie
-        auth_cookie = get_auth_cookie()
-        if auth_cookie and not st.session_state.get("authenticated"):
-            username, user_id = auth_cookie.split(":")
-            st.session_state["authenticated"] = True
-            st.session_state["username"] = username
-            st.session_state["user_id"] = user_id
-        
         # 로그인 상태 확인
         if not st.session_state.get("authenticated", False):
             show_auth_page()
@@ -884,7 +876,7 @@ if __name__ == "__main__":
                             else:
                                 if update_username(st.session_state.get('user_id'), new_username):
                                     st.session_state["username"] = new_username
-                                    set_auth_cookie(new_username, st.session_state.get('user_id'))  # Update cookie
+                                    
                                     st.success("닉네임이 변경되었습니다!")
                                     st.rerun()
                                 else:
@@ -894,7 +886,6 @@ if __name__ == "__main__":
                     # Clear all session state including image state
                     for key in list(st.session_state.keys()):
                         del st.session_state[key]
-                    clear_auth_cookie()  # Clear auth cookie
                     st.rerun()
             
             # 메인 컨텐츠
@@ -953,3 +944,4 @@ if __name__ == "__main__":
     except Exception as e:
         st.error(f"오류가 발생했습니다: {str(e)}")
         st.info("페이지를 새로고침하거나 다시 시도해주세요.") 
+
