@@ -786,20 +786,23 @@ def show_learning_history():
     # 정답 여부 표시를 위한 함수
     def get_result_icon(row):
         return "✅" if row['score'] > 0 else "❌"
-    
-    # 컬럼 이름 변경 및 표시
     history_df['result'] = history_df.apply(get_result_icon, axis=1)
-    
-    # 0점인 경우 점수 표시를 빈 문자열로 변경
-    history_df['score'] = history_df['score'].apply(lambda x: x if x > 0 else '')
-    
+
+    # 누적 점수 계산
+    cumulative_score = []
+    total = 0
+    for s in history_df['score']:
+        if s > 0:
+            total += 10
+        # 오답(0점)은 점수 유지
+        cumulative_score.append(total)
+    history_df['cumulative_score'] = cumulative_score
+
     # 표시할 컬럼만 선택
-    display_df = history_df[['date', 'group_code', 'result', 'score', 'total_questions']]
-    display_df.columns = ['날짜', '시험 유형', '결과', '점수', '문제 수']
+    display_df = history_df[['date', 'group_code', 'result', 'cumulative_score', 'total_questions']]
+    display_df.columns = ['날짜', '시험 유형', '결과', '누적 점수', '문제 수']
     
-    # 필터링된 데이터가 있는 경우에만 표시
     if not display_df.empty:
-        # 데이터프레임을 표시
         st.dataframe(
             display_df,
             use_container_width=True,
@@ -939,4 +942,3 @@ if __name__ == "__main__":
     except Exception as e:
         st.error(f"오류가 발생했습니다: {str(e)}")
         st.info("페이지를 새로고침하거나 다시 시도해주세요.") 
-
