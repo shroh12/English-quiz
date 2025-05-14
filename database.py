@@ -133,14 +133,32 @@ def update_username(user_id, new_username):
     finally:
         conn.close()
 
-def save_learning_history(user_id: int, group_code: str, score: int, total_questions: int, question_content: str = "", feedback: str = "", user_choice: str = "", correct_answer: str = ""):
+def reset_learning_history():
+    """학습 기록을 초기화합니다."""
     try:
         conn = sqlite3.connect(DB_PATH)
         cursor = conn.cursor()
+        cursor.execute("DELETE FROM learning_history")
+        conn.commit()
+        return True
+    except Exception as e:
+        print(f"Error resetting learning history: {e}")
+        return False
+    finally:
+        if conn:
+            conn.close()
+
+def save_learning_history(user_id: int, group_code: str, score: int, total_questions: int, question_content: str = "", feedback: str = "", user_choice: str = "", correct_answer: str = ""):
+    """학습 기록을 저장합니다."""
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+        
+        # 현재 시간을 한국 시간으로 설정
         cursor.execute("""
             INSERT INTO learning_history 
             (user_id, group_code, score, total_questions, question_content, feedback, user_choice, correct_answer, timestamp) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, datetime('now', '+9 hours'))
         """, (user_id, group_code, score, total_questions, question_content, feedback, user_choice, correct_answer))
         conn.commit()
         return True
@@ -152,33 +170,25 @@ def save_learning_history(user_id: int, group_code: str, score: int, total_quest
             conn.close()
 
 def get_learning_history(user_id: int) -> list:
+    """사용자의 학습 기록을 가져옵니다."""
     try:
         conn = sqlite3.connect(DB_PATH)
         cursor = conn.cursor()
         
-        # 먼저 테이블 구조 확인
-        cursor.execute("PRAGMA table_info(learning_history)")
-        columns = [col[1] for col in cursor.fetchall()]
-        
-        # 새로운 스키마 컬럼이 있는지 확인
-        has_new_columns = all(col in columns for col in ['question_content', 'feedback', 'user_choice', 'correct_answer'])
-        
-        if has_new_columns:
-            # 새로운 스키마 사용
-            cursor.execute("""
-                SELECT group_code, score, total_questions, timestamp, question_content, feedback, user_choice, correct_answer
-                FROM learning_history 
-                WHERE user_id = ? 
-                ORDER BY timestamp DESC
-            """, (user_id,))
-        else:
-            # 기존 스키마 사용
-            cursor.execute("""
-                SELECT group_code, score, total_questions, timestamp, NULL as question_content, NULL as feedback, NULL as user_choice, NULL as correct_answer
-                FROM learning_history 
-                WHERE user_id = ? 
-                ORDER BY timestamp DESC
-            """, (user_id,))
+        cursor.execute("""
+            SELECT 
+                group_code,
+                score,
+                total_questions,
+                timestamp,
+                question_content,
+                feedback,
+                user_choice,
+                correct_answer
+            FROM learning_history 
+            WHERE user_id = ? 
+            ORDER BY timestamp DESC
+        """, (user_id,))
             
         return cursor.fetchall()
     except Exception as e:
