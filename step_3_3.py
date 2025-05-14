@@ -34,6 +34,15 @@ def init_page():
     global cookie_manager
     cookie_manager = stx.CookieManager(key="auth_cookie_manager")
 
+def get_auth_cookie():
+    return cookie_manager.get("auth")
+
+def set_auth_cookie(username, user_id):
+    cookie_manager.set("auth", f"{username}:{user_id}", expires_at=pd.Timestamp.now() + pd.Timedelta(days=7))
+
+def clear_auth_cookie():
+    cookie_manager.delete("auth")
+
 def show_auth_page():
     st.markdown(
         """
@@ -788,8 +797,8 @@ def show_learning_history():
     # 컬럼 이름 변경 및 표시
     history_df['result'] = history_df.apply(get_result_icon, axis=1)
     
-    # 음수 점수를 0으로 변경
-    history_df['score'] = history_df['score'].clip(lower=0)
+    # 0점인 경우 점수 표시를 빈 문자열로 변경
+    history_df['score'] = history_df['score'].apply(lambda x: x if x > 0 else '')
     
     # 표시할 컬럼만 선택
     display_df = history_df[['date', 'group_code', 'result', 'score', 'total_questions']]
