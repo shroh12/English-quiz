@@ -761,7 +761,7 @@ def show_learning_history():
         return
 
     # 데이터프레임 생성
-    history_df = pd.DataFrame(history, columns=['group_code', 'score', 'total_questions', 'timestamp', 'question_content', 'feedback', 'user_choice', 'correct_answer'])
+    history_df = pd.DataFrame(history, columns=['group_code', 'score', 'total_questions', 'timestamp'])
     
     # 날짜/시간 포맷 변경
     history_df['timestamp'] = pd.to_datetime(history_df['timestamp'])
