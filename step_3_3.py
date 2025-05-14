@@ -783,6 +783,9 @@ def show_learning_history():
     # 컬럼 이름 변경 및 표시
     history_df['result'] = history_df.apply(get_result_icon, axis=1)
     
+    # 음수 점수를 0으로 변경
+    history_df['score'] = history_df['score'].clip(lower=0)
+    
     # 표시할 컬럼만 선택
     display_df = history_df[['date', 'group_code', 'result', 'score', 'total_questions']]
     display_df.columns = ['날짜', '시험 유형', '결과', '점수', '문제 수']
