@@ -9,4 +9,6 @@ nltk==3.8.1
 python-dotenv==1.0.1
 pandas==2.2.1
 protobuf>=4.25.1
+sqlalchemy>=1.4
+psycopg2>=2.9
 
